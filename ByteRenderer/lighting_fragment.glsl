@@ -4,9 +4,9 @@ out vec4 FragColor;
 
 in vec2 vTexCoords;
 
-uniform sampler2D vPosition;
-uniform sampler2D vNormal;
-uniform sampler2D vAlbedoSpec;
+uniform sampler2D uPosition;
+uniform sampler2D uNormal;
+uniform sampler2D uAlbedoSpec;
 
 uniform vec3 uViewPos;
 
@@ -19,10 +19,10 @@ uniform DirectionalLight uDirectionalLight;
 
 void main()
 {
-    vec3 fragPos = texture(vPosition, vTexCoords).rgb;
-    vec3 normal = normalize(texture(vNormal, vTexCoords).rgb);
-    vec3 albedo = texture(vAlbedoSpec, vTexCoords).rgb;
-    float specularStrength = texture(vAlbedoSpec, vTexCoords).a;
+    vec3 fragPos = texture(uPosition, vTexCoords).rgb;
+    vec3 normal = normalize(texture(uNormal, vTexCoords).rgb);
+    vec3 albedo = texture(uAlbedoSpec, vTexCoords).rgb;
+    float specularStrength = texture(uAlbedoSpec, vTexCoords).a;
 
     vec3 ambient = 0.1 * albedo;
 

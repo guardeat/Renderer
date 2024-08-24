@@ -31,16 +31,16 @@ namespace Byte {
         ~Shader() = default;
 
         void bind() const {
-            OpenglAPI::ShaderAPI::bind(_id);
+            OpenglAPI::bindProgram(_id);
         }
 
         void unbind() const {
-            OpenglAPI::ShaderAPI::bind(0);
+            OpenglAPI::bindProgram(0);
         }
 
         template<typename Type>
         void uniform(const std::string& name, const Type& value) const {
-            OpenglAPI::ShaderAPI::uniform(_id, name, value);
+            OpenglAPI::uniform(_id, name, value);
         }
 
         uint32_t id() const {
@@ -59,16 +59,16 @@ namespace Byte {
 
             shader._id = createProgram(vertexShader, fragmentShader);
 
-            OpenglAPI::ShaderAPI::clearShader(vertexShader);
-            OpenglAPI::ShaderAPI::clearShader(fragmentShader);
+            OpenglAPI::deleteShader(vertexShader);
+            OpenglAPI::deleteShader(fragmentShader);
         }
 
         static uint32_t compile(const std::string& shaderPath, GLenum shaderType) {
-            return OpenglAPI::ShaderAPI::compile(shaderPath, shaderType);
+            return OpenglAPI::compile(shaderPath, shaderType);
         }
 
         static uint32_t createProgram(uint32_t vertexShader, uint32_t fragmentShader) {
-            return OpenglAPI::ShaderAPI::createProgram(vertexShader, fragmentShader);
+            return OpenglAPI::createProgram(vertexShader, fragmentShader);
         }
     };
 

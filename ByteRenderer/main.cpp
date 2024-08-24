@@ -33,6 +33,13 @@ int main() {
 	cubeMaterial.albedo(Vec4{ 1.0f,0.0f,0.0f,0.0f });
 	Transform cubeTransform;
 
+	Mesh cube2{ createSphere(10,20) };
+	Material cubeMaterial2{};
+	cubeMaterial2.shaderTag("default_defered");
+	cubeMaterial2.albedo(Vec4{ 0.0f,1.0f,0.0f,0.0f });
+	Transform cubeTransform2;
+	cubeTransform2.position(Vec3(10.0f,10.0f,0.0f));
+
 	DirectionalLight dLight;
 	Transform dLightTransform;
 
@@ -41,6 +48,9 @@ int main() {
 	context.meshes.push_back(&cube);
 	context.materials.push_back(&cubeMaterial);
 	context.transforms.push_back(&cubeTransform);
+	context.meshes.push_back(&cube2);
+	context.materials.push_back(&cubeMaterial2);
+	context.transforms.push_back(&cubeTransform2);
 	context.directionalLight = &dLight;
 	context.directionalLightTransform = &dLightTransform;
 
@@ -49,6 +59,8 @@ int main() {
 		renderer.update(window);
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
+
+		dLightTransform.rotate(Vec3(0.1f, 0.0f, 0.0f));
 	}
 
 	return 0;

@@ -35,9 +35,9 @@ namespace Byte {
 			data.width = window.width();
 			data.height = window.height();
 
-			data.gBuffer = GBuffer{ OpenglAPI::GBufferAPI::build(data.width, data.height) };
+			data.gBuffer = GBuffer{ OpenglAPI::buildGbuffer(data.width, data.height) };
 
-			data.quad.renderArray = OpenglAPI::RenderArrayAPI::quad(
+			data.quad.renderArray = OpenglAPI::buildQuad(
 				data.quad.positions,
 				data.quad.indices);
 
@@ -79,7 +79,7 @@ namespace Byte {
 	private:
 		void fillMesh(Mesh& mesh) {
 			bool isStatic = mesh.meshMode() == MeshMode::STATIC;
-			mesh.data.renderArray = OpenglAPI::RenderArrayAPI::build(mesh.data.geometry, isStatic);
+			mesh.data.renderArray = OpenglAPI::buildRenderArray(mesh.data.geometry, isStatic);
 		}
 	};
 

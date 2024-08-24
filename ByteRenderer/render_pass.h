@@ -46,24 +46,13 @@ namespace Byte {
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 
-				OpenglAPI::DrawAPI::elements(mesh.index().size());
+				OpenglAPI::drawElements(mesh.index().size());
 
 				shader.unbind();
 				mesh.renderArray().unbind();
 			}
 
-			OpenglAPI::GBufferAPI::updateDepth(data.gBuffer.data(), data.width, data.height);
-
 			data.gBuffer.unbind();
-
-			Shader& quadShader{ data.shaderMap["quad_shader"] };
-			quadShader.bind();
-			quadShader.uniform("uAlbedoSpecular", 0);
-			data.quad.renderArray.bind();
-			OpenglAPI::TextureAPI::bind(data.gBuffer.data().albedoSpecular);
-			//OpenglAPI::DrawAPI::quad();
-			data.quad.renderArray.unbind();
-			quadShader.unbind();
 		}
 
 	};
@@ -71,6 +60,8 @@ namespace Byte {
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
+			OpenglAPI::clearBuffer();
+
 			Shader& lightingShader = data.shaderMap["lighting_shader"];
 			lightingShader.bind();
 
@@ -87,20 +78,21 @@ namespace Byte {
 				"uDirectionalLight.color",
 				context.directionalLight->color);
 
-			OpenglAPI::TextureAPI::bind(data.gBuffer.data().position, GL_TEXTURE0);
-			OpenglAPI::TextureAPI::bind(data.gBuffer.data().normal, GL_TEXTURE1);
-			OpenglAPI::TextureAPI::bind(data.gBuffer.data().albedoSpecular, GL_TEXTURE2);
+			OpenglAPI::bindTexture(data.gBuffer.data().position, GL_TEXTURE0);
+			OpenglAPI::bindTexture(data.gBuffer.data().normal, GL_TEXTURE1);
+			OpenglAPI::bindTexture(data.gBuffer.data().albedoSpecular, GL_TEXTURE2);
 
 			data.quad.renderArray.bind();
 
-			OpenglAPI::DrawAPI::quad();
+			OpenglAPI::drawQuad();
 
 			data.quad.renderArray.unbind();
 
 			lightingShader.unbind();
+
+			OpenglAPI::updateDepth(data.gBuffer.data(), data.width, data.height);
+
 		}
 	};
-
-
 
 }

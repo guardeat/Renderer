@@ -42,11 +42,11 @@ namespace Byte {
 		}
 
 		void bind() {
-			OpenglAPI::GBufferAPI::bind(_data);
+			OpenglAPI::bindGBuffer(_data);
 		}
 
 		void unbind() {
-			OpenglAPI::GBufferAPI::unbind();
+			OpenglAPI::unbindGBuffer();
 		}
 
 		const GBufferData& data() const {
@@ -54,11 +54,11 @@ namespace Byte {
 		}
 
 		void clearContent() {
-			OpenglAPI::GBufferAPI::clearContent(_data);
+			OpenglAPI::clearBuffer(_data);
 		}
 
 		void clear() {
-			OpenglAPI::GBufferAPI::clear(_data);
+			OpenglAPI::deleteGbuffer(_data);
 
 			_data.id = 0;
 			_data.position = 0;
