@@ -1,7 +1,5 @@
 #pragma once
 
-#include "iostream"
-
 #include "render_context.h"
 #include "render_data.h"
 #include "mesh.h"
@@ -72,27 +70,38 @@ namespace Byte {
 			lightingShader.uniform<Vec3>("uViewPos", context.mainCameraTransform->position());
 
 			lightingShader.uniform<Vec3>(
-				"uDirectionalLight.direction", 
+				"uDirectionalLight.direction",
 				context.directionalLightTransform->front());
 			lightingShader.uniform<Vec3>(
 				"uDirectionalLight.color",
 				context.directionalLight->color);
+			lightingShader.uniform<float>(
+				"uDirectionalLight.intensity",
+				context.directionalLight->intensity);
 
 			OpenglAPI::bindTexture(data.gBuffer.data().position, GL_TEXTURE0);
 			OpenglAPI::bindTexture(data.gBuffer.data().normal, GL_TEXTURE1);
 			OpenglAPI::bindTexture(data.gBuffer.data().albedoSpecular, GL_TEXTURE2);
 
-			data.quad.renderArray.bind();
+			data.quad.renderArray().bind();
 
 			OpenglAPI::drawQuad();
 
-			data.quad.renderArray.unbind();
+			data.quad.renderArray().unbind();
 
 			lightingShader.unbind();
 
 			OpenglAPI::updateDepth(data.gBuffer.data(), data.width, data.height);
-
 		}
+
+	};
+
+	class ShadowPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			
+		}
+
 	};
 
 }

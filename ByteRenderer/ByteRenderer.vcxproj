@@ -156,7 +156,7 @@
     <ClInclude Include="mat.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="solid_geometry.h" />
+    <ClInclude Include="mesh_geometry.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="opengl_api.h" />

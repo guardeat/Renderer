@@ -86,7 +86,7 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="solid_geometry.h">
+    <ClInclude Include="mesh_geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render_array_data.h">

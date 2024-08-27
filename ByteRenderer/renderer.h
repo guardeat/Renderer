@@ -37,9 +37,7 @@ namespace Byte {
 
 			data.gBuffer = GBuffer{ OpenglAPI::buildGbuffer(data.width, data.height) };
 
-			data.quad.renderArray = OpenglAPI::buildQuad(
-				data.quad.positions,
-				data.quad.indices);
+			data.quad.renderArray(OpenglAPI::buildQuad(data.quad.geometry()));
 
 			compileShaders(config);
 		}

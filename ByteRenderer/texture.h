@@ -10,15 +10,13 @@ namespace Byte {
 
 	class Texture {
 	private:
-		TextureID id{ 0 };
-
 		using STextureData = std::shared_ptr<TextureData>;
 		STextureData data;
 
 	public:
 		Texture() = default;
 
-		Texture(TextureID id, TextureData& data) 
+		Texture(TextureData& data) 
 			:data{ &data } {
 		}
 

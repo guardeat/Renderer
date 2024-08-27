@@ -1,8 +1,8 @@
 #version 330 core
 
-out vec4 FragColor;
-
 in vec2 vTexCoords;
+
+out vec4 FragColor;
 
 uniform sampler2D uPosition;
 uniform sampler2D uNormal;
@@ -13,6 +13,7 @@ uniform vec3 uViewPos;
 struct DirectionalLight {
     vec3 direction;
     vec3 color;
+    float intensity;
 };
 
 uniform DirectionalLight uDirectionalLight;
@@ -24,7 +25,7 @@ void main()
     vec3 albedo = texture(uAlbedoSpec, vTexCoords).rgb;
     float specularStrength = texture(uAlbedoSpec, vTexCoords).a;
 
-    vec3 ambient = 0.1 * albedo;
+    vec3 ambient = uDirectionalLight.intensity * albedo;
 
     vec3 lightDir = normalize(-uDirectionalLight.direction);
     float diff = max(dot(normal, lightDir), 0.0);

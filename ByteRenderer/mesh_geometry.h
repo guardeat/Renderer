@@ -7,7 +7,7 @@
 
 namespace Byte {
 
-	struct SolidGeometry {
+	struct MeshGeometry {
 		Buffer<float> position;
 		Buffer<float> normal;
 		Buffer<float> uv1;
