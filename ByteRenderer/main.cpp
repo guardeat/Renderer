@@ -20,7 +20,7 @@ int main() {
 
 	renderer.initialize(window, config);
 
-	RenderContext context;
+	SceneContext context;
 
 	Camera camera;
 	Transform transform;

@@ -2,29 +2,31 @@
 
 #include <cstdint>
 #include <cmath>
+#include <utility> 
 
-#include "mesh_geometry.h"
 #include "buffer.h"
 #include "render_array.h"
 
 namespace Byte {
+
+	struct MeshGeometry {
+		Buffer<float> position;
+		Buffer<float> normal;
+		Buffer<float> uv1;
+		Buffer<uint32_t> index;
+		Buffer<float> uv2;
+	};
 
 	enum class MeshMode : uint8_t {
 		STATIC,
 		DYNAMIC,
 	};
 
-	struct MeshData {
-		MeshGeometry geometry;
-
-		MeshMode meshMode{ MeshMode::STATIC };
-
-		RenderArray renderArray;
-	};
-
 	class Mesh {
 	private:
-		MeshData data;
+		MeshGeometry _geometry;
+		MeshMode _meshMode{ MeshMode::STATIC };
+		RenderArray _renderArray;
 
 		friend class Renderer;
 
@@ -32,48 +34,49 @@ namespace Byte {
 		Mesh() = default;
 
 		Mesh(
-			Buffer<float>&& _position,
-			Buffer<float>&& _normal,
-			Buffer<float>&& _uv,
-			Buffer<uint32_t>&& _index,
-			MeshMode _meshMode = MeshMode::STATIC) 
-			: data{ {_position,_normal,_uv,_index},_meshMode } {
-		}
+			Buffer<float>&& position,
+			Buffer<float>&& normal,
+			Buffer<float>&& uv1,
+			Buffer<uint32_t>&& index,
+			MeshMode meshMode = MeshMode::STATIC)
+			: _geometry{ std::move(position), std::move(normal), std::move(uv1), std::move(index), {} },
+			_meshMode{ meshMode }
+		{}
 
 		const Buffer<float>& position() const {
-			return data.geometry.position;
+			return _geometry.position;
 		}
 
 		const Buffer<float>& normal() const {
-			return data.geometry.normal;
+			return _geometry.normal;
 		}
 
 		const Buffer<float>& uv1() const {
-			return data.geometry.uv1;
+			return _geometry.uv1;
 		}
 
 		const Buffer<uint32_t>& index() const {
-			return data.geometry.index;
-		}
-
-		MeshMode meshMode() const {
-			return data.meshMode;
-		}
-
-		const RenderArray& renderArray() const {
-			return data.renderArray;
-		}
-
-		void renderArray(RenderArray&& _renderArray) {
-			data.renderArray = std::move(_renderArray);
+			return _geometry.index;
 		}
 
 		const Buffer<float>& uv2() const {
-			return data.geometry.uv2;
+			return _geometry.uv2;
+		}
+
+		MeshMode meshMode() const {
+			return _meshMode;
+		}
+
+		const RenderArray& renderArray() const {
+			return _renderArray;
+		}
+
+		void renderArray(RenderArray&& renderArray) {
+			_renderArray = std::move(renderArray);
 		}
 
 		const MeshGeometry& geometry() const {
-			return data.geometry;
+			return _geometry;
 		}
 
 		static Mesh sphere(float radius, size_t numSegments) {

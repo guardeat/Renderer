@@ -8,13 +8,10 @@
 #include "stb_image.h"
 
 #include "window.h"
-#include "texture_data.h"
-#include "mesh_geometry.h"
-#include "render_array_data.h"
-#include "g_buffer_data.h"
 #include "mat.h"
 #include "vec.h"
 #include "quaternion.h"
+#include "render_component.h"
 
 namespace Byte {
 
@@ -71,40 +68,46 @@ namespace Byte {
             glBindVertexArray(0);
         }
       
-        static RArrayData buildRenderArray(MeshGeometry& geometry, bool isStatic) {
-            uint32_t VAO, VBO, NBO, UVBO, UV2BO, EBO;
+        static RArrayData buildRenderArray(
+            const Buffer<float>& position,
+            const Buffer<float>& normal,
+            const Buffer<float>& uv1,
+            const Buffer<uint32_t>& index,
+            const Buffer<float>& uv2,
+            bool isStatic) {
+            uint32_t VAO, PBO, NBO, UVBO, UV2BO, EBO;
 
             auto draw = isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 
             glGenVertexArrays(1, &VAO);
             glBindVertexArray(VAO);
 
-            glGenBuffers(1, &VBO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, geometry.position.size() * sizeof(float), geometry.position.data(), draw);
+            glGenBuffers(1, &PBO);
+            glBindBuffer(GL_ARRAY_BUFFER, PBO);
+            glBufferData(GL_ARRAY_BUFFER, position.size() * sizeof(float), position.data(), draw);
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(0);
 
             glGenBuffers(1, &NBO);
             glBindBuffer(GL_ARRAY_BUFFER, NBO);
-            glBufferData(GL_ARRAY_BUFFER, geometry.normal.size() * sizeof(float), geometry.normal.data(), draw);
+            glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(float), normal.data(), draw);
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(1);
 
             glGenBuffers(1, &UVBO);
             glBindBuffer(GL_ARRAY_BUFFER, UVBO);
-            glBufferData(GL_ARRAY_BUFFER, geometry.uv1.size() * sizeof(float), geometry.uv1.data(), draw);
+            glBufferData(GL_ARRAY_BUFFER, uv1.size() * sizeof(float), uv1.data(), draw);
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(2);
 
             glGenBuffers(1, &EBO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, geometry.index.size() * sizeof(uint32_t), geometry.index.data(), draw);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index.size() * sizeof(uint32_t), index.data(), draw);
 
-            if (!geometry.uv2.empty()) {
+            if (!uv2.empty()) {
                 glGenBuffers(1, &UV2BO);
                 glBindBuffer(GL_ARRAY_BUFFER, UV2BO);
-                glBufferData(GL_ARRAY_BUFFER, geometry.uv2.size() * sizeof(float), geometry.uv2.data(), draw);
+                glBufferData(GL_ARRAY_BUFFER, uv2.size() * sizeof(float), uv2.data(), draw);
                 glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
                 glEnableVertexAttribArray(3);
             }
@@ -114,10 +117,27 @@ namespace Byte {
 
             glBindVertexArray(0);
 
-            return RArrayData{ VAO, VBO, NBO, UVBO, EBO, UV2BO };
+            return RArrayData{ VAO, PBO, NBO, UVBO, EBO, UV2BO };
         }
 
-        static RArrayData buildQuad(const MeshGeometry& geometry) {
+        static RArrayData buildQuad() {
+            static const Buffer<float> position {
+                -1.0f, 1.0f, 0.0f,
+                -1.0f, -1.0f, 0.0f,
+                 1.0f, 1.0f, 0.0f,
+                 1.0f, -1.0f, 0.0f
+            };
+            static const Buffer<float> uv {
+                0.0f, 1.0f,
+                0.0f, 0.0f,
+                1.0f, 1.0f,
+                1.0f, 0.0f
+            };
+            static const Buffer<uint32_t> index{
+                0, 1, 2,
+                1, 3, 2
+            };
+
             uint32_t VAO, VBO, UVBO, EBO;
 
             glGenVertexArrays(1, &VAO);
@@ -127,8 +147,8 @@ namespace Byte {
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(
                 GL_ARRAY_BUFFER,
-                geometry.position.size() * sizeof(float),
-                geometry.position.data(),
+                position.size() * sizeof(float),
+                position.data(),
                 GL_STATIC_DRAW);
 
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -138,8 +158,8 @@ namespace Byte {
             glBindBuffer(GL_ARRAY_BUFFER, UVBO);
             glBufferData(
                 GL_ARRAY_BUFFER,
-                geometry.uv1.size() * sizeof(float),
-                geometry.uv1.data(),
+                uv.size() * sizeof(float),
+                uv.data(),
                 GL_STATIC_DRAW);
 
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
@@ -149,8 +169,8 @@ namespace Byte {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glBufferData(
                 GL_ELEMENT_ARRAY_BUFFER, 
-                geometry.index.size() * sizeof(uint32_t), 
-                geometry.index.data(), 
+                index.size() * sizeof(uint32_t), 
+                index.data(), 
                 GL_STATIC_DRAW);
 
             glBindVertexArray(0);
@@ -160,7 +180,7 @@ namespace Byte {
 
         static void deleteRenderArray(RArrayData& renderArraydata) {
             glDeleteVertexArrays(1, &renderArraydata.VAO);
-            glDeleteBuffers(1, &renderArraydata.VBO);
+            glDeleteBuffers(1, &renderArraydata.PBO);
             glDeleteBuffers(1, &renderArraydata.NBO);
             glDeleteBuffers(1, &renderArraydata.UVBO);
             glDeleteBuffers(1, &renderArraydata.EBO);

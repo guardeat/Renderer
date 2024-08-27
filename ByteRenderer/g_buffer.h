@@ -1,6 +1,6 @@
 #pragma once
 
-#include "g_buffer_data.h"
+#include "render_component.h"
 #include "opengl_api.h"
 
 namespace Byte {

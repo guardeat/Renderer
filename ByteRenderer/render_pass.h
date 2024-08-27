@@ -1,22 +1,21 @@
 #pragma once
 
-#include "render_context.h"
-#include "render_data.h"
 #include "mesh.h"
 #include "material.h"
 #include "transform.h"
 #include "mat.h"
+#include "context.h"
 
 namespace Byte {
 
 	class RenderPass {
 	public:
-		virtual void render(RenderContext& context, RenderData& data) = 0;
+		virtual void render(SceneContext& context, RenderContext& data) = 0;
 	};
 
 	class GeometryPass : public RenderPass {
 	public:
-		void render(RenderContext& context, RenderData& data) override {
+		void render(SceneContext& context, RenderContext& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			Mat4 projection{ context.mainCamera->projection(aspectRatio) };
 			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
@@ -57,7 +56,7 @@ namespace Byte {
 
 	class LightingPass : public RenderPass {
 	public:
-		void render(RenderContext& context, RenderData& data) override {
+		void render(SceneContext& context, RenderContext& data) override {
 			OpenglAPI::clearBuffer();
 
 			Shader& lightingShader = data.shaderMap["lighting_shader"];
@@ -83,11 +82,11 @@ namespace Byte {
 			OpenglAPI::bindTexture(data.gBuffer.data().normal, GL_TEXTURE1);
 			OpenglAPI::bindTexture(data.gBuffer.data().albedoSpecular, GL_TEXTURE2);
 
-			data.quad.renderArray().bind();
+			data.quad.bind();
 
 			OpenglAPI::drawQuad();
 
-			data.quad.renderArray().unbind();
+			data.quad.unbind();
 
 			lightingShader.unbind();
 
@@ -98,7 +97,7 @@ namespace Byte {
 
 	class ShadowPass : public RenderPass {
 	public:
-		void render(RenderContext& context, RenderData& data) override {
+		void render(SceneContext& context, RenderContext& data) override {
 			
 		}
 

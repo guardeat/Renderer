@@ -140,14 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
-    <ClCompile Include="g_buffer_data.h" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="render_context.h" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="buffer.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="context.h" />
     <ClInclude Include="forward_fragment.glsl" />
     <ClInclude Include="default_vertex.glsl" />
     <ClInclude Include="light.h" />
@@ -156,19 +155,17 @@
     <ClInclude Include="mat.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="mesh_geometry.h" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="opengl_api.h" />
     <ClInclude Include="render_array.h" />
-    <ClInclude Include="render_array_data.h" />
-    <ClInclude Include="render_data.h" />
+    <ClInclude Include="render_component.h" />
     <ClInclude Include="render_pass.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shadow_buffer.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="test.h" />
     <ClInclude Include="texture.h" />
-    <ClInclude Include="texture_data.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="trigonometry.h" />
     <ClInclude Include="vec.h" />

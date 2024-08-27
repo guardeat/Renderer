@@ -2,16 +2,16 @@
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
-#include "render_context.h"
 #include "render_pass.h"
 #include "mesh.h"
 #include "window.h"
 #include "material.h"
 #include "transform.h"
 #include "camera.h"
-#include "render_data.h"
-#include "render_context.h"
+#include "light.h"
+#include "render_component.h"
 
 namespace Byte {
 
@@ -25,7 +25,7 @@ namespace Byte {
 		using URenderPass = std::unique_ptr<RenderPass>;
 		using Pipeline = std::vector<URenderPass>;
 
-		RenderData data;
+		RenderContext data;
 		Pipeline pipeline;
 
 	public:
@@ -37,12 +37,12 @@ namespace Byte {
 
 			data.gBuffer = GBuffer{ OpenglAPI::buildGbuffer(data.width, data.height) };
 
-			data.quad.renderArray(OpenglAPI::buildQuad(data.quad.geometry()));
+			data.quad = OpenglAPI::buildQuad();
 
 			compileShaders(config);
 		}
 
-		void render(RenderContext& context) {
+		void render(SceneContext& context) {
 			for (Mesh* mesh : context.meshes) {
 				if (mesh->renderArray().data().VAO == 0) {
 					fillMesh(*mesh);
@@ -77,7 +77,13 @@ namespace Byte {
 	private:
 		void fillMesh(Mesh& mesh) {
 			bool isStatic = mesh.meshMode() == MeshMode::STATIC;
-			mesh.data.renderArray = OpenglAPI::buildRenderArray(mesh.data.geometry, isStatic);
+			mesh._renderArray = OpenglAPI::buildRenderArray(
+				mesh.position(), 
+				mesh.normal(), 
+				mesh.uv1(),
+				mesh.index(),
+				mesh.uv2(),
+				isStatic);
 		}
 	};
 

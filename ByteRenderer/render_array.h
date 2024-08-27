@@ -3,7 +3,7 @@
 #include <cstdint>
 
 #include "opengl_api.h"
-#include "render_array_data.h"
+#include "render_component.h"
 
 namespace Byte {
 
@@ -22,7 +22,7 @@ namespace Byte {
 			: _data{right._data} {
 
 			right._data.VAO = 0;
-			right._data.VBO = 0;
+			right._data.PBO = 0;
 			right._data.NBO = 0;
 			right._data.UVBO = 0;
 			right._data.EBO = 0;
@@ -35,7 +35,7 @@ namespace Byte {
 			_data = right._data;
 
 			right._data.VAO = 0;
-			right._data.VBO = 0;
+			right._data.PBO = 0;
 			right._data.NBO = 0;
 			right._data.UVBO = 0;
 			right._data.EBO = 0;
@@ -64,7 +64,7 @@ namespace Byte {
 			OpenglAPI::deleteRenderArray(_data);
 
 			_data.VAO = 0;
-			_data.VBO = 0;
+			_data.PBO = 0;
 			_data.NBO = 0;
 			_data.UVBO = 0;
 			_data.EBO	= 0;
