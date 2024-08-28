@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 
-#include "render_component.h"
+#include "render_data.h"
 
 namespace Byte {
 

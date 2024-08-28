@@ -11,7 +11,7 @@
 #include "transform.h"
 #include "camera.h"
 #include "light.h"
-#include "render_component.h"
+#include "render_data.h"
 
 namespace Byte {
 

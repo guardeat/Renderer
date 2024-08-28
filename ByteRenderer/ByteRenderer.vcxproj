@@ -159,12 +159,11 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="opengl_api.h" />
     <ClInclude Include="render_array.h" />
-    <ClInclude Include="render_component.h" />
+    <ClInclude Include="render_data.h" />
     <ClInclude Include="render_pass.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shadow_buffer.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="test.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="transform.h" />
     <ClInclude Include="trigonometry.h" />
