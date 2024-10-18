@@ -7,7 +7,7 @@
 #include "typedefs.h"
 #include "opengl_api.h"
 #include "texture.h"
-#include "g_buffer.h"
+#include "framebuffer.h"
 #include "light.h"
 #include "camera.h"
 

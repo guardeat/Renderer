@@ -12,7 +12,7 @@
 #include "camera.h"
 #include "light.h"
 #include "typedefs.h"
-#include "g_buffer.h"
+#include "framebuffer.h"
 
 namespace Byte {
 
