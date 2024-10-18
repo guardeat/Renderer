@@ -56,14 +56,6 @@ namespace Byte {
 		TextureMap textures;
 	};
 
-	struct GBufferData {
-		BufferID id;
-
-		TextureID position;
-		TextureID normal;
-		TextureID albedoSpecular;
-	};
-
 	struct RArrayData {
 		RArrayID VAO{ 0 };
 		RBufferID PBO{ 0 };
