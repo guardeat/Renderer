@@ -29,7 +29,7 @@ namespace Byte {
 		size_t height{ 0 };
 		size_t width{ 0 };
 
-		GBuffer gBuffer{};
+		Framebuffer gBuffer{};
 		Texture shadowMap;
 
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
@@ -73,7 +73,7 @@ namespace Byte {
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 
-				OpenglAPI::drawElements(mesh.index().size());
+				OpenglAPI::Draw::elements(mesh.index().size());
 
 				shader.unbind();
 				mesh.renderArray().unbind();
@@ -87,7 +87,7 @@ namespace Byte {
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenglAPI::clearBuffer();
+			OpenglAPI::Framebuffer::clear(0);
 
 			Shader& lightingShader = data.shaderMap["lighting_shader"];
 			lightingShader.bind();
@@ -108,21 +108,19 @@ namespace Byte {
 				"uDirectionalLight.intensity",
 				context.directionalLight->intensity);
 
-			OpenglAPI::bindTexture(data.gBuffer.data().position, GL_TEXTURE0);
-			OpenglAPI::bindTexture(data.gBuffer.data().normal, GL_TEXTURE1);
-			OpenglAPI::bindTexture(data.gBuffer.data().albedoSpecular, GL_TEXTURE2);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("position"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("normal"), GL_TEXTURE1);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE2);
 
 			data.quad.bind();
 
-			OpenglAPI::drawQuad();
+			OpenglAPI::Draw::quad();
 
 			data.quad.unbind();
 
 			lightingShader.unbind();
 
-			OpenglAPI::updateDepth(data.gBuffer.data(), data.width, data.height);
-
-			OpenglAPI::blitToGBuffer(data.gBuffer.data(), data.width, data.height);
+			OpenglAPI::Framebuffer::blitDepth(0, data.gBuffer.data().id, data.width, data.height);
 		}
 
 	};
@@ -130,7 +128,7 @@ namespace Byte {
 	class ShadowPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			
+
 		}
 
 	};

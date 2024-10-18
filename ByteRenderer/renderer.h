@@ -36,9 +36,20 @@ namespace Byte {
 			data.width = window.width();
 			data.height = window.height();
 
-			data.gBuffer = GBuffer{ OpenglAPI::buildGbuffer(data.width, data.height) };
+			FramebufferConfig gBufferConfig;
 
-			data.quad = OpenglAPI::buildQuad();
+			gBufferConfig.width = data.width;
+			gBufferConfig.height = data.height;
+
+			gBufferConfig.attachments = {
+				{ "position", 0, GL_RGBA16F, GL_RGBA, GL_FLOAT },
+				{ "normal", 1, GL_RGBA16F, GL_RGBA, GL_FLOAT },     
+				{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+			};
+
+			data.gBuffer = FramebufferData{ OpenglAPI::Framebuffer::build(gBufferConfig) };
+
+			data.quad = OpenglAPI::RArray::buildQuad();
 
 			compileShaders(config);
 		}
@@ -78,7 +89,7 @@ namespace Byte {
 	private:
 		void fillMesh(Mesh& mesh) {
 			bool isStatic = mesh.meshMode() == MeshMode::STATIC;
-			mesh._renderArray = OpenglAPI::buildRenderArray(
+			mesh._renderArray = OpenglAPI::RArray::build(
 				mesh.position(), 
 				mesh.normal(), 
 				mesh.uv1(),

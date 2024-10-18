@@ -3,6 +3,10 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <unordered_map>
+
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 
 namespace Byte {
 
@@ -27,10 +31,29 @@ namespace Byte {
 		std::unique_ptr<uint8_t[]> data;
 	};
 
-	struct ShadowBufferData {
+	struct FramebufferConfig {
+		struct TextureAttachment {
+			std::string tag;
+			uint32_t index;
+			GLenum internalFormat{ GL_RGBA };
+			GLenum format{ GL_RGBA };
+			GLenum type{ GL_UNSIGNED_BYTE };
+		};
+
+		using AttachmentContainer = std::vector<TextureAttachment>;
+
+		AttachmentContainer attachments;
+
+		size_t width;
+		size_t height;
+	};
+
+	struct FramebufferData {
 		BufferID id;
 
-		TextureID depth;
+		using TextureMap = std::unordered_map<std::string, TextureID>;
+
+		TextureMap textures;
 	};
 
 	struct GBufferData {

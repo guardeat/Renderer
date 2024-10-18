@@ -5,65 +5,55 @@
 
 namespace Byte {
 
-	class GBuffer {
+	class Framebuffer {
 	private:
-		GBufferData _data;
+		FramebufferData _data;
 
 	public:
-		GBuffer() = default;
+		Framebuffer() = default;
 
-		GBuffer(GBufferData&& _data)
+		Framebuffer(FramebufferData&& _data)
 			:_data{ _data } {
 		}
 
-		GBuffer(GBuffer&& right) noexcept
-			:_data{right._data} {
+		Framebuffer(Framebuffer&& right) noexcept
+			: _data{ std::move(right._data) } {
 			right._data.id = 0;
-			right._data.position = 0;
-			right._data.normal = 0;
-			right._data.albedoSpecular = 0;
 		}
 
-		GBuffer& operator=(GBuffer&& right) noexcept {
+		Framebuffer& operator=(Framebuffer&& right) noexcept {
 			clear();
-
-			_data = right._data;
-
+			_data = std::move(right._data);
 			right._data.id = 0;
-			right._data.position = 0;
-			right._data.normal = 0;
-			right._data.albedoSpecular = 0;
 
 			return *this;
 		}
 
-		~GBuffer() {
+		~Framebuffer() {
 			clear();
 		}
 
 		void bind() {
-			OpenglAPI::bindGBuffer(_data);
+			OpenglAPI::Framebuffer::bind(_data.id);
 		}
 
 		void unbind() {
-			OpenglAPI::unbindGBuffer();
+			OpenglAPI::Framebuffer::unbind();
 		}
 
-		const GBufferData& data() const {
+		const FramebufferData& data() const {
 			return _data;
 		}
 
 		void clearContent() {
-			OpenglAPI::clearBuffer(_data);
+			OpenglAPI::Framebuffer::clear(_data.id);
 		}
 
 		void clear() {
-			OpenglAPI::deleteGbuffer(_data);
+			OpenglAPI::Framebuffer::release(_data);
 
 			_data.id = 0;
-			_data.position = 0;
-			_data.normal = 0;
-			_data.albedoSpecular = 0;
+			_data.textures.clear();
 		}
 	};
 

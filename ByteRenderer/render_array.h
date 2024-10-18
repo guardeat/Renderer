@@ -49,11 +49,11 @@ namespace Byte {
 		}
 
 		void bind() const {
-			OpenglAPI::bindRenderArray(_data.VAO);
+			OpenglAPI::RArray::bind(_data.VAO);
 		}
 
 		void unbind() const {
-			OpenglAPI::unbindRenderArray();
+			OpenglAPI::RArray::unbind();
 		}
 
 		const RArrayData& data() const {
@@ -61,7 +61,7 @@ namespace Byte {
 		}
 
 		void clear() {
-			OpenglAPI::deleteRenderArray(_data);
+			OpenglAPI::RArray::release(_data);
 
 			_data.VAO = 0;
 			_data.PBO = 0;
