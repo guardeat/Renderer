@@ -4,18 +4,48 @@
 #include "material.h"
 #include "transform.h"
 #include "mat.h"
-#include "context.h"
+#include "typedefs.h"
+#include "opengl_api.h"
+#include "texture.h"
+#include "g_buffer.h"
+#include "light.h"
+#include "camera.h"
 
 namespace Byte {
 
+	struct RenderContext {
+		Buffer<Mesh*> meshes;
+		Buffer<Material*> materials;
+		Buffer<Transform*> transforms;
+
+		Camera* mainCamera;
+		Transform* mainCameraTransform;
+
+		DirectionalLight* directionalLight;
+		Transform* directionalLightTransform;
+	};
+
+	struct RenderData {
+		size_t height{ 0 };
+		size_t width{ 0 };
+
+		GBuffer gBuffer{};
+		Texture shadowMap;
+
+		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
+		ShaderMap shaderMap;
+
+		RenderArray quad;
+	};
+
 	class RenderPass {
 	public:
-		virtual void render(SceneContext& context, RenderContext& data) = 0;
+		virtual void render(RenderContext& context, RenderData& data) = 0;
 	};
 
 	class GeometryPass : public RenderPass {
 	public:
-		void render(SceneContext& context, RenderContext& data) override {
+		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			Mat4 projection{ context.mainCamera->projection(aspectRatio) };
 			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
@@ -56,7 +86,7 @@ namespace Byte {
 
 	class LightingPass : public RenderPass {
 	public:
-		void render(SceneContext& context, RenderContext& data) override {
+		void render(RenderContext& context, RenderData& data) override {
 			OpenglAPI::clearBuffer();
 
 			Shader& lightingShader = data.shaderMap["lighting_shader"];
@@ -91,13 +121,15 @@ namespace Byte {
 			lightingShader.unbind();
 
 			OpenglAPI::updateDepth(data.gBuffer.data(), data.width, data.height);
+
+			OpenglAPI::blitToGBuffer(data.gBuffer.data(), data.width, data.height);
 		}
 
 	};
 
 	class ShadowPass : public RenderPass {
 	public:
-		void render(SceneContext& context, RenderContext& data) override {
+		void render(RenderContext& context, RenderData& data) override {
 			
 		}
 

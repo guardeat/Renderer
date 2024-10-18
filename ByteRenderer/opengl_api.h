@@ -11,7 +11,7 @@
 #include "mat.h"
 #include "vec.h"
 #include "quaternion.h"
-#include "render_data.h"
+#include "typedefs.h"
 
 namespace Byte {
 
@@ -423,6 +423,27 @@ namespace Byte {
 
         static void deleteTexture(unsigned int textureID) {
             glDeleteTextures(1, &textureID);
+        }
+
+        static void blitToGBuffer(const GBufferData& gBuffer, size_t width, size_t height) {
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gBuffer.id);
+
+            GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT2 };
+            glDrawBuffers(1, drawBuffers);
+
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+            GLint glHeight{ static_cast<GLint>(height) };
+            GLint glWidth{ static_cast<GLint>(width) };
+
+            glBlitFramebuffer(
+                0, 0, glWidth, glHeight,
+                0, 0, glWidth, glWidth,
+                GL_COLOR_BUFFER_BIT,
+                GL_NEAREST
+            );
+
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         
 	};

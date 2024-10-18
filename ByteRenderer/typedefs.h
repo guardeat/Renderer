@@ -8,6 +8,9 @@ namespace Byte {
 
 	using Path = std::filesystem::path;
 
+	template<typename T>
+	using Buffer = std::vector<T>;
+
 	using TextureID = uint32_t;
 	using BufferID = uint32_t;
 

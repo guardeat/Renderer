@@ -11,7 +11,8 @@
 #include "transform.h"
 #include "camera.h"
 #include "light.h"
-#include "render_data.h"
+#include "typedefs.h"
+#include "g_buffer.h"
 
 namespace Byte {
 
@@ -25,7 +26,7 @@ namespace Byte {
 		using URenderPass = std::unique_ptr<RenderPass>;
 		using Pipeline = std::vector<URenderPass>;
 
-		RenderContext data;
+		RenderData data;
 		Pipeline pipeline;
 
 	public:
@@ -42,7 +43,7 @@ namespace Byte {
 			compileShaders(config);
 		}
 
-		void render(SceneContext& context) {
+		void render(RenderContext& context) {
 			for (Mesh* mesh : context.meshes) {
 				if (mesh->renderArray().data().VAO == 0) {
 					fillMesh(*mesh);

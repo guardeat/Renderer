@@ -92,7 +92,7 @@ int main() {
 
 	renderer.initialize(window, config);
 
-	SceneContext context;
+	RenderContext context;
 
 	Camera camera;
 	Transform transform;

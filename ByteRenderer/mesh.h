@@ -4,7 +4,7 @@
 #include <cmath>
 #include <utility> 
 
-#include "buffer.h"
+#include "typedefs.h"
 #include "render_array.h"
 
 namespace Byte {
