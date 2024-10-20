@@ -1,33 +1,41 @@
 #version 330 core
 
-out vec4 FragColor;
+layout (location = 0) out vec4 gAlbedoSpecular;
 
 uniform sampler2D uSPosition;
 uniform sampler2D uSNormal;
 uniform sampler2D uSAlbedoSpec;
 
 uniform struct PointLight {
-	vec3 position;
-	vec3 color;
-	
-	float intensity;
+    vec3 position;
+    vec3 color;
 
+    float constant;
+    float linear;
+    float quadratic;
 } uPointLight;
 
 uniform vec2 uViewPortSize;
 
 void main() {
-	vec2 texCoord = gl_FragCoord.xy / uViewPortSize; 
+    vec2 texCoord = gl_FragCoord.xy / uViewPortSize;
 
-	vec3 pos = texture(uSPosition,texCoord).xyz;
-	vec3 normal = texture(uSNormal,texCoord).xyz;
-	vec3 baseColor = texture(uSAlbedoSpec,texCoord).xyz;
+    vec3 pos = texture(uSPosition, texCoord).xyz;
+    vec3 normal = normalize(texture(uSNormal, texCoord).xyz);
+    vec3 albedo = texture(uSAlbedoSpec, texCoord).rgb;
 
-	vec3 lightDir = normalize(uPointLight.position - pos);
+    vec3 lightDir = normalize(uPointLight.position - pos);
     float lightDistance = length(uPointLight.position - pos);
-    float attenuation = uPointLight.intensity / (lightDistance * lightDistance);
-	
-	vec3 color = baseColor + (baseColor * attenuation * uPointLight.color) / 2;
 
-	FragColor = vec4(color,1.0f);
+    float attenuation = 1.0 / (uPointLight.constant + 
+                               uPointLight.linear * lightDistance + 
+                               uPointLight.quadratic * (lightDistance * lightDistance));
+
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * uPointLight.color;
+
+    vec3 resultColor = albedo + diffuse * attenuation;
+    resultColor = clamp(resultColor, 0.0, 1.0);
+
+    gAlbedoSpecular = vec4(resultColor, 1.0);
 }

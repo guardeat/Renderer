@@ -49,9 +49,17 @@ namespace Byte {
             glViewport(0, 0, width, height);
         }
 
+        static void enableDepth() {
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        static void disableDepth() {
+            glDisable(GL_DEPTH_TEST);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
-                BufferID frameBufferID;
+                FramebufferID frameBufferID;
                 glGenFramebuffers(1, &frameBufferID);
                 glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
 
@@ -60,16 +68,18 @@ namespace Byte {
 
                 FramebufferData::TextureMap textures;
 
-                std::vector<uint32_t> attachments;
+                Buffer<uint32_t> attachments;
 
                 for (auto& att : config.attachments) {
-                    TextureID id{Texture::build(config.width,config.height,nullptr, att.internalFormat,att.format,GL_FLOAT)};
+                    TextureID id{Texture::build(config.width,config.height,nullptr, att.internalFormat,att.format,att.type)};
                     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att.index, GL_TEXTURE_2D, id, 0);
                     textures[att.tag] = id;
                     attachments.push_back(GL_COLOR_ATTACHMENT0 + att.index);
                 }
 
-                glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
+                if (attachments.size() > 1) {
+                    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
+                }
 
                 unsigned int rboDepth;
                 glGenRenderbuffers(1, &rboDepth);
@@ -83,16 +93,17 @@ namespace Byte {
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                return FramebufferData{ frameBufferID, textures };
+                return FramebufferData{ frameBufferID, textures, attachments};
             }
 
-            static void clear(BufferID id) {
+            static void clear(FramebufferID id) {
                 glBindFramebuffer(GL_FRAMEBUFFER, id);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
 
-            static void bind(BufferID id) {
-                glBindFramebuffer(GL_FRAMEBUFFER, id);
+            static void bind(FramebufferData& data) {
+                glBindFramebuffer(GL_FRAMEBUFFER, data.id);
+                glDrawBuffers(static_cast<GLsizei>(data.attachments.size()), data.attachments.data());
             }
 
             static void unbind() {
@@ -109,7 +120,7 @@ namespace Byte {
                 }
             }
 
-            static void blitDepth(BufferID source, BufferID dest, size_t width, size_t height) {
+            static void blitDepth(FramebufferID source, FramebufferID dest, size_t width, size_t height) {
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, dest);
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, source);
 
@@ -118,6 +129,34 @@ namespace Byte {
                 glBlitFramebuffer(0, 0, glWidth, glHeight, 0, 0, glWidth, glHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
+
+            static void blit(
+                FramebufferID src,
+                FramebufferID dest, 
+                size_t width, 
+                size_t height, 
+                GLenum srcAtt, 
+                GLenum destAtt) {
+                GLint glWidth{ static_cast<GLint>(width) };
+                GLint glHeight{ static_cast<GLint>(height) };
+
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, src);
+                glReadBuffer(srcAtt);
+
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest);
+                glDrawBuffer(destAtt);
+
+                glBlitFramebuffer(
+                    0, 0, glWidth, glHeight,  
+                    0, 0, glWidth, glHeight, 
+                    GL_COLOR_BUFFER_BIT,       
+                    GL_NEAREST                
+                );
+
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+            }
+
         };
 
         struct Draw {

@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "renderer.h"
 #include "render_pass.h"
 #include "window.h"
@@ -82,13 +84,14 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<GeometryPass,LightingPass>() };
+	Renderer renderer{ Renderer::build<GeometryPass,LightingPass,PointLightPass,DrawPass>() };
 	RenderConfig config;
 
-	config.shaderPathMap["default_defered"] = { "default_vertex.glsl","defered_geometry.glsl" };
-	config.shaderPathMap["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
-	config.shaderPathMap["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
-	config.shaderPathMap["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
+	config.shaderPaths["default_defered"] = { "default_vertex.glsl","defered_geometry.glsl" };
+	config.shaderPaths["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
+	config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
+	config.shaderPaths["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
+	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
 
 	renderer.initialize(window, config);
 
@@ -96,6 +99,7 @@ int main() {
 
 	Camera camera;
 	Transform transform;
+	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
 	const int gridSize = 10;
@@ -118,7 +122,7 @@ int main() {
 				sphereMaterials[index].albedo(Vec4{ static_cast<float>(x) / gridSize, static_cast<float>(y) / gridSize, static_cast<float>(z) / gridSize, 0.0f });
 
 				sphereTransforms[index] = Transform{};
-				sphereTransforms[index].position(Vec3(x * spacing, y * spacing, z * spacing)); 
+				sphereTransforms[index].position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing)); 
 
 				context.meshes.push_back(&spheres[index]);
 				context.materials.push_back(&sphereMaterials[index]);
@@ -146,12 +150,57 @@ int main() {
 	context.meshes.push_back(&plane);
 	context.materials.push_back(&pMaterial);
 	context.transforms.push_back(&planeTransform);
+	
+	PointLight pl;
+	Transform plTransform;
+
+	context.pointLights.push_back(&pl);
+	context.pointLightTransforms.push_back(&plTransform);
+
+	Mesh lightMesh{ Mesh::sphere(0.1f,100) };
+	Material lmMaterial;
+	lmMaterial.shaderTag("default_defered");
+	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+	context.meshes.push_back(&lightMesh);
+	context.materials.push_back(&lmMaterial);
+	context.transforms.push_back(&plTransform);
+
+	float lightAngle = 0.0f;
+	const float lightSpeed = 1.0f;
+	const float circleRadius = 20.0f;
+
+	auto lastTime = std::chrono::high_resolution_clock::now();
+	int frameCount = 0;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		renderer.render(context);
 		renderer.update(window);
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
+		lastTime = currentTime; 
+
+		lightAngle += lightSpeed * deltaTime;
+		if (lightAngle >= 2 * 3.141592f) {
+			lightAngle -= 2 * 3.141592f;  
+		}
+
+		float x = circleRadius * std::cos(lightAngle);
+		float z = circleRadius * std::sin(lightAngle);
+		plTransform.position(Vec3(x + 13.5f, 1.0f, z + 13.5f));
+
+		frameCount++;
+		static float fpsTimer = 0.0f;
+		fpsTimer += deltaTime;
+
+		if (fpsTimer >= 1.0f) {
+			std::cout << "FPS: " << frameCount << std::endl;
+			frameCount = 0;
+			fpsTimer = 0.0f;
+		}
 	}
 
 	return 0;

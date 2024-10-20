@@ -16,7 +16,7 @@ namespace Byte {
 	using Buffer = std::vector<T>;
 
 	using TextureID = uint32_t;
-	using BufferID = uint32_t;
+	using FramebufferID = uint32_t;
 
 	using RArrayID = uint32_t;
 	using RBufferID = uint32_t;
@@ -44,16 +44,17 @@ namespace Byte {
 
 		AttachmentContainer attachments;
 
-		size_t width;
-		size_t height;
+		size_t width{};
+		size_t height{};
 	};
 
 	struct FramebufferData {
-		BufferID id;
+		FramebufferID id{};
 
 		using TextureMap = std::unordered_map<std::string, TextureID>;
 
 		TextureMap textures;
+		Buffer<uint32_t> attachments;
 	};
 
 	struct RArrayData {

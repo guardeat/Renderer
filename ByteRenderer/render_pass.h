@@ -18,11 +18,14 @@ namespace Byte {
 		Buffer<Material*> materials;
 		Buffer<Transform*> transforms;
 
-		Camera* mainCamera;
-		Transform* mainCameraTransform;
+		Camera* mainCamera{};
+		Transform* mainCameraTransform{};
 
-		DirectionalLight* directionalLight;
-		Transform* directionalLightTransform;
+		DirectionalLight* directionalLight{};
+		Transform* directionalLightTransform{};
+
+		Buffer<PointLight*> pointLights;
+		Buffer<Transform*> pointLightTransforms;
 	};
 
 	struct RenderData {
@@ -30,12 +33,13 @@ namespace Byte {
 		size_t width{ 0 };
 
 		Framebuffer gBuffer{};
-		Texture shadowMap;
+		Framebuffer colorBuffer{};
 
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
-		ShaderMap shaderMap;
+		ShaderMap shaders;
 
 		RenderArray quad;
+		Mesh sphere;
 	};
 
 	class RenderPass {
@@ -58,7 +62,7 @@ namespace Byte {
 				Material& material{ *context.materials[i] };
 				Transform& transform{ *context.transforms[i] };
 
-				Shader& shader{ data.shaderMap[material.shaderTag()] };
+				Shader& shader{ data.shaders[material.shaderTag()] };
 
 				shader.bind();
 
@@ -87,10 +91,11 @@ namespace Byte {
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenglAPI::Framebuffer::clear(0);
-
-			Shader& lightingShader = data.shaderMap["lighting_shader"];
+			Shader& lightingShader = data.shaders["lighting_shader"];
 			lightingShader.bind();
+
+			data.colorBuffer.bind();
+			data.colorBuffer.clearContent();
 
 			lightingShader.uniform("uPosition", 0);
 			lightingShader.uniform("uNormal", 1);
@@ -120,15 +125,101 @@ namespace Byte {
 
 			lightingShader.unbind();
 
-			OpenglAPI::Framebuffer::blitDepth(0, data.gBuffer.data().id, data.width, data.height);
+			data.colorBuffer.unbind();
+
+			OpenglAPI::Framebuffer::blit(
+				data.colorBuffer.data().id, 
+				data.gBuffer.data().id, 
+				data.width, 
+				data.height,
+				GL_COLOR_ATTACHMENT0,
+				GL_COLOR_ATTACHMENT2);
 		}
 
 	};
 
-	class ShadowPass : public RenderPass {
+	class PointLightPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
+			Shader& pointLightShader{ data.shaders["point_light_shader"] };
+			pointLightShader.bind();
+			data.colorBuffer.bind();
 
+			pointLightShader.uniform<Vec2>("uViewPortSize",
+				Vec2{ static_cast<float>(data.width),static_cast<float>(data.height) });
+
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			Mat4 projection{ context.mainCamera->projection(aspectRatio) };
+			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
+
+			pointLightShader.uniform<Mat4>("uProjection", projection);
+			pointLightShader.uniform<Mat4>("uView", view);
+
+			pointLightShader.uniform("uSPosition", 0);
+			pointLightShader.uniform("uSNormal", 1);
+			pointLightShader.uniform("uSAlbedoSpec", 2);
+
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("position"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("normal"), GL_TEXTURE1);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE2);
+
+			data.sphere.renderArray().bind();
+
+			OpenglAPI::disableDepth();
+
+			for (size_t i{ 0 }; i < context.pointLights.size(); ++i) {
+				PointLight& pointLight{ *context.pointLights[i] };
+				Transform transform{ *context.pointLightTransforms[i] };
+
+				float radius{ pointLight.radius() };
+				transform.scale(Vec3{ radius,radius,radius });
+
+				pointLightShader.uniform<Vec3>("uPosition", transform.position());
+				pointLightShader.uniform<Vec3>("uScale", transform.scale());
+				pointLightShader.uniform<Quaternion>("uRotation", transform.rotation());
+
+				pointLightShader.uniform<Vec3>("uPointLight.position", transform.position());
+				pointLightShader.uniform<Vec3>("uPointLight.color", pointLight.color);
+				pointLightShader.uniform<float>("uPointLight.constant", pointLight.constant);
+				pointLightShader.uniform<float>("uPointLight.linear", pointLight.linear);
+				pointLightShader.uniform<float>("uPointLight.quadratic", pointLight.quadratic);
+
+				OpenglAPI::Draw::elements(data.sphere.index().size());
+
+			}
+			data.sphere.renderArray().unbind();
+			pointLightShader.unbind();
+
+			OpenglAPI::enableDepth();
+
+			OpenglAPI::Framebuffer::blit(
+				data.colorBuffer.data().id,
+				data.gBuffer.data().id,
+				data.width,
+				data.height,
+				GL_COLOR_ATTACHMENT0,
+				GL_COLOR_ATTACHMENT2);
+		}
+
+	};
+
+	class DrawPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			OpenglAPI::Framebuffer::unbind();
+			OpenglAPI::Framebuffer::clear(0);
+
+			Shader& quadShader{data.shaders["quad_shader"]};
+
+			quadShader.bind();
+			quadShader.uniform("uAlbedoSpecular", 0);
+			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE0);
+
+			data.quad.bind();
+
+			OpenglAPI::Draw::quad();
+
+			data.quad.unbind();
 		}
 
 	};

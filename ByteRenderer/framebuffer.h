@@ -34,7 +34,7 @@ namespace Byte {
 		}
 
 		void bind() {
-			OpenglAPI::Framebuffer::bind(_data.id);
+			OpenglAPI::Framebuffer::bind(_data);
 		}
 
 		void unbind() {

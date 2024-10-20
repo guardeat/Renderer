@@ -18,7 +18,7 @@ namespace Byte {
 
 	struct RenderConfig {
 		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
-		ShaderPathMap shaderPathMap;
+		ShaderPathMap shaderPaths;
 	};
 
 	class Renderer {
@@ -49,7 +49,22 @@ namespace Byte {
 
 			data.gBuffer = FramebufferData{ OpenglAPI::Framebuffer::build(gBufferConfig) };
 
+			FramebufferConfig colorBufferConfig;
+
+			colorBufferConfig.width = data.width;
+			colorBufferConfig.height = data.height;
+
+			colorBufferConfig.attachments = {   
+				{ "albedoSpecular", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+			};
+
+			data.colorBuffer = Framebuffer{ OpenglAPI::Framebuffer::build(colorBufferConfig) };
+
 			data.quad = OpenglAPI::RArray::buildQuad();
+
+			data.sphere = Mesh::sphere(1, 10);
+
+			fillMesh(data.sphere);
 
 			compileShaders(config);
 		}
@@ -71,10 +86,10 @@ namespace Byte {
 		}
 
 		void compileShaders(RenderConfig& config) {
-			for (const auto& [shaderTag, shaderPath] : config.shaderPathMap) {
+			for (const auto& [shaderTag, shaderPath] : config.shaderPaths) {
 				Shader shader(shaderPath.vertex, shaderPath.fragment);
 				ShaderCompiler::compile(shader);
-				data.shaderMap[shaderTag] = std::move(shader);
+				data.shaders[shaderTag] = std::move(shader);
 			}
 		}
 

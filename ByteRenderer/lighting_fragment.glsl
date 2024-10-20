@@ -1,8 +1,8 @@
 #version 330 core
 
-in vec2 vTexCoords;
+layout(location = 0) out vec4 gAlbedoSpecular;
 
-out vec4 FragColor;
+in vec2 vTexCoords;
 
 uniform sampler2D uPosition;
 uniform sampler2D uNormal;
@@ -38,5 +38,5 @@ void main()
 
     vec3 finalColor = ambient + diffuse + specular;
 
-    FragColor = vec4(finalColor, 1.0);
+    gAlbedoSpecular = vec4(finalColor * uDirectionalLight.intensity,1.0);
 }

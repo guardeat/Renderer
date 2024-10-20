@@ -77,6 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)\include\glfw;$(SolutionDir)\include;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(SolutionDir)\lib\glfw;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(SolutionDir)lib\glfw;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -170,6 +171,8 @@
   <ItemGroup>
     <None Include="defered_geometry.glsl" />
     <None Include="lighting_fragment.glsl" />
+    <None Include="point_light_fragment.glsl" />
+    <None Include="point_light_vertex.glsl" />
     <None Include="quad_fragment.glsl" />
     <None Include="quad_vertex.glsl" />
   </ItemGroup>
