@@ -1,12 +1,9 @@
 #pragma once
 
-#include <string>
-
+#include "typedefs.h"
 #include "opengl_api.h"
 
 namespace Byte {
-
-    using ShaderTag = std::string;
 
     struct ShaderPath {
         std::string vertex;

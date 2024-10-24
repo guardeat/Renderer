@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
+#include <string>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -14,6 +15,9 @@ namespace Byte {
 
 	template<typename T>
 	using Buffer = std::vector<T>;
+
+	using ShaderTag = std::string;
+	using FramebufferTag = std::string;
 
 	using TextureID = uint32_t;
 	using FramebufferID = uint32_t;

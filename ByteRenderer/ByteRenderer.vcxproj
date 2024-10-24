@@ -158,6 +158,7 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="opengl_api.h" />
     <ClInclude Include="render_array.h" />
+    <ClInclude Include="test.h" />
     <ClInclude Include="typedefs.h" />
     <ClInclude Include="render_pass.h" />
     <ClInclude Include="shader.h" />
@@ -169,7 +170,7 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="defered_geometry.glsl" />
+    <None Include="deferred_geometry.glsl" />
     <None Include="lighting_fragment.glsl" />
     <None Include="point_light_fragment.glsl" />
     <None Include="point_light_vertex.glsl" />

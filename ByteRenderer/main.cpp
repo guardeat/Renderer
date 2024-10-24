@@ -1,83 +1,8 @@
 #include <chrono>
 
-#include "renderer.h"
-#include "render_pass.h"
-#include "window.h"
+#include "test.h"
 
 using namespace Byte;
-
-class FPSCamera {
-private:
-	float yaw{};
-	float pitch{};
-	float oldX{};
-	float oldY{};
-
-	float speed{ 0.2f };
-	float sensitivity{ 0.1f };
-
-public:
-	FPSCamera() = default;
-
-	FPSCamera(float speed, float sensitivity)
-		:speed{ speed }, sensitivity{ sensitivity } {
-	}
-
-	Quaternion calculateRotation(float newX, float newY) {
-		float offsetX{ newX - oldX };
-		float offsetY{ newY - oldY };
-		oldX = newX;
-		oldY = newY;
-
-		offsetX *= sensitivity;
-		offsetY *= sensitivity;
-
-		yaw -= offsetX;
-		pitch -= offsetY;
-
-		if (pitch > 89.0f)
-		{
-			pitch = 89.0f;
-		}
-		if (pitch < -89.0f)
-		{
-			pitch = -89.0f;
-		}
-
-		Quaternion pitchQuaternion(Vec3{ 1, 0, 0 }, pitch);
-		Quaternion yawQuaternion(Vec3{ 0, 1, 0 }, yaw);
-
-		return yawQuaternion * pitchQuaternion;
-	}
-
-	void update(Window& window, Transform& transform) {
-
-		double xpos, ypos;
-		glfwGetCursorPos(window.glfwWindow, &xpos, &ypos);
-
-		transform.rotation(calculateRotation(static_cast<float>(xpos), static_cast<float>(ypos)));
-
-		Vec3 offset{};
-		if (glfwGetKey(window.glfwWindow, GLFW_KEY_W) == GLFW_PRESS) {
-			offset += transform.front();
-		}
-		if (glfwGetKey(window.glfwWindow, GLFW_KEY_S) == GLFW_PRESS) {
-			offset -= transform.front();
-		}
-		if (glfwGetKey(window.glfwWindow, GLFW_KEY_A) == GLFW_PRESS) {
-			offset -= transform.right();
-		}
-		if (glfwGetKey(window.glfwWindow, GLFW_KEY_D) == GLFW_PRESS) {
-			offset += transform.right();
-		}
-
-		if (offset.length() > 0) {
-			transform.position(transform.position() + offset.normalized() * speed);
-		}
-
-		glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
-};
 
 int main() {
 	glfwInit();
@@ -87,11 +12,36 @@ int main() {
 	Renderer renderer{ Renderer::build<GeometryPass,LightingPass,PointLightPass,DrawPass>() };
 	RenderConfig config;
 
-	config.shaderPaths["default_defered"] = { "default_vertex.glsl","defered_geometry.glsl" };
+	config.shaderPaths["default_deferred"] = { "default_vertex.glsl","deferred_geometry.glsl" };
 	config.shaderPaths["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
 	config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
 	config.shaderPaths["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
 	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
+
+	FramebufferConfig gBufferConfig;
+
+	gBufferConfig.width = window.width();
+	gBufferConfig.height = window.height();
+
+	gBufferConfig.attachments = {
+		{ "position", 0, GL_RGBA16F, GL_RGBA, GL_FLOAT },
+		{ "normal", 1, GL_RGBA16F, GL_RGBA, GL_FLOAT },
+		{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+	};
+
+	config.frameBufferConfigs["gBuffer"] = gBufferConfig;
+
+	FramebufferConfig colorBufferConfig;
+
+	colorBufferConfig.width = window.width();
+	colorBufferConfig.height = window.height();
+
+	colorBufferConfig.attachments = {
+		{ "albedoSpecular1", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE },
+		{ "albedoSpecular2", 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+	};
+
+	config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
 
 	renderer.initialize(window, config);
 
@@ -102,7 +52,7 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 10;
+	const int gridSize = 1;
 	const float sphereRadius = 1.0f;
 	const float spacing = 3.0f * sphereRadius; 
 
@@ -118,7 +68,7 @@ int main() {
 				spheres[index] = Mesh::sphere(sphereRadius, 20);
 
 				sphereMaterials[index] = Material{};
-				sphereMaterials[index].shaderTag("default_defered");
+				sphereMaterials[index].shaderTag("default_deferred");
 				sphereMaterials[index].albedo(Vec4{ static_cast<float>(x) / gridSize, static_cast<float>(y) / gridSize, static_cast<float>(z) / gridSize, 0.0f });
 
 				sphereTransforms[index] = Transform{};
@@ -142,7 +92,7 @@ int main() {
 
 	Mesh plane(Mesh::plane(10000,10000,1));
 	Material pMaterial;
-	pMaterial.shaderTag("default_defered");
+	pMaterial.shaderTag("default_deferred");
 	pMaterial.albedo(Vec4(0.4f, 0.3f, 0.2f, 1.0f));
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
@@ -159,7 +109,7 @@ int main() {
 
 	Mesh lightMesh{ Mesh::sphere(0.1f,100) };
 	Material lmMaterial;
-	lmMaterial.shaderTag("default_defered");
+	lmMaterial.shaderTag("default_deferred");
 	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	context.meshes.push_back(&lightMesh);

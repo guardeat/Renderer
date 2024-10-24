@@ -2,18 +2,18 @@
 
 layout(location = 0) out vec4 gAlbedoSpecular;
 
-in vec2 vTexCoords;
+in vec2 vTexCoords; 
 
-uniform sampler2D uPosition;
-uniform sampler2D uNormal;
-uniform sampler2D uAlbedoSpec;
+uniform sampler2D uPosition;    
+uniform sampler2D uNormal;      
+uniform sampler2D uAlbedoSpec; 
 
-uniform vec3 uViewPos;
+uniform vec3 uViewPos; 
 
 struct DirectionalLight {
-    vec3 direction;
-    vec3 color;
-    float intensity;
+    vec3 direction; 
+    vec3 color;      
+    float intensity; 
 };
 
 uniform DirectionalLight uDirectionalLight;
@@ -25,18 +25,19 @@ void main()
     vec3 albedo = texture(uAlbedoSpec, vTexCoords).rgb;
     float specularStrength = texture(uAlbedoSpec, vTexCoords).a;
 
-    vec3 ambient = uDirectionalLight.intensity * albedo;
+    vec3 ambient = 0.3 * albedo * uDirectionalLight.color * uDirectionalLight.intensity;
 
     vec3 lightDir = normalize(-uDirectionalLight.direction);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * uDirectionalLight.color * albedo;
+    float diff = max(dot(normal, lightDir), 0.0);           
+    vec3 diffuse = diff * albedo * uDirectionalLight.color * uDirectionalLight.intensity;
 
     vec3 viewDir = normalize(uViewPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, normal); 
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec3 specular = specularStrength * spec * uDirectionalLight.color;
+    vec3 specular = spec * specularStrength * uDirectionalLight.color * uDirectionalLight.intensity;
 
     vec3 finalColor = ambient + diffuse + specular;
 
-    gAlbedoSpecular = vec4(finalColor * uDirectionalLight.intensity,1.0);
+    gAlbedoSpecular = vec4(finalColor, 1.0);
 }
+

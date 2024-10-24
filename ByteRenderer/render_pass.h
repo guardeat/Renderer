@@ -13,6 +13,14 @@
 
 namespace Byte {
 
+	struct RenderConfig {
+		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
+		ShaderPathMap shaderPaths;
+
+		using FramebufferConfigMap = std::unordered_map<FramebufferTag, FramebufferConfig>;
+		FramebufferConfigMap frameBufferConfigs;
+	};
+
 	struct RenderContext {
 		Buffer<Mesh*> meshes;
 		Buffer<Material*> materials;
@@ -32,8 +40,8 @@ namespace Byte {
 		size_t height{ 0 };
 		size_t width{ 0 };
 
-		Framebuffer gBuffer{};
-		Framebuffer colorBuffer{};
+		using FramebufferMap = std::unordered_map<FramebufferTag, Framebuffer>;
+		FramebufferMap frameBuffers;
 
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
@@ -51,11 +59,13 @@ namespace Byte {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			Mat4 projection{ context.mainCamera->projection(aspectRatio) };
+			Mat4 projection{ context.mainCamera->perspective(aspectRatio) };
 			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
 
-			data.gBuffer.bind();
-			data.gBuffer.clearContent();
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+
+			gBuffer.bind();
+			gBuffer.clearContent();
 
 			for (size_t i{ 0 }; i < context.meshes.size(); ++i) {
 				Mesh& mesh{ *context.meshes[i] };
@@ -83,9 +93,16 @@ namespace Byte {
 				mesh.renderArray().unbind();
 			}
 
-			data.gBuffer.unbind();
+			gBuffer.bind();
 		}
 
+	};
+
+	class ShadowPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+
+		}
 	};
 
 	class LightingPass : public RenderPass {
@@ -94,8 +111,11 @@ namespace Byte {
 			Shader& lightingShader = data.shaders["lighting_shader"];
 			lightingShader.bind();
 
-			data.colorBuffer.bind();
-			data.colorBuffer.clearContent();
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
+
+			colorBuffer.bind();
+			colorBuffer.clearContent();
 
 			lightingShader.uniform("uPosition", 0);
 			lightingShader.uniform("uNormal", 1);
@@ -113,9 +133,9 @@ namespace Byte {
 				"uDirectionalLight.intensity",
 				context.directionalLight->intensity);
 
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("position"), GL_TEXTURE0);
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("normal"), GL_TEXTURE1);
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE2);
+			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
+			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE2);
 
 			data.quad.bind();
 
@@ -125,15 +145,7 @@ namespace Byte {
 
 			lightingShader.unbind();
 
-			data.colorBuffer.unbind();
-
-			OpenglAPI::Framebuffer::blit(
-				data.colorBuffer.data().id, 
-				data.gBuffer.data().id, 
-				data.width, 
-				data.height,
-				GL_COLOR_ATTACHMENT0,
-				GL_COLOR_ATTACHMENT2);
+			colorBuffer.unbind();
 		}
 
 	};
@@ -141,15 +153,22 @@ namespace Byte {
 	class PointLightPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
+			if (context.pointLights.empty()) {
+				return;
+			}
+
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
+
 			Shader& pointLightShader{ data.shaders["point_light_shader"] };
 			pointLightShader.bind();
-			data.colorBuffer.bind();
+			colorBuffer.bind();
 
 			pointLightShader.uniform<Vec2>("uViewPortSize",
 				Vec2{ static_cast<float>(data.width),static_cast<float>(data.height) });
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			Mat4 projection{ context.mainCamera->projection(aspectRatio) };
+			Mat4 projection{ context.mainCamera->perspective(aspectRatio) };
 			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
 
 			pointLightShader.uniform<Mat4>("uProjection", projection);
@@ -159,9 +178,9 @@ namespace Byte {
 			pointLightShader.uniform("uSNormal", 1);
 			pointLightShader.uniform("uSAlbedoSpec", 2);
 
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("position"), GL_TEXTURE0);
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("normal"), GL_TEXTURE1);
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE2);
+			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
+			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE2);
 
 			data.sphere.renderArray().bind();
 
@@ -191,14 +210,6 @@ namespace Byte {
 			pointLightShader.unbind();
 
 			OpenglAPI::enableDepth();
-
-			OpenglAPI::Framebuffer::blit(
-				data.colorBuffer.data().id,
-				data.gBuffer.data().id,
-				data.width,
-				data.height,
-				GL_COLOR_ATTACHMENT0,
-				GL_COLOR_ATTACHMENT2);
 		}
 
 	};
@@ -209,11 +220,17 @@ namespace Byte {
 			OpenglAPI::Framebuffer::unbind();
 			OpenglAPI::Framebuffer::clear(0);
 
-			Shader& quadShader{data.shaders["quad_shader"]};
+			Shader& quadShader{ data.shaders["quad_shader"] };
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(data.gBuffer.data().textures.at("albedoSpecular"), GL_TEXTURE0);
+			quadShader.uniform("uDirectionalLightAlbedo", 1);
+			quadShader.uniform("uPointLightAlbedo", 2);
+			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular1"), GL_TEXTURE1);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular2"), GL_TEXTURE2);
 
 			data.quad.bind();
 

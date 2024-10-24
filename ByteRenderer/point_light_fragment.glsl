@@ -1,20 +1,21 @@
 #version 330 core
 
-layout (location = 0) out vec4 gAlbedoSpecular;
+layout (location = 1) out vec4 gAlbedoSpecular;
 
-uniform sampler2D uSPosition;
-uniform sampler2D uSNormal;
-uniform sampler2D uSAlbedoSpec;
+uniform sampler2D uSPosition;   
+uniform sampler2D uSNormal;    
+uniform sampler2D uSAlbedoSpec; 
 
-uniform struct PointLight {
+struct PointLight {
     vec3 position;
     vec3 color;
 
     float constant;
     float linear;
     float quadratic;
-} uPointLight;
+};
 
+uniform PointLight uPointLight;
 uniform vec2 uViewPortSize;
 
 void main() {
@@ -34,8 +35,7 @@ void main() {
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = diff * uPointLight.color;
 
-    vec3 resultColor = albedo + diffuse * attenuation;
-    resultColor = clamp(resultColor, 0.0, 1.0);
+    vec3 resultColor = albedo * diffuse * attenuation;
 
     gAlbedoSpecular = vec4(resultColor, 1.0);
 }

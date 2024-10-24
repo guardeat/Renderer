@@ -16,11 +16,6 @@
 
 namespace Byte {
 
-	struct RenderConfig {
-		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
-		ShaderPathMap shaderPaths;
-	};
-
 	class Renderer {
 	private:
 		using URenderPass = std::unique_ptr<RenderPass>;
@@ -35,30 +30,10 @@ namespace Byte {
 
 			data.width = window.width();
 			data.height = window.height();
-
-			FramebufferConfig gBufferConfig;
-
-			gBufferConfig.width = data.width;
-			gBufferConfig.height = data.height;
-
-			gBufferConfig.attachments = {
-				{ "position", 0, GL_RGBA16F, GL_RGBA, GL_FLOAT },
-				{ "normal", 1, GL_RGBA16F, GL_RGBA, GL_FLOAT },     
-				{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
-			};
-
-			data.gBuffer = FramebufferData{ OpenglAPI::Framebuffer::build(gBufferConfig) };
-
-			FramebufferConfig colorBufferConfig;
-
-			colorBufferConfig.width = data.width;
-			colorBufferConfig.height = data.height;
-
-			colorBufferConfig.attachments = {   
-				{ "albedoSpecular", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
-			};
-
-			data.colorBuffer = Framebuffer{ OpenglAPI::Framebuffer::build(colorBufferConfig) };
+			
+			for (auto& pair : config.frameBufferConfigs) {
+				data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
+			}
 
 			data.quad = OpenglAPI::RArray::buildQuad();
 

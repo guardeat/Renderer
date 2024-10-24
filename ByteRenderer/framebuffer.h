@@ -55,6 +55,14 @@ namespace Byte {
 			_data.id = 0;
 			_data.textures.clear();
 		}
+
+		TextureID textureID(const std::string& name) const {
+			return _data.textures.at(name);
+		}
+
+		FramebufferID id() const {
+			return _data.id;
+		}
 	};
 
 }

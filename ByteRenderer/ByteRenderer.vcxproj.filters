@@ -92,9 +92,12 @@
     <ClInclude Include="typedefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="defered_geometry.glsl">
+    <None Include="deferred_geometry.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="quad_vertex.glsl">
