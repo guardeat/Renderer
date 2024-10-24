@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="context.h" />
     <ClInclude Include="forward_fragment.glsl" />
     <ClInclude Include="default_vertex.glsl" />
     <ClInclude Include="light.h" />

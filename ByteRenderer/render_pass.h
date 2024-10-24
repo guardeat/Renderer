@@ -1,54 +1,8 @@
 #pragma once
 
-#include "mesh.h"
-#include "material.h"
-#include "transform.h"
-#include "mat.h"
-#include "typedefs.h"
-#include "opengl_api.h"
-#include "texture.h"
-#include "framebuffer.h"
-#include "light.h"
-#include "camera.h"
+#include "context.h"
 
 namespace Byte {
-
-	struct RenderConfig {
-		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
-		ShaderPathMap shaderPaths;
-
-		using FramebufferConfigMap = std::unordered_map<FramebufferTag, FramebufferConfig>;
-		FramebufferConfigMap frameBufferConfigs;
-	};
-
-	struct RenderContext {
-		Buffer<Mesh*> meshes;
-		Buffer<Material*> materials;
-		Buffer<Transform*> transforms;
-
-		Camera* mainCamera{};
-		Transform* mainCameraTransform{};
-
-		DirectionalLight* directionalLight{};
-		Transform* directionalLightTransform{};
-
-		Buffer<PointLight*> pointLights;
-		Buffer<Transform*> pointLightTransforms;
-	};
-
-	struct RenderData {
-		size_t height{ 0 };
-		size_t width{ 0 };
-
-		using FramebufferMap = std::unordered_map<FramebufferTag, Framebuffer>;
-		FramebufferMap frameBuffers;
-
-		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
-		ShaderMap shaders;
-
-		RenderArray quad;
-		Mesh sphere;
-	};
 
 	class RenderPass {
 	public:
@@ -59,18 +13,18 @@ namespace Byte {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			Mat4 projection{ context.mainCamera->perspective(aspectRatio) };
-			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera.perspective(aspectRatio)};
+			Mat4 view{ camera.view(cTransform) };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 
 			gBuffer.bind();
 			gBuffer.clearContent();
 
-			for (size_t i{ 0 }; i < context.meshes.size(); ++i) {
-				Mesh& mesh{ *context.meshes[i] };
-				Material& material{ *context.materials[i] };
-				Transform& transform{ *context.transforms[i] };
+			for (size_t i{ 0 }; i < context.itemCount(); ++i) {
+
+				auto [mesh, material, transform] = context.item(i);
 
 				Shader& shader{ data.shaders[material.shaderTag()] };
 
@@ -121,17 +75,14 @@ namespace Byte {
 			lightingShader.uniform("uNormal", 1);
 			lightingShader.uniform("uAlbedoSpec", 2);
 
-			lightingShader.uniform<Vec3>("uViewPos", context.mainCameraTransform->position());
+			auto [_, cTransform] = context.camera();
+			auto [directionalLight, dlTransform] = context.directionalLight();
 
-			lightingShader.uniform<Vec3>(
-				"uDirectionalLight.direction",
-				context.directionalLightTransform->front());
-			lightingShader.uniform<Vec3>(
-				"uDirectionalLight.color",
-				context.directionalLight->color);
-			lightingShader.uniform<float>(
-				"uDirectionalLight.intensity",
-				context.directionalLight->intensity);
+			lightingShader.uniform<Vec3>("uViewPos", cTransform.position());
+
+			lightingShader.uniform<Vec3>("uDirectionalLight.direction",dlTransform.front());
+			lightingShader.uniform<Vec3>("uDirectionalLight.color",directionalLight.color);
+			lightingShader.uniform<float>("uDirectionalLight.intensity",directionalLight.intensity);
 
 			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
 			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
@@ -153,30 +104,32 @@ namespace Byte {
 	class PointLightPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			if (context.pointLights.empty()) {
+			if (!context.pointLightCount()) {
 				return;
 			}
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
-			Shader& pointLightShader{ data.shaders["point_light_shader"] };
-			pointLightShader.bind();
+			Shader& plShader{ data.shaders["point_light_shader"] };
+			plShader.bind();
 			colorBuffer.bind();
 
-			pointLightShader.uniform<Vec2>("uViewPortSize",
+			plShader.uniform<Vec2>(
+				"uViewPortSize",
 				Vec2{ static_cast<float>(data.width),static_cast<float>(data.height) });
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			Mat4 projection{ context.mainCamera->perspective(aspectRatio) };
-			Mat4 view{ context.mainCamera->view(*context.mainCameraTransform) };
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera.perspective(aspectRatio) };
+			Mat4 view{ camera.view(cTransform) };
 
-			pointLightShader.uniform<Mat4>("uProjection", projection);
-			pointLightShader.uniform<Mat4>("uView", view);
+			plShader.uniform<Mat4>("uProjection", projection);
+			plShader.uniform<Mat4>("uView", view);
 
-			pointLightShader.uniform("uSPosition", 0);
-			pointLightShader.uniform("uSNormal", 1);
-			pointLightShader.uniform("uSAlbedoSpec", 2);
+			plShader.uniform("uSPosition", 0);
+			plShader.uniform("uSNormal", 1);
+			plShader.uniform("uSAlbedoSpec", 2);
 
 			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
 			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
@@ -186,28 +139,30 @@ namespace Byte {
 
 			OpenglAPI::disableDepth();
 
-			for (size_t i{ 0 }; i < context.pointLights.size(); ++i) {
-				PointLight& pointLight{ *context.pointLights[i] };
-				Transform transform{ *context.pointLightTransforms[i] };
+			for (size_t i{ 0 }; i < context.pointLightCount(); ++i) {
+
+				auto [pointLight, _transform] = context.pointLight(i);
+
+				Transform transform{ _transform };
 
 				float radius{ pointLight.radius() };
 				transform.scale(Vec3{ radius,radius,radius });
 
-				pointLightShader.uniform<Vec3>("uPosition", transform.position());
-				pointLightShader.uniform<Vec3>("uScale", transform.scale());
-				pointLightShader.uniform<Quaternion>("uRotation", transform.rotation());
+				plShader.uniform<Vec3>("uPosition", transform.position());
+				plShader.uniform<Vec3>("uScale", transform.scale());
+				plShader.uniform<Quaternion>("uRotation", transform.rotation());
 
-				pointLightShader.uniform<Vec3>("uPointLight.position", transform.position());
-				pointLightShader.uniform<Vec3>("uPointLight.color", pointLight.color);
-				pointLightShader.uniform<float>("uPointLight.constant", pointLight.constant);
-				pointLightShader.uniform<float>("uPointLight.linear", pointLight.linear);
-				pointLightShader.uniform<float>("uPointLight.quadratic", pointLight.quadratic);
+				plShader.uniform<Vec3>("uPointLight.position", transform.position());
+				plShader.uniform<Vec3>("uPointLight.color", pointLight.color);
+				plShader.uniform<float>("uPointLight.constant", pointLight.constant);
+				plShader.uniform<float>("uPointLight.linear", pointLight.linear);
+				plShader.uniform<float>("uPointLight.quadratic", pointLight.quadratic);
 
 				OpenglAPI::Draw::elements(data.sphere.index().size());
 
 			}
 			data.sphere.renderArray().unbind();
-			pointLightShader.unbind();
+			plShader.unbind();
 
 			OpenglAPI::enableDepth();
 		}

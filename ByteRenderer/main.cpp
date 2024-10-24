@@ -74,9 +74,7 @@ int main() {
 				sphereTransforms[index] = Transform{};
 				sphereTransforms[index].position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing)); 
 
-				context.meshes.push_back(&spheres[index]);
-				context.materials.push_back(&sphereMaterials[index]);
-				context.transforms.push_back(&sphereTransforms[index]);
+				context.submit(spheres[index], sphereMaterials[index], sphereTransforms[index]);
 			}
 		}
 	}
@@ -85,10 +83,8 @@ int main() {
 	Transform dLightTransform;
 	dLightTransform.rotate(Vec3(-135.0f, 0.0f, 0.0f));
 
-	context.mainCamera = &camera;
-	context.mainCameraTransform = &transform;
-	context.directionalLight = &dLight;
-	context.directionalLightTransform = &dLightTransform;
+	context.submit(camera, transform);
+	context.submit(dLight,dLightTransform);
 
 	Mesh plane(Mesh::plane(10000,10000,1));
 	Material pMaterial;
@@ -97,24 +93,19 @@ int main() {
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
 
-	context.meshes.push_back(&plane);
-	context.materials.push_back(&pMaterial);
-	context.transforms.push_back(&planeTransform);
+	context.submit(plane,pMaterial,planeTransform);
 	
 	PointLight pl;
 	Transform plTransform;
 
-	context.pointLights.push_back(&pl);
-	context.pointLightTransforms.push_back(&plTransform);
+	context.submit(pl,plTransform);
 
 	Mesh lightMesh{ Mesh::sphere(0.1f,100) };
 	Material lmMaterial;
 	lmMaterial.shaderTag("default_deferred");
 	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	context.meshes.push_back(&lightMesh);
-	context.materials.push_back(&lmMaterial);
-	context.transforms.push_back(&plTransform);
+	context.submit(lightMesh,lmMaterial,plTransform);
 
 	float lightAngle = 0.0f;
 	const float lightSpeed = 1.0f;

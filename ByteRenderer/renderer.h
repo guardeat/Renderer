@@ -5,16 +5,17 @@
 #include <unordered_map>
 
 #include "render_pass.h"
-#include "mesh.h"
 #include "window.h"
-#include "material.h"
-#include "transform.h"
-#include "camera.h"
-#include "light.h"
-#include "typedefs.h"
-#include "framebuffer.h"
 
 namespace Byte {
+
+	struct RenderConfig {
+		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
+		ShaderPathMap shaderPaths;
+
+		using FramebufferConfigMap = std::unordered_map<FramebufferTag, FramebufferConfig>;
+		FramebufferConfigMap frameBufferConfigs;
+	};
 
 	class Renderer {
 	private:
@@ -45,7 +46,7 @@ namespace Byte {
 		}
 
 		void render(RenderContext& context) {
-			for (Mesh* mesh : context.meshes) {
+			for (Mesh* mesh : context.meshes()) {
 				if (mesh->renderArray().data().VAO == 0) {
 					fillMesh(*mesh);
 				}
