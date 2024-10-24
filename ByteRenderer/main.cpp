@@ -52,7 +52,7 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 1;
+	const int gridSize = 10;
 	const float sphereRadius = 1.0f;
 	const float spacing = 3.0f * sphereRadius; 
 
