@@ -29,7 +29,7 @@ int main() {
 		{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
 	};
 
-	config.frameBufferConfigs["gBuffer"] = gBufferConfig;
+	 config.frameBufferConfigs["gBuffer"] = gBufferConfig;
 
 	FramebufferConfig colorBufferConfig;
 
@@ -65,7 +65,7 @@ int main() {
 			for (int z = 0; z < gridSize; ++z) {
 				int index = x + y * gridSize + z * gridSize * gridSize;
 
-				spheres[index] = Mesh::sphere(sphereRadius, 20);
+				spheres[index] = MeshBuilder::sphere(sphereRadius, 20);
 
 				sphereMaterials[index] = Material{};
 				sphereMaterials[index].shaderTag("default_deferred");
@@ -86,7 +86,7 @@ int main() {
 	context.submit(camera, transform);
 	context.submit(dLight,dLightTransform);
 
-	Mesh plane(Mesh::plane(10000,10000,1));
+	Mesh plane(MeshBuilder::plane(10000,10000,1));
 	Material pMaterial;
 	pMaterial.shaderTag("default_deferred");
 	pMaterial.albedo(Vec4(0.4f, 0.3f, 0.2f, 1.0f));
@@ -100,7 +100,7 @@ int main() {
 
 	context.submit(pl,plTransform);
 
-	Mesh lightMesh{ Mesh::sphere(0.1f,100) };
+	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
 	lmMaterial.shaderTag("default_deferred");
 	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));

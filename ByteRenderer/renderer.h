@@ -38,7 +38,7 @@ namespace Byte {
 
 			data.quad = OpenglAPI::RArray::buildQuad();
 
-			data.sphere = Mesh::sphere(1, 10);
+			data.sphere = MeshBuilder::sphere(1, 10);
 
 			fillMesh(data.sphere);
 
@@ -79,14 +79,14 @@ namespace Byte {
 
 	private:
 		void fillMesh(Mesh& mesh) {
-			bool isStatic = mesh.meshMode() == MeshMode::STATIC;
-			mesh._renderArray = OpenglAPI::RArray::build(
+			bool isStatic{ mesh.meshMode() == MeshMode::STATIC };
+			mesh.renderArray(OpenglAPI::RArray::build(
 				mesh.position(), 
 				mesh.normal(), 
 				mesh.uv1(),
 				mesh.index(),
 				mesh.uv2(),
-				isStatic);
+				isStatic));
 		}
 	};
 

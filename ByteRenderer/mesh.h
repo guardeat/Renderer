@@ -13,8 +13,8 @@ namespace Byte {
 		Buffer<float> position;
 		Buffer<float> normal;
 		Buffer<float> uv1;
-		Buffer<uint32_t> index;
 		Buffer<float> uv2;
+		Buffer<uint32_t> index;
 	};
 
 	enum class MeshMode : uint8_t {
@@ -28,19 +28,11 @@ namespace Byte {
 		MeshMode _meshMode{ MeshMode::STATIC };
 		RenderArray _renderArray;
 
-		friend class Renderer;
-
 	public:
 		Mesh() = default;
 
-		Mesh(
-			Buffer<float>&& position,
-			Buffer<float>&& normal,
-			Buffer<float>&& uv1,
-			Buffer<uint32_t>&& index,
-			MeshMode meshMode = MeshMode::STATIC)
-			: _geometry{ std::move(position), std::move(normal), std::move(uv1), std::move(index), {} },
-			_meshMode{ meshMode }
+		Mesh(MeshGeometry&& geometry, MeshMode meshMode)
+			: _geometry{ std::move(geometry) }, _meshMode{ meshMode }
 		{}
 
 		const Buffer<float>& position() const {
@@ -78,7 +70,9 @@ namespace Byte {
 		const MeshGeometry& geometry() const {
 			return _geometry;
 		}
+	};
 
+	struct MeshBuilder {
 		static Mesh sphere(float radius, size_t numSegments) {
 			size_t numVertices = (numSegments + 1) * (numSegments + 1);
 			size_t numTriangles = numSegments * numSegments * 2;
@@ -93,11 +87,11 @@ namespace Byte {
 				for (size_t j = 0; j <= numSegments; ++j) {
 					float theta = 2.0f * pi<float>() * static_cast<float>(j) / numSegments;
 
-					float x = radius * std::sin(phi) * std::cos(theta);
-					float y = radius * std::sin(phi) * std::sin(theta);
-					float z = radius * std::cos(phi);
+					float x{ radius * std::sin(phi) * std::cos(theta) };
+					float y{radius * std::sin(phi) * std::sin(theta)};
+					float z{ radius * std::cos(phi) };
 
-					size_t index = i * (numSegments + 1) + j;
+					size_t index{ i * (numSegments + 1) + j };
 
 					vertices[index * 3] = x;
 					vertices[index * 3 + 1] = y;
@@ -115,8 +109,8 @@ namespace Byte {
 
 			for (size_t i = 0; i < numSegments; ++i) {
 				for (size_t j = 0; j < numSegments; ++j) {
-					uint32_t first = static_cast<uint32_t>(i * (numSegments + 1) + j);
-					uint32_t second = static_cast<uint32_t>(first + numSegments + 1);
+					uint32_t first{ static_cast<uint32_t>(i * (numSegments + 1) + j) };
+					uint32_t second{ static_cast<uint32_t>(first + numSegments + 1) };
 
 					indices.push_back(first);
 					indices.push_back(second);
@@ -128,10 +122,17 @@ namespace Byte {
 				}
 			}
 
-			return Mesh{ std::move(vertices), std::move(normals), std::move(texCoords), std::move(indices) };
+			MeshGeometry geometry{
+				std::move(vertices),
+				std::move(normals),
+				std::move(texCoords),
+				Buffer<float>{},
+				std::move(indices) };
+
+			return Mesh{ std::move(geometry), MeshMode::STATIC };
 		}
 
-		static Mesh plane(float width, float height, int numSegments) {
+		static Mesh plane(float width, float height, size_t numSegments) {
 			size_t numVertices = (numSegments + 1) * (numSegments + 1);
 			size_t numTriangles = numSegments * numSegments * 2;
 
@@ -176,7 +177,14 @@ namespace Byte {
 				}
 			}
 
-			return Mesh{ std::move(vertices), std::move(normals), std::move(texCoords), std::move(indices) };
+			MeshGeometry geometry{
+				std::move(vertices),
+				std::move(normals),
+				std::move(texCoords),
+				Buffer<float>{},
+				std::move(indices) };
+
+			return Mesh{ std::move(geometry), MeshMode::STATIC };
 		}
 	};
 

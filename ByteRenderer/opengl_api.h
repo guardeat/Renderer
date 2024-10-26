@@ -181,7 +181,7 @@ namespace Byte {
                 bool isStatic) {
                 uint32_t VAO, PBO, NBO, UVBO, UV2BO, EBO;
 
-                auto draw = isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+                auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
 
                 glGenVertexArrays(1, &VAO);
                 glBindVertexArray(VAO);
@@ -282,13 +282,13 @@ namespace Byte {
                 return RArrayData{ VAO, VBO, 0, UVBO, EBO, 0 };
             }
 
-            static void release(RArrayData& renderArraydata) {
-                glDeleteVertexArrays(1, &renderArraydata.VAO);
-                glDeleteBuffers(1, &renderArraydata.PBO);
-                glDeleteBuffers(1, &renderArraydata.NBO);
-                glDeleteBuffers(1, &renderArraydata.UVBO);
-                glDeleteBuffers(1, &renderArraydata.EBO);
-                glDeleteBuffers(1, &renderArraydata.UV2BO);
+            static void release(RArrayData& renderArrayData) {
+                glDeleteVertexArrays(1, &renderArrayData.VAO);
+                glDeleteBuffers(1, &renderArrayData.PBO);
+                glDeleteBuffers(1, &renderArrayData.NBO);
+                glDeleteBuffers(1, &renderArrayData.UVBO);
+                glDeleteBuffers(1, &renderArrayData.EBO);
+                glDeleteBuffers(1, &renderArrayData.UV2BO);
             }
 
             static void bind(RArrayID id) {
