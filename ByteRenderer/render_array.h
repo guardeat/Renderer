@@ -22,24 +22,18 @@ namespace Byte {
 			: _data{right._data} {
 
 			right._data.VAO = 0;
-			right._data.PBO = 0;
-			right._data.NBO = 0;
-			right._data.UVBO = 0;
+			right._data.attributes.clear();
 			right._data.EBO = 0;
-			right._data.UV2BO = 0;
 		}
 
 		RenderArray& operator=(RenderArray&& right) noexcept {
 			clear();
 
-			_data = right._data;
+			_data = std::move(right._data);
 
 			right._data.VAO = 0;
-			right._data.PBO = 0;
-			right._data.NBO = 0;
-			right._data.UVBO = 0;
+			right._data.attributes.clear();
 			right._data.EBO = 0;
-			right._data.UV2BO = 0;
 
 			return *this;
 		}
@@ -64,11 +58,8 @@ namespace Byte {
 			OpenglAPI::RArray::release(_data);
 
 			_data.VAO = 0;
-			_data.PBO = 0;
-			_data.NBO = 0;
-			_data.UVBO = 0;
+			_data.attributes.clear();
 			_data.EBO	= 0;
-			_data.UV2BO = 0;
 		}
 	};
 

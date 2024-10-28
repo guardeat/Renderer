@@ -4,6 +4,20 @@
 
 namespace Byte {
 
+	struct RenderData {
+		size_t height{ 0 };
+		size_t width{ 0 };
+
+		using FramebufferMap = std::unordered_map<FramebufferTag, Framebuffer>;
+		FramebufferMap frameBuffers;
+
+		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
+		ShaderMap shaders;
+
+		RenderArray quad;
+		Mesh sphere;
+	};
+
 	class RenderPass {
 	public:
 		virtual void render(RenderContext& context, RenderData& data) = 0;
@@ -41,7 +55,7 @@ namespace Byte {
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 
-				OpenglAPI::Draw::elements(mesh.index().size());
+				OpenglAPI::Draw::elements(mesh.indices().size());
 
 				shader.unbind();
 				mesh.renderArray().unbind();
@@ -158,7 +172,7 @@ namespace Byte {
 				plShader.uniform<float>("uPointLight.linear", pointLight.linear);
 				plShader.uniform<float>("uPointLight.quadratic", pointLight.quadratic);
 
-				OpenglAPI::Draw::elements(data.sphere.index().size());
+				OpenglAPI::Draw::elements(data.sphere.indices().size());
 
 			}
 			data.sphere.renderArray().unbind();

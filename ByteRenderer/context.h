@@ -98,19 +98,4 @@ namespace Byte {
         }
     };
 
-
-	struct RenderData {
-		size_t height{ 0 };
-		size_t width{ 0 };
-
-		using FramebufferMap = std::unordered_map<FramebufferTag, Framebuffer>;
-		FramebufferMap frameBuffers;
-
-		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
-		ShaderMap shaders;
-
-		RenderArray quad;
-		Mesh sphere;
-	};
-
 }

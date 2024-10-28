@@ -61,13 +61,29 @@ namespace Byte {
 		Buffer<uint32_t> attachments;
 	};
 
+	struct VertexAttribute {
+		RBufferID bufferID;
+
+		uint32_t size;
+		uint32_t type;
+		uint16_t offset;
+		uint16_t stride;
+
+		uint8_t index;
+
+		bool normalized{ false };
+	};
+
 	struct RArrayData {
 		RArrayID VAO{ 0 };
-		RBufferID PBO{ 0 };
-		RBufferID NBO{ 0 };
-		RBufferID UVBO{ 0 };
+		
+		using AttributeVector = std::vector<VertexAttribute>;
+		AttributeVector attributes;
+
 		RBufferID EBO{ 0 };
-		RBufferID UV2BO{ 0 };
+		size_t elementCount;
+
+		bool isStatic;
 	};
 
 }

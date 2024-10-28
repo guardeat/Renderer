@@ -80,13 +80,14 @@ namespace Byte {
 	private:
 		void fillMesh(Mesh& mesh) {
 			bool isStatic{ mesh.meshMode() == MeshMode::STATIC };
-			mesh.renderArray(OpenglAPI::RArray::build(
-				mesh.position(), 
-				mesh.normal(), 
-				mesh.uv1(),
-				mesh.index(),
-				mesh.uv2(),
-				isStatic));
+
+			VertexAttribute pos{ 0, sizeof(float), GL_FLOAT,0,3,0,false };
+			VertexAttribute normal{ 0, sizeof(float), GL_FLOAT,3 * sizeof(float),3, 1,false };
+			VertexAttribute uv{ 0, sizeof(float), GL_FLOAT,6 * sizeof(float),2,2,false };
+
+			Buffer<VertexAttribute> attributes{ pos,normal,uv };
+			 
+			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),attributes,isStatic));
 		}
 	};
 

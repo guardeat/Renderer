@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <fstream>
+#include <set>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -173,55 +174,47 @@ namespace Byte {
 
         struct RArray {
             static RArrayData build(
-                const Buffer<float>& position,
-                const Buffer<float>& normal,
-                const Buffer<float>& uv1,
-                const Buffer<uint32_t>& index,
-                const Buffer<float>& uv2,
+                const Buffer<float>& vertices,
+                const Buffer<uint32_t>& indices,
+                Buffer<VertexAttribute>& attributes, 
                 bool isStatic) {
-                uint32_t VAO, PBO, NBO, UVBO, UV2BO, EBO;
+                uint32_t VAO, VBO, EBO;
 
                 auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
 
                 glGenVertexArrays(1, &VAO);
                 glBindVertexArray(VAO);
 
-                glGenBuffers(1, &PBO);
-                glBindBuffer(GL_ARRAY_BUFFER, PBO);
-                glBufferData(GL_ARRAY_BUFFER, position.size() * sizeof(float), position.data(), draw);
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
+                glGenBuffers(1, &VBO);
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-                glGenBuffers(1, &NBO);
-                glBindBuffer(GL_ARRAY_BUFFER, NBO);
-                glBufferData(GL_ARRAY_BUFFER, normal.size() * sizeof(float), normal.data(), draw);
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(1);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), draw);
 
-                glGenBuffers(1, &UVBO);
-                glBindBuffer(GL_ARRAY_BUFFER, UVBO);
-                glBufferData(GL_ARRAY_BUFFER, uv1.size() * sizeof(float), uv1.data(), draw);
-                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(2);
+                uint32_t vertexStride{};
+
+                for (auto& attribute : attributes) {
+                    vertexStride += attribute.size * attribute.stride;
+                }
+
+                for (auto& attribute : attributes) {
+                    attribute.bufferID = VBO;
+                    glVertexAttribPointer(
+                        attribute.index,
+                        attribute.stride,
+                        attribute.type, 
+                        attribute.normalized, 
+                        vertexStride, 
+                        (void*)attribute.offset);
+                    glEnableVertexAttribArray(attribute.index);
+                }
 
                 glGenBuffers(1, &EBO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, index.size() * sizeof(uint32_t), index.data(), draw);
-
-                if (!uv2.empty()) {
-                    glGenBuffers(1, &UV2BO);
-                    glBindBuffer(GL_ARRAY_BUFFER, UV2BO);
-                    glBufferData(GL_ARRAY_BUFFER, uv2.size() * sizeof(float), uv2.data(), draw);
-                    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-                    glEnableVertexAttribArray(3);
-                }
-                else {
-                    UV2BO = 0;
-                }
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), draw);
 
                 glBindVertexArray(0);
 
-                return RArrayData{ VAO, PBO, NBO, UVBO, EBO, UV2BO };
+                return RArrayData{ VAO, attributes, EBO, indices.size(), isStatic };
             }
 
             static RArrayData buildQuad() {
@@ -231,7 +224,7 @@ namespace Byte {
                      1.0f, 1.0f, 0.0f,
                      1.0f, -1.0f, 0.0f
                 };
-                static const Buffer<float> uv{
+                static const Buffer<float> uvs{
                     0.0f, 1.0f,
                     0.0f, 0.0f,
                     1.0f, 1.0f,
@@ -262,8 +255,8 @@ namespace Byte {
                 glBindBuffer(GL_ARRAY_BUFFER, UVBO);
                 glBufferData(
                     GL_ARRAY_BUFFER,
-                    uv.size() * sizeof(float),
-                    uv.data(),
+                    uvs.size() * sizeof(float),
+                    uvs.data(),
                     GL_STATIC_DRAW);
 
                 glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
@@ -279,16 +272,27 @@ namespace Byte {
 
                 glBindVertexArray(0);
 
-                return RArrayData{ VAO, VBO, 0, UVBO, EBO, 0 };
+                VertexAttribute pos{ 0, sizeof(float), GL_FLOAT,0,3,0,false };
+                VertexAttribute uv{ 0, sizeof(float), GL_FLOAT,0,2,1,false };
+
+                Buffer<VertexAttribute> attributes{ pos,uv };
+
+                return RArrayData{ VAO, std::move(attributes), EBO, index.size() };
             }
 
             static void release(RArrayData& renderArrayData) {
                 glDeleteVertexArrays(1, &renderArrayData.VAO);
-                glDeleteBuffers(1, &renderArrayData.PBO);
-                glDeleteBuffers(1, &renderArrayData.NBO);
-                glDeleteBuffers(1, &renderArrayData.UVBO);
+
+                std::set<RBufferID> uniqueBuffers;
+                for (const auto& attribute : renderArrayData.attributes) {
+                    uniqueBuffers.insert(attribute.bufferID);
+                }
+
+                for (const auto& id : uniqueBuffers) {
+                    glDeleteBuffers(1, &id);
+                }
+
                 glDeleteBuffers(1, &renderArrayData.EBO);
-                glDeleteBuffers(1, &renderArrayData.UV2BO);
             }
 
             static void bind(RArrayID id) {
@@ -419,7 +423,7 @@ namespace Byte {
 
                 shaderCode = shaderStream.str();
 
-                const char* sCode = shaderCode.c_str();
+                const char* sCode{ shaderCode.c_str() };
 
                 uint32_t id;
 
