@@ -79,23 +79,6 @@ namespace Byte {
 		}
 
 	private:
-		Buffer<VertexAttribute> buildMeshAttributes(Mesh& mesh) const {
-			Buffer<VertexAttribute> atts;
-
-			size_t stride{ 0 };
-
-			for (uint8_t i{ 0 }; i < mesh.data().vertexLayout.size(); ++i) {
-				uint8_t layout{ mesh.data().vertexLayout[i] };
-				uint16_t strideSize{ static_cast<uint16_t>(stride * sizeof(float)) };
-
-				atts.push_back(VertexAttribute{0, sizeof(float), GL_FLOAT,strideSize,layout,i,false });
-
-				stride += layout;
-			}
-
-			return atts;
-		}
-
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
