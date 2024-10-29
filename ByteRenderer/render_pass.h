@@ -14,7 +14,7 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		RenderArray quad;
+		Mesh quad;
 		Mesh sphere;
 	};
 
@@ -102,11 +102,11 @@ namespace Byte {
 			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
 			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE2);
 
-			data.quad.bind();
+			data.quad.renderArray().bind();
 
 			OpenglAPI::Draw::quad();
 
-			data.quad.unbind();
+			data.quad.renderArray().unbind();
 
 			lightingShader.unbind();
 
@@ -201,11 +201,11 @@ namespace Byte {
 			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular1"), GL_TEXTURE1);
 			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular2"), GL_TEXTURE2);
 
-			data.quad.bind();
+			data.quad.renderArray().bind();
 
 			OpenglAPI::Draw::quad();
 
-			data.quad.unbind();
+			data.quad.renderArray().unbind();
 		}
 
 	};

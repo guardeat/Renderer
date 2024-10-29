@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <fstream>
-#include <set>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -214,81 +213,81 @@ namespace Byte {
 
                 glBindVertexArray(0);
 
-                return RArrayData{ VAO, attributes, EBO, indices.size(), isStatic };
+                return RArrayData{ VAO, attributes,{VBO}, EBO, indices.size(), isStatic };
             }
 
-            static RArrayData buildQuad() {
-                static const Buffer<float> position{
-                    -1.0f, 1.0f, 0.0f,
-                    -1.0f, -1.0f, 0.0f,
-                     1.0f, 1.0f, 0.0f,
-                     1.0f, -1.0f, 0.0f
-                };
-                static const Buffer<float> uvs{
-                    0.0f, 1.0f,
-                    0.0f, 0.0f,
-                    1.0f, 1.0f,
-                    1.0f, 0.0f
-                };
-                static const Buffer<uint32_t> index{
-                    0, 1, 2,
-                    1, 3, 2
-                };
+            static RArrayData build(
+                const Buffer<float>& vertices,
+                const Buffer<uint32_t>& indices,
+                Buffer<VertexAttribute>& attributes,
+                Buffer<VertexAttribute>& instanceAttributes,
+                bool isStatic) {
 
-                uint32_t VAO, VBO, UVBO, EBO;
+                uint32_t VAO, VBO, EBO, iVBO;
+
+                auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
 
                 glGenVertexArrays(1, &VAO);
                 glBindVertexArray(VAO);
 
                 glGenBuffers(1, &VBO);
                 glBindBuffer(GL_ARRAY_BUFFER, VBO);
-                glBufferData(
-                    GL_ARRAY_BUFFER,
-                    position.size() * sizeof(float),
-                    position.data(),
-                    GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), draw);
 
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
+                uint32_t vertexStride{};
+                for (auto& attribute : attributes) {
+                    vertexStride += attribute.size * attribute.stride;
+                }
 
-                glGenBuffers(1, &UVBO);
-                glBindBuffer(GL_ARRAY_BUFFER, UVBO);
-                glBufferData(
-                    GL_ARRAY_BUFFER,
-                    uvs.size() * sizeof(float),
-                    uvs.data(),
-                    GL_STATIC_DRAW);
-
-                glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(1);
+                for (auto& attribute : attributes) {
+                    attribute.bufferID = VBO;
+                    glVertexAttribPointer(
+                        attribute.index,
+                        attribute.stride,
+                        attribute.type,
+                        attribute.normalized,
+                        vertexStride,
+                        (void*)attribute.offset);
+                    glEnableVertexAttribArray(attribute.index);
+                }
 
                 glGenBuffers(1, &EBO);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-                glBufferData(
-                    GL_ELEMENT_ARRAY_BUFFER,
-                    index.size() * sizeof(uint32_t),
-                    index.data(),
-                    GL_STATIC_DRAW);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), draw);
 
+                glGenBuffers(1, &iVBO);
+                glBindBuffer(GL_ARRAY_BUFFER, iVBO);
+
+                uint32_t instanceStride{};
+                for (const auto& attribute : instanceAttributes) {
+                    instanceStride += attribute.size * attribute.stride;
+                }
+
+                for (const auto& attribute : instanceAttributes) {
+                    glVertexAttribPointer(
+                        attribute.index,
+                        attribute.stride,
+                        attribute.type,
+                        attribute.normalized,
+                        instanceStride,
+                        (void*)attribute.offset);
+                    glEnableVertexAttribArray(attribute.index);
+                    glVertexAttribDivisor(attribute.index, 1);
+                }
                 glBindVertexArray(0);
 
-                VertexAttribute pos{ 0, sizeof(float), GL_FLOAT,0,3,0,false };
-                VertexAttribute uv{ 0, sizeof(float), GL_FLOAT,0,2,1,false };
+                return RArrayData{ VAO, attributes,{VBO,iVBO}, EBO, indices.size(), isStatic };
+            }
 
-                Buffer<VertexAttribute> attributes{ pos,uv };
-
-                return RArrayData{ VAO, std::move(attributes), EBO, index.size() };
+            static void fillArray(Buffer<float>& data, bool isStatic) {
+                auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
+                glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), draw);
             }
 
             static void release(RArrayData& renderArrayData) {
                 glDeleteVertexArrays(1, &renderArrayData.VAO);
 
-                std::set<RBufferID> uniqueBuffers;
-                for (const auto& attribute : renderArrayData.attributes) {
-                    uniqueBuffers.insert(attribute.bufferID);
-                }
-
-                for (const auto& id : uniqueBuffers) {
+                for (const auto& id : renderArrayData.vertexBuffers) {
                     glDeleteBuffers(1, &id);
                 }
 

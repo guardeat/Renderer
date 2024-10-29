@@ -36,11 +36,11 @@ namespace Byte {
 				data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
 			}
 
-			data.quad = OpenglAPI::RArray::buildQuad();
+			data.quad = MeshBuilder::quad();
+			fillVertexArray(data.quad);
 
 			data.sphere = MeshBuilder::sphere(1, 10);
-
-			fillMesh(data.sphere);
+			fillVertexArray(data.sphere);
 
 			compileShaders(config);
 		}
@@ -48,7 +48,7 @@ namespace Byte {
 		void render(RenderContext& context) {
 			for (Mesh* mesh : context.meshes()) {
 				if (mesh->renderArray().data().VAO == 0) {
-					fillMesh(*mesh);
+					fillVertexArray(*mesh);
 				}
 			}
 
@@ -57,7 +57,7 @@ namespace Byte {
 			}
 		}
 
-		void update(Window& window) {
+		void update(Window& window) const {
 			OpenglAPI::update(window);
 		}
 
@@ -78,17 +78,41 @@ namespace Byte {
 		}
 
 	private:
-		void fillMesh(Mesh& mesh) {
-			bool isStatic{ mesh.meshMode() == MeshMode::STATIC };
+		Buffer<VertexAttribute> buildMeshAttributes(Mesh& mesh) const {
+			Buffer<VertexAttribute> atts;
 
-			VertexAttribute pos{ 0, sizeof(float), GL_FLOAT,0,3,0,false };
-			VertexAttribute normal{ 0, sizeof(float), GL_FLOAT,3 * sizeof(float),3, 1,false };
-			VertexAttribute uv{ 0, sizeof(float), GL_FLOAT,6 * sizeof(float),2,2,false };
+			size_t stride{ 0 };
 
-			Buffer<VertexAttribute> attributes{ pos,normal,uv };
-			 
-			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),attributes,isStatic));
+			for (uint8_t i{ 0 }; i < mesh.data().vertexLayout.size(); ++i) {
+				uint8_t layout{ mesh.data().vertexLayout[i] };
+				uint16_t strideSize{ static_cast<uint16_t>(stride * sizeof(float)) };
+
+				atts.push_back(VertexAttribute{0, sizeof(float), GL_FLOAT,strideSize,layout,i,false });
+
+				stride += layout;
+			}
+
+			return atts;
 		}
+
+		void fillVertexArray(Mesh& mesh) const {
+			bool isStatic{ mesh.mode() == MeshMode::STATIC };
+
+			Buffer<VertexAttribute> atts{ VertexAttribute::build(mesh.data().vertexLayout) };
+			 
+			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
+		}
+
+		void fillInstancedVertexArray(InstancedMesh& mesh) const {
+			bool isStatic{ mesh->mode() == MeshMode::STATIC };
+
+			Buffer<VertexAttribute> atts{ VertexAttribute::build(mesh->data().vertexLayout) };
+
+			Buffer<VertexAttribute> iAtts{ VertexAttribute::build({3,3,4},3) };
+
+			mesh->renderArray(OpenglAPI::RArray::build(mesh->vertices(),mesh->indices(),atts,iAtts,isStatic));
+		}
+
 	};
 
 }

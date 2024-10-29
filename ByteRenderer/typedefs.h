@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
+#include <exception>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -72,6 +73,25 @@ namespace Byte {
 		uint8_t index;
 
 		bool normalized{ false };
+
+		static Buffer<VertexAttribute> build(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
+			uint16_t stride{ 0 };
+
+			Buffer<VertexAttribute> atts;
+
+			for (uint8_t index{ 0 }; index < layout.size(); ++index) {
+				uint16_t aLayout{ layout[index] };
+				uint16_t strideSize{ static_cast<uint16_t>(stride * sizeof(float)) };
+				uint8_t i{ static_cast<uint8_t>(index + indexOffset) };
+
+				atts.push_back(VertexAttribute{ 0, sizeof(float), GL_FLOAT,strideSize,aLayout, i,false });
+
+				stride += aLayout;
+			}
+
+			return atts;
+		}
+
 	};
 
 	struct RArrayData {
@@ -80,10 +100,12 @@ namespace Byte {
 		using AttributeVector = std::vector<VertexAttribute>;
 		AttributeVector attributes;
 
-		RBufferID EBO{ 0 };
-		size_t elementCount;
+		Buffer<RBufferID> vertexBuffers;
 
-		bool isStatic;
+		RBufferID EBO{ 0 };
+		size_t elementCount{ 0 };
+
+		bool isStatic{ true };
 	};
 
 }

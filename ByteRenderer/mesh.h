@@ -10,55 +10,109 @@
 
 namespace Byte {
 
-	struct MeshGeometry {
-		Buffer<float> vertices;
-		//Buffer<float> uv;
+    enum class MeshMode : uint8_t {
+        STATIC,
+        DYNAMIC,
+    };
 
+	struct MeshData {
+        Buffer<float> vertices;
 		Buffer<uint32_t> indices;
-	};
 
-	enum class MeshMode : uint8_t {
-		STATIC,
-		DYNAMIC,
+        MeshMode mode;
+
+        Buffer<uint8_t> vertexLayout{ 3,3,2 };
+        RenderArray renderArray;
 	};
 
 	class Mesh {
 	private:
-		MeshGeometry _geometry;
-		MeshMode _meshMode{ MeshMode::STATIC };
-		RenderArray _renderArray;
+        MeshData _data;
 
 	public:
 		Mesh() = default;
 
-		Mesh(MeshGeometry&& geometry, MeshMode meshMode)
-			: _geometry{ std::move(geometry) }, _meshMode{ meshMode }
+		Mesh(MeshData&& data)
+			: _data{ std::move(data) }
 		{}
 
 		const Buffer<float>& vertices() const {
-			return _geometry.vertices;
+			return _data.vertices;
 		}
 
 		const Buffer<uint32_t>& indices() const {
-			return _geometry.indices;
+			return _data.indices;
 		}
 
-		MeshMode meshMode() const {
-			return _meshMode;
+		MeshMode mode() const {
+			return _data.mode;
 		}
 
 		const RenderArray& renderArray() const {
-			return _renderArray;
+			return _data.renderArray;
 		}
 
 		void renderArray(RenderArray&& renderArray) {
-			_renderArray = std::move(renderArray);
+			_data.renderArray = std::move(renderArray);
 		}
 
-		const MeshGeometry& geometry() const {
-			return _geometry;
+		const MeshData& data() const {
+			return _data;
 		}
 	};
+
+    struct InstanceData {
+        uint32_t sharedID{ 0 };
+        uint32_t instanceCount{ 0 };
+    };
+
+    class InstancedMesh {
+    private:
+        using SharedMesh = std::shared_ptr<Mesh>;
+        SharedMesh _mesh;
+
+        using SharedInstanceData = std::shared_ptr<InstanceData>;
+        SharedInstanceData _instanceData{ std::make_shared<InstanceData>() };
+
+    public:
+        InstancedMesh() = default;
+
+        InstancedMesh(MeshData&& data)
+            : _mesh{ std::make_shared<Mesh>(std::move(data)) }
+        {}
+
+        Mesh* operator->() {
+            return _mesh.get();
+        }
+
+        const Mesh* operator->() const {
+            return _mesh.get();
+        }
+
+        Mesh& operator*() {
+            return *_mesh;
+        }
+
+        const Mesh& operator*() const {
+            return *_mesh;
+        }
+        
+        Mesh& mesh() {
+            return *_mesh;
+        }
+
+        const Mesh& mesh() const {
+            return *_mesh;
+        }
+
+        InstanceData& instanceData() {
+            return *_instanceData;
+        }
+
+        const InstanceData& instanceData() const {
+            return *_instanceData;
+        }
+    };
 
     struct MeshBuilder {
         static Mesh sphere(float radius, size_t numSegments) {
@@ -109,8 +163,8 @@ namespace Byte {
                 }
             }
 
-            MeshGeometry geometry{ std::move(vertexData), std::move(indices) };
-            return Mesh{ std::move(geometry), MeshMode::STATIC };
+            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC};
+            return Mesh{ std::move(data) };
         }
 
         static Mesh plane(float width, float height, size_t numSegments) {
@@ -159,8 +213,24 @@ namespace Byte {
                 }
             }
 
-            MeshGeometry geometry{ std::move(vertexData), std::move(indices) };
-            return Mesh{ std::move(geometry), MeshMode::STATIC };
+            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC };
+            return Mesh{ std::move(data) };
+        }
+
+        static Mesh quad() {
+            const Buffer<float> vertexData{
+               -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+               -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+                1.0f, -1.0f, 0.0f, 1.0f, 0.0f
+            };
+            const Buffer<uint32_t> indices{
+                0, 1, 2,
+                1, 3, 2
+            };
+
+            MeshData data{ vertexData, indices, MeshMode::STATIC, {3,2} };
+            return Mesh{ std::move(data) };
         }
     };
 
