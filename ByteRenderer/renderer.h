@@ -46,9 +46,10 @@ namespace Byte {
 		}
 
 		void render(RenderContext& context) {
-			for (Mesh* mesh : context.meshes()) {
-				if (mesh->renderArray().data().VAO == 0) {
-					fillVertexArray(*mesh);
+			for (size_t i{}; i < context.targetCount(); ++i) {
+				Mesh& mesh{ context.mesh(i) };
+				if (mesh.renderArray().data().VAO == 0) {
+					fillVertexArray(mesh);
 				}
 			}
 
@@ -103,14 +104,16 @@ namespace Byte {
 			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
 
-		void fillInstancedVertexArray(InstancedMesh& mesh) const {
-			bool isStatic{ mesh->mode() == MeshMode::STATIC };
+		void fillInstancedVertexArray(RenderInstance& instance) const {
+			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
-			Buffer<VertexAttribute> atts{ VertexAttribute::build(mesh->data().vertexLayout) };
+			Buffer<VertexAttribute> atts{ VertexAttribute::build(instance.mesh().data().vertexLayout) };
 
 			Buffer<VertexAttribute> iAtts{ VertexAttribute::build({3,3,4},3) };
 
-			mesh->renderArray(OpenglAPI::RArray::build(mesh->vertices(),mesh->indices(),atts,iAtts,isStatic));
+			auto& vertices{ instance.mesh().vertices() };
+			auto& indices{ instance.mesh().indices() };
+			instance.mesh().renderArray(OpenglAPI::RArray::build(vertices, indices,atts,iAtts,isStatic));
 		}
 
 	};

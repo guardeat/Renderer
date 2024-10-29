@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tuple>
+#include <unordered_map>
 
 #include "typedefs.h"
 #include "mesh.h"
@@ -10,73 +11,87 @@
 #include "framebuffer.h"
 #include "light.h"
 #include "camera.h"
+#include "instancing.h"
 
 namespace Byte {
 
-    using RenderTarget = std::tuple<Mesh&, Material&, Transform&>;
-
-    template<typename Type>
-    using RenderItem = std::tuple<Type&, Transform&>;
-
     class RenderContext {
+    public:
+        struct RenderTarget {
+            Mesh* mesh;
+            Material* material;
+            Transform* transform;
+        };
+
+        template<typename Type>
+        struct RenderItem {
+            Type* item;
+            Transform* transform;
+        };
+
     private:
-        Buffer<Mesh*> _meshes;
-        Buffer<Material*> _materials;
-        Buffer<Transform*> _transforms;
+        Buffer<RenderTarget> _renderTargets;
 
-        Camera* _mainCamera{};
-        Transform* _mainCameraTransform{};
+        RenderItem<Camera> _camera;
+        RenderItem<DirectionalLight> _directionalLight;
 
-        DirectionalLight* _directionalLight{};
-        Transform* _directionalLightTransform{};
+        Buffer<RenderItem<PointLight>> _pointLights;
 
-        Buffer<PointLight*> _pointLights;
-        Buffer<Transform*> _pointLightTransforms;
+        using InstanceMap = std::unordered_map<InstanceID, RenderInstance>;
+        InstanceMap _instances;
+        InstanceIDGenerator _generator;
 
     public:
         void submit(Mesh& mesh, Material& material, Transform& transform) {
-            _meshes.push_back(&mesh);
-            _materials.push_back(&material);
-            _transforms.push_back(&transform);
+            _renderTargets.emplace_back(&mesh, &material, &transform);
         }
 
         void submit(Camera& camera, Transform& cameraTransform) {
-            _mainCamera = &camera;
-            _mainCameraTransform = &cameraTransform;
+            _camera = { &camera, &cameraTransform };
         }
 
         void submit(DirectionalLight& light, Transform& lightTransform) {
-            _directionalLight = &light;
-            _directionalLightTransform = &lightTransform;
+            _directionalLight = { &light, &lightTransform };
         }
 
         void submit(PointLight& light, Transform& lightTransform) {
-            _pointLights.push_back(&light);
-            _pointLightTransforms.push_back(&lightTransform);
+            _pointLights.emplace_back(&light, &lightTransform);
         }
 
-        RenderTarget item(size_t index) {
-            return std::tie(*_meshes[index], *_materials[index], *_transforms[index]);
+        RenderTarget& target(size_t index) {
+            return _renderTargets[index];
         }
 
-        Buffer<Mesh*>& meshes() {
-            return _meshes;
+        Mesh& mesh(size_t index) {
+            return *_renderTargets[index].mesh;
         }
 
-        size_t itemCount() const {
-            return _meshes.size();
+        Material& material(size_t index) {
+            return *_renderTargets[index].material;
+        }
+
+        Transform& transform(size_t index) {
+            return *_renderTargets[index].transform;
+        }
+
+        Buffer<RenderTarget>& targets() {
+            return _renderTargets;
+        }
+
+        size_t targetCount() const {
+            return _renderTargets.size();
         }
 
         RenderItem<Camera> camera() {
-            return std::tie(*_mainCamera, *_mainCameraTransform);
+            return _camera;
         }
 
         RenderItem<DirectionalLight> directionalLight() {
-            return std::tie(*_directionalLight, *_directionalLightTransform);
+            return _directionalLight;
         }
 
         RenderItem<PointLight> pointLight(size_t index) {
-            return std::tie(*_pointLights[index], *_pointLightTransforms[index]);
+            return _pointLights[index];
         }
 
         size_t pointLightCount() const {
@@ -84,17 +99,14 @@ namespace Byte {
         }
 
         void clear() {
-            _meshes.clear();
-            _materials.clear();
-            _transforms.clear();
-
+            _renderTargets.clear();
             _pointLights.clear();
-            _pointLightTransforms.clear();
+            _instances.clear();
 
-            _mainCamera = nullptr;
-            _mainCameraTransform = nullptr;
-            _directionalLight = nullptr;
-            _directionalLightTransform = nullptr;
+            _camera.item = nullptr;
+            _camera.transform = nullptr;
+            _directionalLight.item = nullptr;
+            _directionalLight.transform = nullptr;
         }
     };
 

@@ -61,59 +61,6 @@ namespace Byte {
 		}
 	};
 
-    struct InstanceData {
-        uint32_t sharedID{ 0 };
-        uint32_t instanceCount{ 0 };
-    };
-
-    class InstancedMesh {
-    private:
-        using SharedMesh = std::shared_ptr<Mesh>;
-        SharedMesh _mesh;
-
-        using SharedInstanceData = std::shared_ptr<InstanceData>;
-        SharedInstanceData _instanceData{ std::make_shared<InstanceData>() };
-
-    public:
-        InstancedMesh() = default;
-
-        InstancedMesh(MeshData&& data)
-            : _mesh{ std::make_shared<Mesh>(std::move(data)) }
-        {}
-
-        Mesh* operator->() {
-            return _mesh.get();
-        }
-
-        const Mesh* operator->() const {
-            return _mesh.get();
-        }
-
-        Mesh& operator*() {
-            return *_mesh;
-        }
-
-        const Mesh& operator*() const {
-            return *_mesh;
-        }
-        
-        Mesh& mesh() {
-            return *_mesh;
-        }
-
-        const Mesh& mesh() const {
-            return *_mesh;
-        }
-
-        InstanceData& instanceData() {
-            return *_instanceData;
-        }
-
-        const InstanceData& instanceData() const {
-            return *_instanceData;
-        }
-    };
-
     struct MeshBuilder {
         static Mesh sphere(float radius, size_t numSegments) {
             size_t numVertices = (numSegments + 1) * (numSegments + 1);

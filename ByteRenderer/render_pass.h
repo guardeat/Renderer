@@ -28,37 +28,37 @@ namespace Byte {
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera.perspective(aspectRatio)};
-			Mat4 view{ camera.view(cTransform) };
+			Mat4 projection{ camera->perspective(aspectRatio)};
+			Mat4 view{ camera->view(*cTransform) };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 
 			gBuffer.bind();
 			gBuffer.clearContent();
 
-			for (size_t i{ 0 }; i < context.itemCount(); ++i) {
+			for (size_t i{ 0 }; i < context.targetCount(); ++i) {
 
-				auto [mesh, material, transform] = context.item(i);
+				auto [mesh, material, transform] = context.target(i);
 
-				Shader& shader{ data.shaders[material.shaderTag()] };
+				Shader& shader{ data.shaders[material->shaderTag()] };
 
 				shader.bind();
 
-				mesh.renderArray().bind();
+				mesh->renderArray().bind();
 
-				shader.uniform<Vec4>("uAlbedo", material.albedo());
+				shader.uniform<Vec4>("uAlbedo", material->albedo());
 
-				shader.uniform<Vec3>("uPosition", transform.position());
-				shader.uniform<Vec3>("uScale", transform.scale());
-				shader.uniform<Quaternion>("uRotation", transform.rotation());
+				shader.uniform<Vec3>("uPosition", transform->position());
+				shader.uniform<Vec3>("uScale", transform->scale());
+				shader.uniform<Quaternion>("uRotation", transform->rotation());
 
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 
-				OpenglAPI::Draw::elements(mesh.indices().size());
+				OpenglAPI::Draw::elements(mesh->indices().size());
 
 				shader.unbind();
-				mesh.renderArray().unbind();
+				mesh->renderArray().unbind();
 			}
 
 			gBuffer.bind();
@@ -92,11 +92,11 @@ namespace Byte {
 			auto [_, cTransform] = context.camera();
 			auto [directionalLight, dlTransform] = context.directionalLight();
 
-			lightingShader.uniform<Vec3>("uViewPos", cTransform.position());
+			lightingShader.uniform<Vec3>("uViewPos", cTransform->position());
 
-			lightingShader.uniform<Vec3>("uDirectionalLight.direction",dlTransform.front());
-			lightingShader.uniform<Vec3>("uDirectionalLight.color",directionalLight.color);
-			lightingShader.uniform<float>("uDirectionalLight.intensity",directionalLight.intensity);
+			lightingShader.uniform<Vec3>("uDirectionalLight.direction",dlTransform->front());
+			lightingShader.uniform<Vec3>("uDirectionalLight.color",directionalLight->color);
+			lightingShader.uniform<float>("uDirectionalLight.intensity",directionalLight->intensity);
 
 			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
 			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
@@ -135,8 +135,8 @@ namespace Byte {
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera.perspective(aspectRatio) };
-			Mat4 view{ camera.view(cTransform) };
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ camera->view(*cTransform) };
 
 			plShader.uniform<Mat4>("uProjection", projection);
 			plShader.uniform<Mat4>("uView", view);
@@ -157,9 +157,9 @@ namespace Byte {
 
 				auto [pointLight, _transform] = context.pointLight(i);
 
-				Transform transform{ _transform };
+				Transform transform{ *_transform };
 
-				float radius{ pointLight.radius() };
+				float radius{ pointLight->radius() };
 				transform.scale(Vec3{ radius,radius,radius });
 
 				plShader.uniform<Vec3>("uPosition", transform.position());
@@ -167,10 +167,10 @@ namespace Byte {
 				plShader.uniform<Quaternion>("uRotation", transform.rotation());
 
 				plShader.uniform<Vec3>("uPointLight.position", transform.position());
-				plShader.uniform<Vec3>("uPointLight.color", pointLight.color);
-				plShader.uniform<float>("uPointLight.constant", pointLight.constant);
-				plShader.uniform<float>("uPointLight.linear", pointLight.linear);
-				plShader.uniform<float>("uPointLight.quadratic", pointLight.quadratic);
+				plShader.uniform<Vec3>("uPointLight.color", pointLight->color);
+				plShader.uniform<float>("uPointLight.constant", pointLight->constant);
+				plShader.uniform<float>("uPointLight.linear", pointLight->linear);
+				plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
 				OpenglAPI::Draw::elements(data.sphere.indices().size());
 
