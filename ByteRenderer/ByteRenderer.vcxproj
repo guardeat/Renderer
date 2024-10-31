@@ -149,6 +149,7 @@
     <ClInclude Include="context.h" />
     <ClInclude Include="forward_fragment.glsl" />
     <ClInclude Include="default_vertex.glsl" />
+    <ClInclude Include="instanced_vertex.glsl" />
     <ClInclude Include="instancing.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="framebuffer.h" />

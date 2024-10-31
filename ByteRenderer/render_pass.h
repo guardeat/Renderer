@@ -28,30 +28,33 @@ namespace Byte {
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->perspective(aspectRatio)};
+			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ camera->view(*cTransform) };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
-
 			gBuffer.bind();
 			gBuffer.clearContent();
 
-			for (size_t i{ 0 }; i < context.targetCount(); ++i) {
+			renderEntities(context, data, projection, view);
+			renderInstances(context, data, projection, view);
 
-				auto [mesh, material, transform] = context.target(i);
+			gBuffer.unbind();
+		}
+
+	private:
+		void renderEntities(RenderContext& context, RenderData& data, const Mat4& projection, const Mat4& view) {
+			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
+				auto [mesh, material, transform] = context.entity(i);
 
 				Shader& shader{ data.shaders[material->shaderTag()] };
-
 				shader.bind();
 
 				mesh->renderArray().bind();
 
 				shader.uniform<Vec4>("uAlbedo", material->albedo());
-
 				shader.uniform<Vec3>("uPosition", transform->position());
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
-
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 
@@ -60,8 +63,27 @@ namespace Byte {
 				shader.unbind();
 				mesh->renderArray().unbind();
 			}
+		}
 
-			gBuffer.bind();
+		void renderInstances(RenderContext& context, RenderData& data, const Mat4& projection, const Mat4& view) {
+			for (auto& pair : context.instances()) {
+				Mesh& mesh{ pair.second.mesh() };
+				Material& material{ pair.second.material() };
+
+				Shader& shader{ data.shaders[material.shaderTag()] };
+				shader.bind();
+
+				mesh.renderArray().bind();
+
+				shader.uniform<Vec4>("uAlbedo", material.albedo());
+				shader.uniform<Mat4>("uProjection", projection);
+				shader.uniform<Mat4>("uView", view);
+
+				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+
+				shader.unbind();
+				mesh.renderArray().unbind();
+			}
 		}
 
 	};

@@ -46,12 +46,7 @@ namespace Byte {
 		}
 
 		void render(RenderContext& context) {
-			for (size_t i{}; i < context.targetCount(); ++i) {
-				Mesh& mesh{ context.mesh(i) };
-				if (mesh.renderArray().data().VAO == 0) {
-					fillVertexArray(mesh);
-				}
-			}
+			prepareVertexArrays(context);
 
 			for (auto& pass : pipeline) {
 				pass->render(context, data);
@@ -79,6 +74,25 @@ namespace Byte {
 		}
 
 	private:
+		void prepareVertexArrays(RenderContext& context) {
+			for (size_t i{}; i < context.entityCount(); ++i) {
+				Mesh& mesh{ context.mesh(i) };
+				if (mesh.renderArray().data().VAO == 0) {
+					fillVertexArray(mesh);
+				}
+			}
+
+			for (auto& pair : context.instances()) {
+				if (pair.second.mesh().renderArray().data().VAO == 0) {
+					fillInstancedVertexArray(pair.second);
+					pair.second.resetInstanceBuffer();
+				}
+				else if (pair.second.change()) {
+					pair.second.resetInstanceBuffer();
+				}
+			}
+		}
+
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
@@ -96,7 +110,8 @@ namespace Byte {
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
-			instance.mesh().renderArray(OpenglAPI::RArray::build(vertices, indices,atts,iAtts,isStatic));
+			auto rArrayData{ OpenglAPI::RArray::build(vertices,indices,atts,iAtts,isStatic) };
+			instance.mesh().renderArray(std::move(rArrayData));
 		}
 
 	};

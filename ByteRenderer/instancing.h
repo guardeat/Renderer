@@ -1,24 +1,32 @@
 #pragma once
 
+#include <string>
+
 #include "mesh.h"
 #include "material.h"
 #include "transform.h"
 
 namespace Byte {
 
-    using InstanceID = uint32_t;
+    using InstanceTag = std::string;
 
     class RenderInstance {
     private:
-        InstanceID instanceID{ 0 };
+        Mesh* _mesh{};
+        Material* _material{};
 
-        Mesh* _mesh;
-        Material* _material;
+        Buffer<float> _data{};
+        bool _change{ false };
 
-        Buffer<Transform*> _transforms;
+        size_t _size{ 0 };
+        size_t _bufferCapacity{ 0 };
 
     public:
         RenderInstance() = default;
+
+        RenderInstance(Mesh& mesh, Material& material)
+            : _mesh{ &mesh }, _material{&material} {
+        }
 
         Mesh& mesh() {
             return *_mesh;
@@ -44,30 +52,58 @@ namespace Byte {
             _material = &newMaterial;
         }
 
-        Buffer<Transform*>& transforms() {
-            return _transforms;
+        void add(Transform& transform) {
+            _change = true;
+            ++_size;
+
+            _data.push_back(transform.position().x);
+            _data.push_back(transform.position().y);
+            _data.push_back(transform.position().z);
+
+            _data.push_back(transform.scale().x);
+            _data.push_back(transform.scale().y);
+            _data.push_back(transform.scale().z);
+
+            _data.push_back(transform.rotation().x);
+            _data.push_back(transform.rotation().y);
+            _data.push_back(transform.rotation().z);
+            _data.push_back(transform.rotation().w);
+            
         }
 
-        const Buffer<Transform*>& transforms() const {
-            return _transforms;
+        Buffer<float>& data() {
+            return _data;
         }
 
-        InstanceID id() const {
-            return instanceID;
+        const Buffer<float>& data() const {
+            return _data;
         }
 
-        void id(InstanceID newID) {
-            instanceID = newID;
+        bool change() const {
+            return _change;
         }
-    };
 
-    struct InstanceIDGenerator {
-    private:
-        InstanceID current{ 1 };
+        void resetInstanceBuffer() {
+            RBufferID bufferID{ _mesh->renderArray().data().vertexBuffers[1] };
 
-    public:
-        InstanceID generate() {
-            return current++;
+            if (_size > _bufferCapacity) {
+                OpenglAPI::RArray::bufferData(bufferID, _data, _size * 20, true);
+                _bufferCapacity = _size * 2;
+            }
+            else {
+                OpenglAPI::RArray::subBufferData(bufferID, _data, 0);
+            }
+            _change = false;
+        }
+
+        size_t size() const {
+            return _size;
+        }
+
+        void reset() {
+            _data.clear();
+            _size = 0;
+            _change = false;
         }
     };
 

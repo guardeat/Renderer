@@ -164,6 +164,12 @@ namespace Byte {
                 glDrawElements(GL_TRIANGLES, static_cast<GLint>(size), GL_UNSIGNED_INT, 0);
             }
 
+            static void instancedElements(size_t size, size_t instanceCount) {
+                GLint glSize{ static_cast<GLint>(size) };
+                GLsizei glCount{ static_cast<GLsizei>(instanceCount) };
+                glDrawElementsInstanced(GL_TRIANGLES, glSize, GL_UNSIGNED_INT, 0, glCount);
+            }
+
             static void quad() {
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -300,6 +306,18 @@ namespace Byte {
 
             static void unbind() {
                 glBindVertexArray(0);
+            }
+
+            static void bufferData(RBufferID id, Buffer<float>& data, size_t size, bool isStatic) {
+                auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
+
+                glBindBuffer(GL_ARRAY_BUFFER, id);
+                glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), data.data(), draw);
+            }
+
+            static void subBufferData(RBufferID id, Buffer<float>& data, size_t offset = 0) {
+                glBindBuffer(GL_ARRAY_BUFFER, id);
+                glBufferSubData(GL_ARRAY_BUFFER, offset, data.size() * sizeof(float), data.data());
             }
         };
 

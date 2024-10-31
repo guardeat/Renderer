@@ -17,6 +17,7 @@ int main() {
 	config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
 	config.shaderPaths["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
 	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
+	config.shaderPaths["instanced_deferred"] = { "instanced_vertex.glsl","deferred_geometry.glsl" };
 
 	FramebufferConfig gBufferConfig;
 
@@ -52,29 +53,29 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 10;
+	const int gridSize = 20;
 	const float sphereRadius = 1.0f;
 	const float spacing = 3.0f * sphereRadius; 
 
-	std::vector<Mesh> spheres(gridSize * gridSize * gridSize);
-	std::vector<Material> sphereMaterials(gridSize * gridSize * gridSize);
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
+
+	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
+	Material sphereMaterial{};
+	sphereMaterial.shaderTag("instanced_deferred");
+	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });
+
+	context.instances()["spheres_1"] = RenderInstance{ sphere,sphereMaterial };
 
 	for (int x = 0; x < gridSize; ++x) {
 		for (int y = 0; y < gridSize; ++y) {
 			for (int z = 0; z < gridSize; ++z) {
 				int index = x + y * gridSize + z * gridSize * gridSize;
 
-				spheres[index] = MeshBuilder::sphere(sphereRadius, 20);
+				Transform transform;
+				transform.position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing));
+				sphereTransforms[index] = transform;
 
-				sphereMaterials[index] = Material{};
-				sphereMaterials[index].shaderTag("default_deferred");
-				sphereMaterials[index].albedo(Vec4{ static_cast<float>(x) / gridSize, static_cast<float>(y) / gridSize, static_cast<float>(z) / gridSize, 0.0f });
-
-				sphereTransforms[index] = Transform{};
-				sphereTransforms[index].position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing)); 
-
-				context.submit(spheres[index], sphereMaterials[index], sphereTransforms[index]);
+				context.instances()["spheres_1"].add(transform);
 			}
 		}
 	}
@@ -92,7 +93,7 @@ int main() {
 	pMaterial.albedo(Vec4(0.4f, 0.3f, 0.2f, 1.0f));
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
-
+	
 	context.submit(plane,pMaterial,planeTransform);
 	
 	PointLight pl;
