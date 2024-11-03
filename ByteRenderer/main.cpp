@@ -30,7 +30,7 @@ int main() {
 		{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
 	};
 
-	 config.frameBufferConfigs["gBuffer"] = gBufferConfig;
+	config.frameBufferConfigs["gBuffer"] = gBufferConfig;
 
 	FramebufferConfig colorBufferConfig;
 

@@ -289,6 +289,24 @@ namespace Byte {
                 return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
             }
 
+            static Buffer<VertexAttribute> buildAttributeBuffer(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
+                uint16_t stride{ 0 };
+
+                Buffer<VertexAttribute> atts;
+
+                for (uint8_t index{ 0 }; index < layout.size(); ++index) {
+                    uint16_t aLayout{ layout[index] };
+                    uint16_t strideSize{ static_cast<uint16_t>(stride * sizeof(float)) };
+                    uint8_t i{ static_cast<uint8_t>(index + indexOffset) };
+
+                    atts.push_back(VertexAttribute{ 0, sizeof(float), GL_FLOAT,strideSize,aLayout, i,false });
+
+                    stride += aLayout;
+                }
+
+                return atts;
+            }
+
             static void fillArray(Buffer<float>& data, bool isStatic) {
                 auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
                 glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), draw);

@@ -96,7 +96,7 @@ namespace Byte {
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
-			Buffer<VertexAttribute> atts{ VertexAttribute::build(mesh.data().vertexLayout) };
+			auto atts{ OpenglAPI::RArray::buildAttributeBuffer(mesh.data().vertexLayout) };
 			 
 			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
@@ -104,9 +104,9 @@ namespace Byte {
 		void fillInstancedVertexArray(RenderInstance& instance) const {
 			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
-			Buffer<VertexAttribute> atts{ VertexAttribute::build(instance.mesh().data().vertexLayout) };
+			auto atts{ OpenglAPI::RArray::buildAttributeBuffer(instance.mesh().data().vertexLayout)};
 
-			Buffer<VertexAttribute> iAtts{ VertexAttribute::build({3,3,4},3) };
+			auto iAtts{ OpenglAPI::RArray::buildAttributeBuffer({3,3,4},3) };
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
