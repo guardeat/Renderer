@@ -22,25 +22,25 @@ namespace Byte {
 		using URenderPass = std::unique_ptr<RenderPass>;
 		using Pipeline = std::vector<URenderPass>;
 
-		RenderData data;
-		Pipeline pipeline;
+		RenderData _data;
+		Pipeline _pipeline;
 
 	public:
 		void initialize(Window& window, RenderConfig& config) {
 			OpenglAPI::initialize(window);
 
-			data.width = window.width();
-			data.height = window.height();
+			_data.width = window.width();
+			_data.height = window.height();
 			
 			for (auto& pair : config.frameBufferConfigs) {
-				data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
+				_data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
 			}
 
-			data.quad = MeshBuilder::quad();
-			fillVertexArray(data.quad);
+			_data.quad = MeshBuilder::quad();
+			fillVertexArray(_data.quad);
 
-			data.sphere = MeshBuilder::sphere(1, 10);
-			fillVertexArray(data.sphere);
+			_data.sphere = MeshBuilder::sphere(1, 10);
+			fillVertexArray(_data.sphere);
 
 			compileShaders(config);
 		}
@@ -48,8 +48,8 @@ namespace Byte {
 		void render(RenderContext& context) {
 			prepareVertexArrays(context);
 
-			for (auto& pass : pipeline) {
-				pass->render(context, data);
+			for (auto& pass : _pipeline) {
+				pass->render(context, _data);
 			}
 		}
 
@@ -61,14 +61,14 @@ namespace Byte {
 			for (const auto& [shaderTag, shaderPath] : config.shaderPaths) {
 				Shader shader(shaderPath.vertex, shaderPath.fragment);
 				ShaderCompiler::compile(shader);
-				data.shaders[shaderTag] = std::move(shader);
+				_data.shaders[shaderTag] = std::move(shader);
 			}
 		}
 
 		template<typename... Passes>
 		static Renderer build() {
 			Renderer renderer;
-			(renderer.pipeline.push_back(std::make_unique<Passes>()), ...);
+			(renderer._pipeline.push_back(std::make_unique<Passes>()), ...);
 
 			return renderer;
 		}

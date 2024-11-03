@@ -84,7 +84,7 @@ namespace Byte {
         }
 
         void resetInstanceBuffer() {
-            RBufferID bufferID{ _mesh->renderArray().data().vertexBuffers[1] };
+            RBufferID bufferID{ _mesh->renderArray().data().VBuffers[1].id };
 
             if (_size > _bufferCapacity) {
                 OpenglAPI::RArray::bufferData(bufferID, _data, _size * 20, true);

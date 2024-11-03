@@ -22,7 +22,7 @@ namespace Byte {
 			: _data{right._data} {
 
 			right._data.VAO = 0;
-			right._data.attributes.clear();
+			right._data.VBuffers.clear();
 			right._data.EBO = 0;
 		}
 
@@ -32,7 +32,7 @@ namespace Byte {
 			_data = std::move(right._data);
 
 			right._data.VAO = 0;
-			right._data.attributes.clear();
+			right._data.VBuffers.clear();
 			right._data.EBO = 0;
 
 			return *this;
@@ -58,7 +58,7 @@ namespace Byte {
 			OpenglAPI::RArray::release(_data);
 
 			_data.VAO = 0;
-			_data.attributes.clear();
+			_data.VBuffers.clear();
 			_data.EBO	= 0;
 		}
 	};

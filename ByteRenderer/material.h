@@ -12,23 +12,23 @@ namespace Byte {
 
 	class Material {
 	private:
-		MaterialData data;
+		MaterialData _data;
 
 	public:
 		Vec4 albedo() const {
-			return data.albedo;
+			return _data.albedo;
 		}
 
 		void albedo(Vec4 value) {
-			data.albedo = value;
+			_data.albedo = value;
 		}
 
 		const ShaderTag& shaderTag() const {
-			return data.shaderTag;
+			return _data.shaderTag;
 		}
 
 		void shaderTag(const ShaderTag& tag) {
-			data.shaderTag = tag;
+			_data.shaderTag = tag;
 		}
 	};
 

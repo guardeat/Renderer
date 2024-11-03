@@ -94,13 +94,15 @@ namespace Byte {
 
 	};
 
+	struct RBufferData {
+		RBufferID id{};
+		Buffer<VertexAttribute> attributes;
+	};
+
 	struct RArrayData {
 		RArrayID VAO{ 0 };
 		
-		using AttributeVector = std::vector<VertexAttribute>;
-		AttributeVector attributes;
-
-		Buffer<RBufferID> vertexBuffers;
+		Buffer<RBufferData> VBuffers;
 
 		RBufferID EBO{ 0 };
 		size_t elementCount{ 0 };

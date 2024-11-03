@@ -219,7 +219,9 @@ namespace Byte {
 
                 glBindVertexArray(0);
 
-                return RArrayData{ VAO, attributes,{VBO}, EBO, indices.size(), isStatic };
+                Buffer<RBufferData> buffers{ RBufferData{VBO,attributes} };
+
+                return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
             }
 
             static RArrayData build(
@@ -282,7 +284,9 @@ namespace Byte {
                 }
                 glBindVertexArray(0);
 
-                return RArrayData{ VAO, attributes,{VBO,iVBO}, EBO, indices.size(), isStatic };
+                Buffer<RBufferData> buffers{ RBufferData{VBO,attributes}, RBufferData{iVBO,attributes} };
+
+                return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
             }
 
             static void fillArray(Buffer<float>& data, bool isStatic) {
@@ -293,8 +297,8 @@ namespace Byte {
             static void release(RArrayData& renderArrayData) {
                 glDeleteVertexArrays(1, &renderArrayData.VAO);
 
-                for (const auto& id : renderArrayData.vertexBuffers) {
-                    glDeleteBuffers(1, &id);
+                for (const auto& VBuffer : renderArrayData.VBuffers) {
+                    glDeleteBuffers(1, &VBuffer.id);
                 }
 
                 glDeleteBuffers(1, &renderArrayData.EBO);
