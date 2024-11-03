@@ -96,6 +96,33 @@ namespace Byte {
                 return FramebufferData{ frameBufferID, textures, attachments};
             }
 
+            static FramebufferData buildDepthBuffer(size_t width, size_t height) {
+                FramebufferID bufferID;
+                glGenFramebuffers(1, &bufferID);
+                glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
+
+                TextureID depthMap{ Texture::build(
+                    width, height,
+                    nullptr,
+                    GL_DEPTH_COMPONENT,
+                    GL_DEPTH_COMPONENT,
+                    GL_FLOAT
+                ) };
+
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+
+                glDrawBuffer(GL_NONE);
+                glReadBuffer(GL_NONE);
+
+                if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                    throw std::exception("Depth framebuffer not complete");
+                }
+
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+                return FramebufferData{ bufferID, { { "depth", depthMap } } };
+            }
+
             static void clear(FramebufferID id) {
                 glBindFramebuffer(GL_FRAMEBUFFER, id);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -289,7 +316,7 @@ namespace Byte {
                 return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
             }
 
-            static Buffer<VertexAttribute> buildAttributeBuffer(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
+            static Buffer<VertexAttribute> buildAttributes(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
                 uint16_t stride{ 0 };
 
                 Buffer<VertexAttribute> atts;
