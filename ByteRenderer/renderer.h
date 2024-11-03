@@ -77,13 +77,13 @@ namespace Byte {
 		void prepareVertexArrays(RenderContext& context) {
 			for (size_t i{}; i < context.entityCount(); ++i) {
 				Mesh& mesh{ context.mesh(i) };
-				if (mesh.renderArray().data().VAO == 0) {
+				if (!mesh.readyRender() && !mesh.empty()) {
 					fillVertexArray(mesh);
 				}
 			}
 
 			for (auto& pair : context.instances()) {
-				if (pair.second.mesh().renderArray().data().VAO == 0) {
+				if (!pair.second.mesh().readyRender() && !pair.second.mesh().empty()) {
 					fillInstancedVertexArray(pair.second);
 					pair.second.resetInstanceBuffer();
 				}

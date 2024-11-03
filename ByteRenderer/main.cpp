@@ -53,13 +53,13 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 20;
+	const int gridSize = 25;
 	const float sphereRadius = 1.0f;
 	const float spacing = 3.0f * sphereRadius; 
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
-	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
+	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 10) };
 	Material sphereMaterial{};
 	sphereMaterial.shaderTag("instanced_deferred");
 	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });

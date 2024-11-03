@@ -59,6 +59,14 @@ namespace Byte {
 		const MeshData& data() const {
 			return _data;
 		}
+
+        bool readyRender() const {
+            return _data.renderArray.data().VAO != 0;
+        }
+
+        bool empty() const {
+            return _data.vertices.empty();
+        }
 	};
 
     struct MeshBuilder {
