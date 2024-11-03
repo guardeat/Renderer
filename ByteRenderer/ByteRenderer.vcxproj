@@ -163,7 +163,7 @@
     <ClInclude Include="opengl_api.h" />
     <ClInclude Include="render_array.h" />
     <ClInclude Include="test.h" />
-    <ClInclude Include="typedefs.h" />
+    <ClInclude Include="render_type.h" />
     <ClInclude Include="render_pass.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />

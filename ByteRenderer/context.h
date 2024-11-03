@@ -3,7 +3,7 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "typedefs.h"
+#include "render_type.h"
 #include "mesh.h"
 #include "material.h"
 #include "transform.h"

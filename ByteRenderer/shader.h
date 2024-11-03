@@ -1,6 +1,6 @@
 #pragma once
 
-#include "typedefs.h"
+#include "render_type.h"
 #include "opengl_api.h"
 
 namespace Byte {

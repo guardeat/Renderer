@@ -3,7 +3,7 @@
 #include <cstdint>
 
 #include "opengl_api.h"
-#include "typedefs.h"
+#include "render_type.h"
 
 namespace Byte {
 

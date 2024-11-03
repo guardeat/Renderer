@@ -11,7 +11,7 @@
 #include "mat.h"
 #include "vec.h"
 #include "quaternion.h"
-#include "typedefs.h"
+#include "render_type.h"
 
 namespace Byte {
 

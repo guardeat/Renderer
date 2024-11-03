@@ -5,7 +5,7 @@
 #include <utility> 
 #include <memory>
 
-#include "typedefs.h"
+#include "render_type.h"
 #include "render_array.h"
 
 namespace Byte {
