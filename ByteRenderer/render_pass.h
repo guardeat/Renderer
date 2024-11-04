@@ -168,9 +168,9 @@ namespace Byte {
 
 			lightingShader.uniform<Vec3>("uViewPos", cTransform->position());
 
-			lightingShader.uniform<Vec3>("uDirectionalLight.direction",dlTransform->front());
-			lightingShader.uniform<Vec3>("uDirectionalLight.color",directionalLight->color);
-			lightingShader.uniform<float>("uDirectionalLight.intensity",directionalLight->intensity);
+			lightingShader.uniform<Vec3>("uDirectionalLight.direction", dlTransform->front());
+			lightingShader.uniform<Vec3>("uDirectionalLight.color", directionalLight->color);
+			lightingShader.uniform<float>("uDirectionalLight.intensity", directionalLight->intensity);
 
 			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
 			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
