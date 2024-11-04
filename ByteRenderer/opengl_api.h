@@ -57,8 +57,24 @@ namespace Byte {
             glDisable(GL_DEPTH_TEST);
         }
 
+        static void enableBlend() {
+            glEnable(GL_BLEND);
+        }
+
+        static void disableBlend() {
+            glDisable(GL_BLEND);
+        }
+
+        static void setBlend(GLenum sFactor, GLenum dFactor) {
+            glBlendFunc(sFactor, dFactor);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
+                if (config.depthMap) {
+                    return buildDepthBuffer(config);
+                }
+
                 FramebufferID frameBufferID;
                 glGenFramebuffers(1, &frameBufferID);
                 glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
@@ -96,13 +112,13 @@ namespace Byte {
                 return FramebufferData{ frameBufferID, textures, attachments};
             }
 
-            static FramebufferData buildDepthBuffer(size_t width, size_t height) {
+            static FramebufferData buildDepthBuffer(const FramebufferConfig& config) {
                 FramebufferID bufferID;
                 glGenFramebuffers(1, &bufferID);
                 glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
                 TextureID depthMap{ Texture::build(
-                    width, height,
+                    config.width, config.height,
                     nullptr,
                     GL_DEPTH_COMPONENT,
                     GL_DEPTH_COMPONENT,

@@ -1,6 +1,6 @@
 #version 330 core
 
-layout (location = 1) out vec4 gAlbedoSpecular;
+layout (location = 0) out vec4 gAlbedoSpecular;
 
 uniform sampler2D uSPosition;   
 uniform sampler2D uSNormal;    

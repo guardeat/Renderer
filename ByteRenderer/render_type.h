@@ -51,6 +51,8 @@ namespace Byte {
 
 		size_t width{};
 		size_t height{};
+
+		bool depthMap{ false };
 	};
 
 	struct FramebufferData {

@@ -127,5 +127,14 @@
     <None Include="point_light_vertex.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="depth_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="depth_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="instanced_depth_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

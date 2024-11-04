@@ -91,14 +91,16 @@ namespace Byte {
 	class ShadowPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
+			Shader depthShader{ data.shaders["depth_shader"] };
 
 		}
+
 	};
 
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			Shader& lightingShader = data.shaders["lighting_shader"];
+			Shader& lightingShader{ data.shaders["lighting_shader"] };
 			lightingShader.bind();
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
@@ -151,6 +153,10 @@ namespace Byte {
 			plShader.bind();
 			colorBuffer.bind();
 
+			OpenglAPI::enableBlend();
+
+			OpenglAPI::setBlend(GL_ONE, GL_ONE);
+
 			plShader.uniform<Vec2>(
 				"uViewPortSize",
 				Vec2{ static_cast<float>(data.width),static_cast<float>(data.height) });
@@ -201,6 +207,7 @@ namespace Byte {
 			plShader.unbind();
 
 			OpenglAPI::enableDepth();
+			OpenglAPI::disableBlend();
 		}
 
 	};
@@ -212,16 +219,11 @@ namespace Byte {
 			OpenglAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad_shader"] };
-			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			quadShader.uniform("uDirectionalLightAlbedo", 1);
-			quadShader.uniform("uPointLightAlbedo", 2);
-			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE0);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular1"), GL_TEXTURE1);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular2"), GL_TEXTURE2);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), GL_TEXTURE0);
 
 			data.quad.renderArray().bind();
 

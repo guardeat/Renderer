@@ -18,6 +18,8 @@ int main() {
 	config.shaderPaths["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
 	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
 	config.shaderPaths["instanced_deferred"] = { "instanced_vertex.glsl","deferred_geometry.glsl" };
+	config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };
+	config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
 
 	FramebufferConfig gBufferConfig;
 
@@ -38,11 +40,18 @@ int main() {
 	colorBufferConfig.height = window.height();
 
 	colorBufferConfig.attachments = {
-		{ "albedoSpecular1", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE },
-		{ "albedoSpecular2", 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+		{ "albedoSpecular", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE },
 	};
 
 	config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
+
+	FramebufferConfig depthBufferConfig;
+
+	depthBufferConfig.width = window.width();
+	depthBufferConfig.height = window.height();
+	depthBufferConfig.depthMap = true;
+
+	config.frameBufferConfigs["depthMap"] = depthBufferConfig;
 
 	renderer.initialize(window, config);
 
@@ -53,13 +62,13 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 25;
+	const int gridSize = 10;
 	const float sphereRadius = 1.0f;
 	const float spacing = 3.0f * sphereRadius; 
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
-	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 10) };
+	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
 	Material sphereMaterial{};
 	sphereMaterial.shaderTag("instanced_deferred");
 	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });

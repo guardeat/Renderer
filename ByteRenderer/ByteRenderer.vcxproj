@@ -175,6 +175,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="deferred_geometry.glsl" />
+    <None Include="depth_fragment.glsl" />
+    <None Include="depth_vertex.glsl" />
+    <None Include="instanced_depth_vertex.glsl" />
     <None Include="lighting_fragment.glsl" />
     <None Include="point_light_fragment.glsl" />
     <None Include="point_light_vertex.glsl" />
