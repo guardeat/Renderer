@@ -9,7 +9,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<GeometryPass,LightingPass,PointLightPass,DrawPass>() };
+	Renderer renderer{ Renderer::build<GeometryPass,ShadowPass,LightingPass,PointLightPass,DrawPass>() };
 	RenderConfig config;
 
 	config.shaderPaths["default_deferred"] = { "default_vertex.glsl","deferred_geometry.glsl" };
@@ -51,7 +51,7 @@ int main() {
 	depthBufferConfig.height = window.height();
 	depthBufferConfig.depthMap = true;
 
-	config.frameBufferConfigs["depthMap"] = depthBufferConfig;
+	config.frameBufferConfigs["depthBuffer"] = depthBufferConfig;
 
 	renderer.initialize(window, config);
 

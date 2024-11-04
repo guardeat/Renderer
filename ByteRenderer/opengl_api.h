@@ -146,7 +146,10 @@ namespace Byte {
 
             static void bind(FramebufferData& data) {
                 glBindFramebuffer(GL_FRAMEBUFFER, data.id);
-                glDrawBuffers(static_cast<GLsizei>(data.attachments.size()), data.attachments.data());
+
+                if (!data.attachments.empty()) {
+                    glDrawBuffers(static_cast<GLsizei>(data.attachments.size()), data.attachments.data());
+                }
             }
 
             static void unbind() {

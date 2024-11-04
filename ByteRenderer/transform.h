@@ -99,6 +99,33 @@ namespace Byte {
 		Vec3 right() const {
 			return _globalRot * Vec3{ 1,0,0 };
 		}
+
+		Mat4 view() {
+			Vec3 f{ front() };
+			Vec3 r{ right() };
+			f.normalize();
+			r.normalize();
+			Vec3 u{ r.cross(f) };
+
+			Vec3 pos{ position() };
+
+			Mat4 viewMatrix{ Mat4::identity() };
+			viewMatrix[0][0] = r.x;
+			viewMatrix[1][0] = r.y;
+			viewMatrix[2][0] = r.z;
+			viewMatrix[0][1] = u.x;
+			viewMatrix[1][1] = u.y;
+			viewMatrix[2][1] = u.z;
+			viewMatrix[0][2] = -f.x;
+			viewMatrix[1][2] = -f.y;
+			viewMatrix[2][2] = -f.z;
+
+			viewMatrix[3][0] = -pos.dot(r);
+			viewMatrix[3][1] = -pos.dot(u);
+			viewMatrix[3][2] = pos.dot(f);
+
+			return viewMatrix;
+		}
 	};
 
 }

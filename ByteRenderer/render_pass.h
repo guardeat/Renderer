@@ -91,8 +91,58 @@ namespace Byte {
 	class ShadowPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			Shader depthShader{ data.shaders["depth_shader"] };
+			Shader& depthShader{ data.shaders["depth_shader"] };
+			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
+
+			auto [_, dlTransform] = context.directionalLight();
+
+			projection = projection * dlTransform->view();
+
+			depthBuffer.bind();
+			depthBuffer.clearContent();
+
+			depthShader.bind();
+			depthShader.uniform<Mat4>("uLightSpace", projection);
+			renderEntities(context, depthShader);
+
+			instancedDepthShader.bind();
+			instancedDepthShader.uniform<Mat4>("uLightSpace", projection);
+			renderInstances(context);
+
+			depthBuffer.unbind();
+		}
+
+		void renderEntities(RenderContext& context, const Shader& shader) {
+			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
+				auto [mesh, material, transform] = context.entity(i);
+
+				mesh->renderArray().bind();
+
+				shader.uniform<Vec3>("uPosition", transform->position());
+				shader.uniform<Vec3>("uScale", transform->scale());
+				shader.uniform<Quaternion>("uRotation", transform->rotation());
+
+				OpenglAPI::Draw::elements(mesh->indices().size());
+
+				mesh->renderArray().unbind();
+			}
+		}
+
+		void renderInstances(RenderContext& context) {
+			for (auto& pair : context.instances()) {
+				Mesh& mesh{ pair.second.mesh() };
+				Material& material{ pair.second.material() };
+
+				mesh.renderArray().bind();
+
+				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+
+				mesh.renderArray().unbind();
+			}
 		}
 
 	};
