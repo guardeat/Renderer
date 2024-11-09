@@ -15,7 +15,7 @@ int main() {
 	config.shaderPaths["default_deferred"] = { "default_vertex.glsl","deferred_geometry.glsl" };
 	config.shaderPaths["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
 	config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
-	config.shaderPaths["lighting_shader"] = { "lighting_vertex.glsl","lighting_fragment.glsl" };
+	config.shaderPaths["lighting_shader"] = { "quad_vertex.glsl","lighting_fragment.glsl" };
 	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
 	config.shaderPaths["instanced_deferred"] = { "instanced_vertex.glsl","deferred_geometry.glsl" };
 	config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };

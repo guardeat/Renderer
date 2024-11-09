@@ -30,7 +30,7 @@ namespace Byte {
             out[3][2] = -1.0f;
             out[2][3] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
 
-            return out;
+            return out.transposed();
         }
 
         Mat4 orthographic(float left, float right, float bottom, float top) const {
@@ -44,14 +44,14 @@ namespace Byte {
             out[2][3] = -(farPlane + nearPlane) / (farPlane - nearPlane);
             out[3][3] = 1.0f;
 
-            return out;
+            return out.transposed();
         }
 
         Mat4 view(const Transform& transform) const {
             Vec3 position{ transform.position() };
-            Vec3 r{ transform.right() };
-            Vec3 u{ transform.up() };
-            Vec3 f{ -transform.front() };
+            Vec3 r{ transform.right().normalized() };
+            Vec3 u{ transform.up().normalized() };
+            Vec3 f{ -transform.front().normalized() };
 
             Mat4 dir{ 0.0f };
 
@@ -72,7 +72,7 @@ namespace Byte {
             pos[1][3] = -position.y;
             pos[2][3] = -position.z;
 
-            return dir * pos;
+            return (dir * pos).transposed();
         }
     };
 

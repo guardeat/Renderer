@@ -2,7 +2,7 @@
 
 layout(location = 0) out vec4 gAlbedoSpecular;
 
-in vec2 vTexCoords; 
+in vec2 vTexCoord; 
 
 uniform sampler2D uPosition;    
 uniform sampler2D uNormal;      
@@ -20,10 +20,10 @@ uniform DirectionalLight uDirectionalLight;
 
 void main()
 {
-    vec3 fragPos = texture(uPosition, vTexCoords).rgb;
-    vec3 normal = normalize(texture(uNormal, vTexCoords).rgb);
-    vec3 albedo = texture(uAlbedoSpec, vTexCoords).rgb;
-    float specularStrength = texture(uAlbedoSpec, vTexCoords).a;
+    vec3 fragPos = texture(uPosition, vTexCoord).rgb;
+    vec3 normal = normalize(texture(uNormal, vTexCoord).rgb);
+    vec3 albedo = texture(uAlbedoSpec, vTexCoord).rgb;
+    float specularStrength = texture(uAlbedoSpec, vTexCoord).a;
 
     vec3 ambient = 0.3 * albedo * uDirectionalLight.color * uDirectionalLight.intensity;
 

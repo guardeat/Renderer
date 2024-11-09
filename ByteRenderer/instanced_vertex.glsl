@@ -40,7 +40,7 @@ vec3 translate(vec3 aPos, vec3 position, vec3 scale, vec4 rotation) {
 void main() {
 
     vec3 translated = translate(aPos,aPosition,aScale,aRotation);
-    gl_Position = vec4(translated.xyz, 1.0) * uView * uProjection;
+    gl_Position = uProjection * uView * vec4(translated.xyz, 1.0);
 
     vNormal = normalize(rotateVertex(aNormal,aRotation));
     vTexCoord = aTexCoord;

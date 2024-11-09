@@ -117,7 +117,7 @@ namespace Byte {
 			return !((*this) == other);
 		}
 
-		_Mat<Y, X, Type> transpose() const {
+		_Mat<Y, X, Type> transposed() const {
 			_Mat<Y, X, Type> out{};
 
 			for (size_t i{ 0 }; i < Y * X; ++i) {

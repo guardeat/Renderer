@@ -7,7 +7,7 @@ namespace Byte {
 
 	class Transform {
 	private:
-		bool changed{ true };
+		bool _changed{ true };
 
 		Vec3 _localPos;
 		Vec3 _localScale{ 1, 1, 1 };
@@ -51,14 +51,14 @@ namespace Byte {
 			Vec3 oldLocal{ _localPos };
 			_localPos += newPos - _globalPos;
 			_globalPos -= oldLocal - _localPos;
-			changed = true;
+			_changed = true;
 		}
 
 		void scale(const Vec3& newScale) {
 			Vec3 oldLocal{ _localScale };
 			_localScale *= newScale / _globalScale;
 			_globalScale /= oldLocal / _localScale;
-			changed = true;
+			_changed = true;
 		}
 
 		void rotation(const Vec3& euler) {
@@ -72,7 +72,7 @@ namespace Byte {
 
 			_localRot.normalize();
 			_globalRot.normalize();
-			changed = true;
+			_changed = true;
 		}
 
 		void rotate(const Vec3& euler) {
@@ -85,7 +85,7 @@ namespace Byte {
 
 			_localRot.normalize();
 			_globalRot.normalize();
-			changed = true;
+			_changed = true;
 		}
 
 		Vec3 front() const {
