@@ -91,7 +91,6 @@ int main() {
 
 	DirectionalLight dLight;
 	Transform dLightTransform;
-	dLightTransform.rotate(Vec3(-135.0f, 0.0f, 0.0f));
 
 	context.submit(camera, transform);
 	context.submit(dLight,dLightTransform);
@@ -129,6 +128,8 @@ int main() {
 		renderer.update(window);
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
+
+		dLightTransform.rotate(Vec3(0.1f, 0.0f, 0.0f));
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();

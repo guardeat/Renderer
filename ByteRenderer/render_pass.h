@@ -29,7 +29,7 @@ namespace Byte {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
 			Mat4 projection{ camera->perspective(aspectRatio) };
-			Mat4 view{ camera->view(*cTransform) };
+			Mat4 view{ cTransform->view() };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
@@ -100,7 +100,7 @@ namespace Byte {
 
 			auto [_, dlTransform] = context.directionalLight();
 
-			projection = projection * dlTransform->view();
+			projection = projection.transposed() * dlTransform->view();
 
 			depthBuffer.bind();
 			depthBuffer.clearContent();
@@ -214,7 +214,7 @@ namespace Byte {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
 			Mat4 projection{ camera->perspective(aspectRatio) };
-			Mat4 view{ camera->view(*cTransform) };
+			Mat4 view{ cTransform->view() };
 
 			plShader.uniform<Mat4>("uProjection", projection);
 			plShader.uniform<Mat4>("uView", view);

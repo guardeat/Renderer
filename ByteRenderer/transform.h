@@ -101,10 +101,9 @@ namespace Byte {
 		}
 
 		Mat4 view() {
-			Vec3 f{ front() };
-			Vec3 r{ right() };
-			f.normalize();
-			r.normalize();
+			Vec3 f{ front().normalized() };
+			Vec3 r{ right().normalized() };
+
 			Vec3 u{ r.cross(f) };
 
 			Vec3 pos{ position() };

@@ -27,10 +27,10 @@ namespace Byte {
             out[0][0] = 1.0f / (aspectRatio * tanHalfFov);
             out[1][1] = 1.0f / tanHalfFov;
             out[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-            out[3][2] = -1.0f;
-            out[2][3] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+            out[2][3] = -1.0f;
+            out[3][2] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
 
-            return out.transposed();
+            return out;
         }
 
         Mat4 orthographic(float left, float right, float bottom, float top) const {
@@ -39,40 +39,12 @@ namespace Byte {
             out[0][0] = 2.0f / (right - left);
             out[1][1] = 2.0f / (top - bottom);
             out[2][2] = -2.0f / (farPlane - nearPlane);
-            out[0][3] = -(right + left) / (right - left);
-            out[1][3] = -(top + bottom) / (top - bottom);
-            out[2][3] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            out[3][0] = -(right + left) / (right - left);
+            out[3][1] = -(top + bottom) / (top - bottom);
+            out[3][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
             out[3][3] = 1.0f;
 
-            return out.transposed();
-        }
-
-        Mat4 view(const Transform& transform) const {
-            Vec3 position{ transform.position() };
-            Vec3 r{ transform.right().normalized() };
-            Vec3 u{ transform.up().normalized() };
-            Vec3 f{ -transform.front().normalized() };
-
-            Mat4 dir{ 0.0f };
-
-            dir[0][0] = r.x;
-            dir[0][1] = r.y;
-            dir[0][2] = r.z;
-            dir[1][0] = u.x;
-            dir[1][1] = u.y;
-            dir[1][2] = u.z;
-            dir[2][0] = f.x;
-            dir[2][1] = f.y;
-            dir[2][2] = f.z;
-            dir[3][3] = 1.0f;
-
-            Mat4 pos{ Mat4::identity() };
-
-            pos[0][3] = -position.x;
-            pos[1][3] = -position.y;
-            pos[2][3] = -position.z;
-
-            return (dir * pos).transposed();
+            return out;
         }
     };
 
