@@ -19,7 +19,7 @@ namespace Byte {
         Buffer<float> vertices;
 		Buffer<uint32_t> indices;
 
-        MeshMode mode;
+        MeshMode mode{ MeshMode::STATIC };
 
         Buffer<uint8_t> vertexLayout{ 3,3,2 };
         RenderArray renderArray;
