@@ -104,6 +104,9 @@
     <ClInclude Include="instanced_vertex.glsl">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="quad_depth_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="deferred_geometry.glsl">
@@ -131,6 +134,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="instanced_depth_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shadowed_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="instanced_shadowed_vertex.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
