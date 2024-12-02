@@ -28,21 +28,32 @@ namespace Byte {
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
+			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
+
+			Mat4 orthographic{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
+			auto [_, dlTransform] = context.directionalLight();
+			Mat4 lightSpace{ orthographic * dlTransform->view() };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
 			gBuffer.clearContent();
 
-			renderEntities(context, data, projection, view);
-			renderInstances(context, data, projection, view);
+			renderEntities(context, data, projection, view, lightSpace);
+			renderInstances(context, data, projection, view, lightSpace);
 
 			gBuffer.unbind();
 		}
 
 	private:
-		void renderEntities(RenderContext& context, RenderData& data, const Mat4& projection, const Mat4& view) {
+		void renderEntities(
+			RenderContext& context, 
+			RenderData& data, 
+			const Mat4& projection, 
+			const Mat4& view,
+			const Mat4& lightSpace) {
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
+
 			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
 				auto [mesh, material, transform] = context.entity(i);
 
@@ -52,11 +63,17 @@ namespace Byte {
 				mesh->renderArray().bind();
 
 				shader.uniform<Vec4>("uAlbedo", material->albedo());
+
 				shader.uniform<Vec3>("uPosition", transform->position());
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
+
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
+				shader.uniform<Mat4>("uLightSpace", lightSpace);
+
+				shader.uniform("uDepthMap", 0);
+				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
 
 				OpenglAPI::Draw::elements(mesh->indices().size());
 
@@ -65,7 +82,14 @@ namespace Byte {
 			}
 		}
 
-		void renderInstances(RenderContext& context, RenderData& data, const Mat4& projection, const Mat4& view) {
+		void renderInstances(
+			RenderContext& context, 
+			RenderData& data, 
+			const Mat4& projection, 
+			const Mat4& view,
+			const Mat4& lightSpace) {
+
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
@@ -76,8 +100,13 @@ namespace Byte {
 				mesh.renderArray().bind();
 
 				shader.uniform<Vec4>("uAlbedo", material.albedo());
+
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
+				shader.uniform<Mat4>("uLightSpace", lightSpace);
+
+				shader.uniform("uDepthMap", 0);
+				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
 
 				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
@@ -100,13 +129,14 @@ namespace Byte {
 
 			auto [_, dlTransform] = context.directionalLight();
 
-			Mat4 lightSpace{ projection * cTransform->view() };
+			Mat4 lightSpace{ projection * dlTransform->view() };
 
 			depthBuffer.bind();
 			depthBuffer.clearContent();
 
 			depthShader.bind();
 			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
+
 			renderEntities(context, depthShader);
 
 			instancedDepthShader.bind();

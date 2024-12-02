@@ -9,15 +9,15 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<GeometryPass,ShadowPass,LightingPass,PointLightPass,DebugPass>() };
+	Renderer renderer{ Renderer::build<ShadowPass,GeometryPass,LightingPass,DrawPass>() };
 	RenderConfig config;
 
-	config.shaderPaths["default_deferred"] = { "default_vertex.glsl","deferred_geometry.glsl" };
+	config.shaderPaths["default_deferred"] = { "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
 	config.shaderPaths["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
 	config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
 	config.shaderPaths["lighting_shader"] = { "quad_vertex.glsl","lighting_fragment.glsl" };
 	config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
-	config.shaderPaths["instanced_deferred"] = { "instanced_vertex.glsl","deferred_geometry.glsl" };
+	config.shaderPaths["instanced_deferred"] = { "instanced_shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
 	config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
@@ -48,7 +48,7 @@ int main() {
 
 	FramebufferConfig depthBufferConfig;
 
-	depthBufferConfig.width = window.width();
+	depthBufferConfig.width = window.width();;
 	depthBufferConfig.height = window.height();
 	depthBufferConfig.depthMap = true;
 
@@ -92,6 +92,7 @@ int main() {
 
 	DirectionalLight dLight;
 	Transform dLightTransform;
+	dLightTransform.rotate(Vec3{-45.0f,0.0f,0.0f});
 
 	context.submit(camera, transform);
 	context.submit(dLight,dLightTransform);
@@ -130,7 +131,7 @@ int main() {
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
 
-		dLightTransform.rotate(Vec3(0.1f, 0.0f, 0.0f));
+		dLightTransform.rotate(Vec3(0.0f, 0.1f, 0.0f));
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();

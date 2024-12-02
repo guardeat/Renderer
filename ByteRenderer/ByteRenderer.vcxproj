@@ -184,6 +184,7 @@
     <None Include="point_light_vertex.glsl" />
     <None Include="quad_fragment.glsl" />
     <None Include="quad_vertex.glsl" />
+    <None Include="shadowed_deferred_geometry.glsl" />
     <None Include="shadowed_vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

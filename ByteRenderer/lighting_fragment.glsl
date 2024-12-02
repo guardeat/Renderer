@@ -22,6 +22,7 @@ void main()
 {
     vec3 fragPos = texture(uPosition, vTexCoord).rgb;
     vec3 normal = normalize(texture(uNormal, vTexCoord).rgb);
+    float shadow = texture(uNormal, vTexCoord).w;
     vec3 albedo = texture(uAlbedoSpec, vTexCoord).rgb;
     float specularStrength = texture(uAlbedoSpec, vTexCoord).a;
 
@@ -36,7 +37,7 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec3 specular = spec * specularStrength * uDirectionalLight.color * uDirectionalLight.intensity;
 
-    vec3 finalColor = ambient + diffuse + specular;
+    vec3 finalColor = (ambient + (1.0 - shadow) * (diffuse + specular));
 
     gAlbedoSpecular = vec4(finalColor, 1.0);
 }
