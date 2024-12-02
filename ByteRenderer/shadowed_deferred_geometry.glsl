@@ -10,6 +10,7 @@ in vec3 vFragPos;
 in vec4 vFragLightSpacePos;
 
 uniform vec4 uAlbedo;
+uniform vec3 uLightDir;
 
 uniform sampler2D uDepthMap;
 
@@ -26,7 +27,8 @@ float calculateShadow(vec4 fragPosLightSpace) {
     float closestDepth = texture(uDepthMap, projCoords.xy).r; 
     float currentDepth = projCoords.z;
 
-    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+    float bias = 0.005;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }

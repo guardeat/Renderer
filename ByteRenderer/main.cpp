@@ -9,7 +9,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<ShadowPass,GeometryPass,LightingPass,DrawPass>() };
+	Renderer renderer{ Renderer::build<ShadowPass,GeometryPass,LightingPass,PointLightPass,DrawPass>() };
 	RenderConfig config;
 
 	config.shaderPaths["default_deferred"] = { "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
@@ -92,7 +92,9 @@ int main() {
 
 	DirectionalLight dLight;
 	Transform dLightTransform;
-	dLightTransform.rotate(Vec3{-45.0f,0.0f,0.0f});
+	Mesh dlMesh{ MeshBuilder::plane(5,5,10) };
+	dLightTransform.rotate(Vec3{ -45.0f,20.0f,0.0f });
+	dLightTransform.position(Vec3(-10.0f,100.0f,80.0f));
 
 	context.submit(camera, transform);
 	context.submit(dLight,dLightTransform);
@@ -105,6 +107,7 @@ int main() {
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
 	
 	context.submit(plane,pMaterial,planeTransform);
+	context.submit(dlMesh, pMaterial, dLightTransform);
 	
 	PointLight pl;
 	Transform plTransform;
@@ -130,8 +133,6 @@ int main() {
 		renderer.update(window);
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
-
-		dLightTransform.rotate(Vec3(0.0f, 0.1f, 0.0f));
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
