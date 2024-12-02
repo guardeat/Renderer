@@ -7,7 +7,7 @@ namespace Byte {
 
 	template<size_t Y, size_t X, typename Type>
 	struct _Mat {
-		Type data[Y * X];
+		Type data[Y * X]; 
 
 		_Mat() = default;
 
@@ -23,124 +23,113 @@ namespace Byte {
 			}
 		}
 
-		Type* operator[](size_t y) {
-			return &data[y * X];
+		Type& operator()(size_t row, size_t column) {
+			return data[column * Y + row];
 		}
 
-		const Type* operator[](size_t y) const {
-			return &data[y * X];
+		const Type& operator()(size_t row, size_t column) const {
+			return data[column * Y + row];
 		}
 
-		_Mat operator+(const _Mat& other) const {
-			_Mat out{ *this };
-			out += other;
-			return out;
-		}
+        _Mat operator+(const _Mat& other) const {
+            _Mat out{ *this };
+            out += other;
+            return out;
+        }
 
-		_Mat& operator+=(const _Mat& other) {
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				data[i] += other.data[i];
-			}
+        _Mat& operator+=(const _Mat& other) {
+            for (size_t i{ 0 }; i < Y * X; ++i) {
+                data[i] += other.data[i];
+            }
+            return *this;
+        }
 
-			return *this;
-		}
+        _Mat operator-(const _Mat& other) const {
+            _Mat out{ *this };
+            out -= other;
+            return out;
+        }
 
-		_Mat operator-(const _Mat& other) const {
-			_Mat out{ *this };
-			out -= other;
-			return out;
-		}
+        _Mat& operator-=(const _Mat& other) {
+            for (size_t i{ 0 }; i < Y * X; ++i) {
+                data[i] -= other.data[i];
+            }
+            return *this;
+        }
 
-		_Mat& operator-=(const _Mat& other) {
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				data[i] -= other.data[i];
-			}
+        _Mat operator*(double scalar) const {
+            _Mat out{ *this };
+            out *= scalar;
+            return out;
+        }
 
-			return *this;
-		}
+        _Mat& operator*=(double scalar) {
+            for (size_t i{ 0 }; i < Y * X; ++i) {
+                data[i] *= scalar;
+            }
+            return *this;
+        }
 
-		_Mat operator*(double scalar) const {
-			_Mat out{ *this };
-			out *= scalar;
-			return out;
-		}
+        _Mat operator/(double scalar) const {
+            _Mat out{ *this };
+            out /= scalar;
+            return out;
+        }
 
-		_Mat& operator*=(double scalar) {
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				data[i] *= scalar;
-			}
+        _Mat& operator/=(double scalar) {
+            for (size_t i{ 0 }; i < Y * X; ++i) {
+                data[i] /= scalar;
+            }
+            return *this;
+        }
 
-			return *this;
-		}
+        template<size_t X2>
+        _Mat<Y, X2, Type> operator*(const _Mat<X, X2, Type>& other) const {
+            _Mat<Y, X2, Type> out{ 0 };
 
-		_Mat operator/(double scalar) const {
-			_Mat out{ *this };
-			out /= scalar;
-			return out;
-		}
+            for (size_t i{ 0 }; i < Y; ++i) {
+                for (size_t j{ 0 }; j < X2; ++j) {
+                    for (size_t k{ 0 }; k < X; ++k) {
+                        out(i, j) += (*this)(i, k) * other(k, j); 
+                    }
+                }
+            }
 
-		_Mat& operator/=(double scalar) {
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				data[i] /= scalar;
-			}
+            return out;
+        }
 
-			return *this;
-		}
+        bool operator==(const _Mat& other) const {
+            for (size_t i{ 0 }; i < Y * X; ++i) {
+                if (data[i] != other.data[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-		template<typename size_t X2>
-		_Mat<Y, X2, Type> operator*(const _Mat<X, X2, Type>& other) const {
-			_Mat<Y, X2, Type> out{ 0 };
+        bool operator!=(const _Mat& other) const {
+            return !((*this) == other);
+        }
 
-			for (size_t i{ 0 }; i < Y; ++i) {
-				for (size_t j{ 0 }; j < X2; ++j) {
-					for (size_t k{ 0 }; k < X; ++k) {
-						out[i][j] += (*this)[i][k] * other[k][j];
-					}
-				}
-			}
+        _Mat<Y, X, Type> transposed() const {
+            _Mat<X, Y, Type> out{}; 
+            for (size_t i = 0; i < Y; ++i) {
+                for (size_t j = 0; j < X; ++j) {
+                    out(j, i) = (*this)(i, j);
+                }
+            }
+            return out;
+        }
 
-			return out;
-		}
-
-		bool operator==(const _Mat& other) const
-		{
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				if ((*this)[i % X][i / X] != other[i / X][i % X]) {
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		bool operator!=(const _Mat& other) const {
-			return !((*this) == other);
-		}
-
-		_Mat<Y, X, Type> transposed() const {
-			_Mat<Y, X, Type> out{};
-
-			for (size_t i{ 0 }; i < Y * X; ++i) {
-				out[i % X][i / X] = (*this)[i / X][i % X];
-			}
-
-			return out;
-		}
-
-		static _Mat identity() {
-			_Mat out{ 0 };
-
-			constexpr size_t BIGGER{ X > Y ? X : Y };
-
-			for (size_t i{}; i < BIGGER; ++i) {
-				out[i][i] = static_cast<Type>(1);
-			}
-
-			return out;
-		}
-
+        static _Mat identity() {
+            _Mat out{ 0 };
+            constexpr size_t BIGGER{ X > Y ? X : Y };
+            for (size_t i{}; i < BIGGER; ++i) { 
+                out(i, i) = static_cast<Type>(1);
+            }
+            return out;
+        }
 	};
-
 
 	template<size_t Y, size_t X, typename Type>
 	using Mat = _Mat<Y, X, Type>;
@@ -162,11 +151,11 @@ namespace Byte {
 	template<size_t Y, size_t X, typename Type>
 	std::ostream& operator<<(std::ostream& os, const _Mat<Y, X, Type>& matrix) {
 		os << "{";
-		for (size_t i{ 0 }; i < Y; ++i) {
-			for (size_t j{ 0 }; j < X; ++j) {
+		for (size_t i{ 0 }; i < X; ++i) {  
+			for (size_t j{ 0 }; j < Y; ++j) {
 				os << matrix[i][j] << ",";
 			}
-			if (i != Y - 1) {
+			if (i != X - 1) {
 				os << "\n";
 			}
 		}

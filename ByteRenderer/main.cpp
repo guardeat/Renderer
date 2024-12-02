@@ -9,7 +9,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<GeometryPass,ShadowPass,LightingPass,PointLightPass,DrawPass>() };
+	Renderer renderer{ Renderer::build<GeometryPass,ShadowPass,LightingPass,PointLightPass,DebugPass>() };
 	RenderConfig config;
 
 	config.shaderPaths["default_deferred"] = { "default_vertex.glsl","deferred_geometry.glsl" };
@@ -20,6 +20,7 @@ int main() {
 	config.shaderPaths["instanced_deferred"] = { "instanced_vertex.glsl","deferred_geometry.glsl" };
 	config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
+	config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
 
 	FramebufferConfig gBufferConfig;
 

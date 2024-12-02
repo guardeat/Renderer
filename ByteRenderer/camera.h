@@ -24,11 +24,11 @@ namespace Byte {
             Mat4 out{ 0 };
             float tanHalfFov{ std::tan(radians(fov) / 2.0f) };
 
-            out[0][0] = 1.0f / (aspectRatio * tanHalfFov);
-            out[1][1] = 1.0f / tanHalfFov;
-            out[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-            out[2][3] = -1.0f;
-            out[3][2] = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+            out(0, 0) = 1.0f / (aspectRatio * tanHalfFov);
+            out(1, 1) = 1.0f / tanHalfFov;
+            out(2, 2) = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            out(3, 2) = -1.0f;
+            out(2, 3) = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
 
             return out;
         }
@@ -36,13 +36,13 @@ namespace Byte {
         Mat4 orthographic(float left, float right, float bottom, float top) const {
             Mat4 out{ 0 };
 
-            out[0][0] = 2.0f / (right - left);
-            out[1][1] = 2.0f / (top - bottom);
-            out[2][2] = -2.0f / (farPlane - nearPlane);
-            out[3][0] = -(right + left) / (right - left);
-            out[3][1] = -(top + bottom) / (top - bottom);
-            out[3][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-            out[3][3] = 1.0f;
+            out(0, 0) = 2.0f / (right - left);
+            out(1, 1) = 2.0f / (top - bottom);
+            out(2, 2) = -2.0f / (farPlane - nearPlane);
+            out(0, 3) = -(right + left) / (right - left);
+            out(1, 3) = -(top + bottom) / (top - bottom);
+            out(2, 3) = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            out(3, 3) = 1.0f;
 
             return out;
         }

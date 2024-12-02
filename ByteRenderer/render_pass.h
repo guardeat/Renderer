@@ -28,7 +28,7 @@ namespace Byte {
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 projection{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
 			Mat4 view{ cTransform->view() };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
@@ -100,17 +100,17 @@ namespace Byte {
 
 			auto [_, dlTransform] = context.directionalLight();
 
-			projection = projection.transposed() * dlTransform->view();
+			Mat4 lightSpace{ projection * cTransform->view() };
 
 			depthBuffer.bind();
 			depthBuffer.clearContent();
 
 			depthShader.bind();
-			depthShader.uniform<Mat4>("uLightSpace", projection);
+			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
 			renderEntities(context, depthShader);
 
 			instancedDepthShader.bind();
-			instancedDepthShader.uniform<Mat4>("uLightSpace", projection);
+			instancedDepthShader.uniform<Mat4>("uLightSpace", lightSpace);
 			renderInstances(context);
 
 			depthBuffer.unbind();
@@ -274,6 +274,28 @@ namespace Byte {
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
 			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), GL_TEXTURE0);
+
+			data.quad.renderArray().bind();
+
+			OpenglAPI::Draw::quad();
+
+			data.quad.renderArray().unbind();
+		}
+
+	};
+
+	class DebugPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			OpenglAPI::Framebuffer::unbind();
+			OpenglAPI::Framebuffer::clear(0);
+
+			Shader& quadShader{ data.shaders["quad_depth_shader"] };
+			Framebuffer& colorBuffer{ data.frameBuffers["depthBuffer"] };
+
+			quadShader.bind();
+			quadShader.uniform("uAlbedoSpecular", 0);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("depth"), GL_TEXTURE0);
 
 			data.quad.renderArray().bind();
 
