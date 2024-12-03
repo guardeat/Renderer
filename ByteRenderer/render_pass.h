@@ -137,6 +137,7 @@ namespace Byte {
 			depthShader.bind();
 			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
 
+			OpenglAPI::enableCulling();
 			OpenglAPI::cullFront();
 
 			renderEntities(context, depthShader);
@@ -146,6 +147,7 @@ namespace Byte {
 			renderInstances(context);
 
 			OpenglAPI::cullBack();
+			OpenglAPI::disableCulling();
 
 			depthBuffer.unbind();
 		}
@@ -238,6 +240,8 @@ namespace Byte {
 			colorBuffer.bind();
 
 			OpenglAPI::enableBlend();
+			OpenglAPI::enableCulling();
+			OpenglAPI::cullFront();
 
 			OpenglAPI::setBlend(GL_ONE, GL_ONE);
 
@@ -292,6 +296,9 @@ namespace Byte {
 
 			OpenglAPI::enableDepth();
 			OpenglAPI::disableBlend();
+
+			OpenglAPI::cullBack();
+			OpenglAPI::disableCulling();
 		}
 
 	};

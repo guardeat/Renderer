@@ -77,6 +77,14 @@ namespace Byte {
             glCullFace(GL_BACK);
         }
 
+        static void enableCulling() {
+            glEnable(GL_CULL_FACE);
+        }
+
+        static void disableCulling() {
+            glDisable(GL_CULL_FACE);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
                 if (config.depthMap) {
