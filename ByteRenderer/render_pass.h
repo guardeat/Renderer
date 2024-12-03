@@ -137,11 +137,15 @@ namespace Byte {
 			depthShader.bind();
 			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
 
+			OpenglAPI::cullFront();
+
 			renderEntities(context, depthShader);
 
 			instancedDepthShader.bind();
 			instancedDepthShader.uniform<Mat4>("uLightSpace", lightSpace);
 			renderInstances(context);
+
+			OpenglAPI::cullBack();
 
 			depthBuffer.unbind();
 		}

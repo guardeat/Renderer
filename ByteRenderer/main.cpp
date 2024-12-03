@@ -48,8 +48,8 @@ int main() {
 
 	FramebufferConfig depthBufferConfig;
 
-	depthBufferConfig.width = window.width();;
-	depthBufferConfig.height = window.height();
+	depthBufferConfig.width = 2048;
+	depthBufferConfig.height = 2048;
 	depthBufferConfig.depthMap = true;
 
 	config.frameBufferConfigs["depthBuffer"] = depthBufferConfig;

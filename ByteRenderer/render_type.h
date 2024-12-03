@@ -62,6 +62,9 @@ namespace Byte {
 
 		TextureMap textures;
 		Buffer<uint32_t> attachments;
+
+		size_t width{};
+		size_t height{};
 	};
 
 	struct VertexAttribute {

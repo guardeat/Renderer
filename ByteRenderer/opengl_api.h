@@ -69,6 +69,14 @@ namespace Byte {
             glBlendFunc(sFactor, dFactor);
         }
 
+        static void cullFront() {
+            glCullFace(GL_FRONT);
+        }
+
+        static void cullBack() {
+            glCullFace(GL_BACK);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
                 if (config.depthMap) {
@@ -109,7 +117,7 @@ namespace Byte {
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                return FramebufferData{ frameBufferID, textures, attachments};
+                return FramebufferData{ frameBufferID, textures, attachments, config.width,config.height };
             }
 
             static FramebufferData buildDepthBuffer(const FramebufferConfig& config) {
@@ -136,7 +144,7 @@ namespace Byte {
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                return FramebufferData{ bufferID, { { "depth", depthMap } } };
+                return FramebufferData{ bufferID, { { "depth", depthMap } } ,{}, config.width,config.height };
             }
 
             static void clear(FramebufferID id) {
@@ -150,6 +158,8 @@ namespace Byte {
                 if (!data.attachments.empty()) {
                     glDrawBuffers(static_cast<GLsizei>(data.attachments.size()), data.attachments.data());
                 }
+
+                glViewport(0,0,static_cast<GLsizei>(data.width),static_cast<GLsizei>(data.height));
             }
 
             static void unbind() {
