@@ -16,6 +16,7 @@ namespace Byte {
 
 		Mesh quad;
 		Mesh sphere;
+		Mesh cube;
 	};
 
 	class RenderPass {
@@ -37,7 +38,7 @@ namespace Byte {
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
-			gBuffer.clearContent();
+			//gBuffer.clearContent();
 
 			renderEntities(context, data, projection, view, lightSpace);
 			renderInstances(context, data, projection, view, lightSpace);
@@ -183,6 +184,38 @@ namespace Byte {
 
 	};
 
+	class SkyboxPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+
+			gBuffer.bind();
+			gBuffer.clearContent();
+			Shader& skyboxShader{ data.shaders["procedural_skybox"] };
+
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ cTransform->view() };
+
+			auto [_, dlTransform] = context.directionalLight();
+
+			skyboxShader.bind();
+
+			skyboxShader.uniform<Mat4>("uProjection", projection);
+			skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
+			skyboxShader.uniform<Vec3>("uDirection", -dlTransform->front());
+
+			data.cube.renderArray().bind();
+
+			OpenglAPI::Draw::elements(data.sphere.indices().size());
+
+			data.cube.renderArray().unbind();
+			OpenglAPI::Framebuffer::clearDepth(gBuffer.id());
+			gBuffer.unbind();
+		}
+	};
+
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
@@ -217,9 +250,7 @@ namespace Byte {
 			OpenglAPI::Draw::quad();
 
 			data.quad.renderArray().unbind();
-
 			lightingShader.unbind();
-
 			colorBuffer.unbind();
 		}
 
@@ -293,6 +324,7 @@ namespace Byte {
 			}
 			data.sphere.renderArray().unbind();
 			plShader.unbind();
+			colorBuffer.unbind();
 
 			OpenglAPI::enableDepth();
 			OpenglAPI::disableBlend();

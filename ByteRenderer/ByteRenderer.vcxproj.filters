@@ -145,5 +145,9 @@
     <None Include="shadowed_deferred_geometry.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="procedural_skybox_fragment.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="procedural_skybox_vertex.glsl" />
   </ItemGroup>
 </Project>

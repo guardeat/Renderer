@@ -182,10 +182,12 @@
     <None Include="lighting_fragment.glsl" />
     <None Include="point_light_fragment.glsl" />
     <None Include="point_light_vertex.glsl" />
+    <None Include="procedural_skybox_vertex.glsl" />
     <None Include="quad_fragment.glsl" />
     <None Include="quad_vertex.glsl" />
     <None Include="shadowed_deferred_geometry.glsl" />
     <None Include="shadowed_vertex.glsl" />
+    <None Include="procedural_skybox_fragment.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

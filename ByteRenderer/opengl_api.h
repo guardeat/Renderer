@@ -160,6 +160,11 @@ namespace Byte {
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
 
+            static void clearDepth(FramebufferID id) {
+                glBindFramebuffer(GL_FRAMEBUFFER, id);
+                glClear(GL_DEPTH_BUFFER_BIT);
+            }
+
             static void bind(FramebufferData& data) {
                 glBindFramebuffer(GL_FRAMEBUFFER, data.id);
 

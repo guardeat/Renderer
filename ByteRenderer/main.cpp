@@ -9,7 +9,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<ShadowPass,GeometryPass,LightingPass,PointLightPass,DrawPass>() };
+	Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,PointLightPass,DrawPass>() };
 	RenderConfig config;
 
 	config.shaderPaths["default_deferred"] = { "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
@@ -21,6 +21,7 @@ int main() {
 	config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
+	config.shaderPaths["procedural_skybox"] = { "procedural_skybox_vertex.glsl","procedural_skybox_fragment.glsl" };
 
 	FramebufferConfig gBufferConfig;
 
@@ -94,7 +95,7 @@ int main() {
 	Transform dLightTransform;
 	Mesh dlMesh{ MeshBuilder::plane(5,5,10) };
 	dLightTransform.rotate(Vec3{ -45.0f,20.0f,0.0f });
-	dLightTransform.position(Vec3(-10.0f,100.0f,80.0f));
+	dLightTransform.position(Vec3(50.0f,80.0f,80.0f));
 
 	context.submit(camera, transform);
 	context.submit(dLight,dLightTransform);
@@ -102,7 +103,7 @@ int main() {
 	Mesh plane(MeshBuilder::plane(10000,10000,1));
 	Material pMaterial;
 	pMaterial.shaderTag("default_deferred");
-	pMaterial.albedo(Vec4(0.4f, 0.3f, 0.2f, 1.0f));
+	pMaterial.albedo(Vec4(0.2f, 0.7f, 0.2f, 1.0f));
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
 	

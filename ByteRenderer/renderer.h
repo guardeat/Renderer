@@ -42,6 +42,9 @@ namespace Byte {
 			_data.sphere = MeshBuilder::sphere(1, 10);
 			fillVertexArray(_data.sphere);
 
+			_data.cube = MeshBuilder::cube();
+			fillVertexArray(_data.cube);
+
 			compileShaders(config);
 		}
 
