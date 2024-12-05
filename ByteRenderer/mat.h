@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 
 namespace Byte {
 
@@ -30,6 +31,14 @@ namespace Byte {
 		const Type& operator()(size_t row, size_t column) const {
 			return data[column * Y + row];
 		}
+
+        Type& get(size_t row, size_t column) {
+            return data[column * Y + row];
+        }
+
+        const Type& get(size_t row, size_t column) const {
+            return data[column * Y + row];
+        }
 
         _Mat operator+(const _Mat& other) const {
             _Mat out{ *this };
@@ -129,6 +138,56 @@ namespace Byte {
             }
             return out;
         }
+
+        Type determinant() const {
+            if constexpr (Y == X) {
+                if constexpr (Y == 2) {
+                    return data[0] * data[3] - data[1] * data[2];
+                }
+                else if constexpr (Y == 3) {
+                    return data[0] * (data[4] * data[8] - data[5] * data[7])
+                        - data[1] * (data[3] * data[8] - data[5] * data[6])
+                        + data[2] * (data[3] * data[7] - data[4] * data[6]);
+                }
+                else if constexpr (Y == 4) {
+                    return data[0] * (data[5] * (data[10] * data[15] - data[11] * data[14]) -
+                        data[6] * (data[9] * data[15] - data[11] * data[13]) +
+                        data[7] * (data[9] * data[14] - data[10] * data[13]))
+                        - data[1] * (data[4] * (data[10] * data[15] - data[11] * data[14]) -
+                            data[6] * (data[8] * data[15] - data[11] * data[12]) +
+                            data[7] * (data[8] * data[14] - data[10] * data[12]))
+                        + data[2] * (data[4] * (data[9] * data[15] - data[11] * data[13]) -
+                            data[5] * (data[8] * data[15] - data[11] * data[12]) +
+                            data[7] * (data[8] * data[13] - data[9] * data[12]))
+                        - data[3] * (data[4] * (data[9] * data[14] - data[10] * data[13]) -
+                            data[5] * (data[8] * data[14] - data[10] * data[12]) +
+                            data[6] * (data[8] * data[13] - data[9] * data[12]));
+                }
+                else {
+                    Type det{ 0 };
+                    for (size_t col{ 0 }; col < X; ++col) {
+                        _Mat<Y - 1, X - 1, Type> submatrix;
+                        size_t submatrix_row{ 0 };
+                        for (size_t row{ 1 }; row < Y; ++row) {
+                            size_t submatrix_col{ 0 };
+                            for (size_t j{ 0 }; j < X; ++j) {
+                                if (j == col) continue; 
+                                submatrix(submatrix_row, submatrix_col) = (*this)(row, j);
+                                ++submatrix_col;
+                            }
+                            ++submatrix_row;
+                        }
+
+                        det += (col % 2 == 0 ? 1 : -1) * (*this)(0, col) * submatrix.determinant();
+                    }
+                    return det;
+                }
+            }
+            else {
+                throw std::logic_error("Matrix must be square to calculate determinant.");
+            }
+        }
+
 	};
 
 	template<size_t Y, size_t X, typename Type>
