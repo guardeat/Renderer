@@ -32,9 +32,11 @@ void main() {
 
     vec4 blendedSunCircle = mix(sunColor, centerColor, smoothstep(0.9, 0.95, intensity));
 
+    float timeIntensity = clamp(dot(vec3(0, -1, 0), normalize(uDirectionalLight.direction)), 0.2, 1.0);
+
     sunColor.rgb *= uDirectionalLight.color;
     centerColor.rgb *= uDirectionalLight.color;
-    finalColor.rgb *= uDirectionalLight.intensity;
+    finalColor.rgb *= uDirectionalLight.intensity * timeIntensity;
 
     if (intensity > 0.9) {
         finalColor = blendedSunCircle;

@@ -38,10 +38,9 @@ namespace Byte {
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
-			//gBuffer.clearContent();
 
-			renderEntities(context, data, projection, view, lightSpace);
-			renderInstances(context, data, projection, view, lightSpace);
+			renderEntities(context, data, projection, view, lightSpace, dlTransform->front());
+			renderInstances(context, data, projection, view, lightSpace, dlTransform->front());
 
 			gBuffer.unbind();
 		}
@@ -52,7 +51,8 @@ namespace Byte {
 			RenderData& data, 
 			const Mat4& projection, 
 			const Mat4& view,
-			const Mat4& lightSpace) {
+			const Mat4& lightSpace,
+			const Vec3& lightDir) {
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 
 			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
@@ -73,6 +73,8 @@ namespace Byte {
 				shader.uniform<Mat4>("uView", view);
 				shader.uniform<Mat4>("uLightSpace", lightSpace);
 
+				shader.uniform<Vec3>("uLightDir", lightDir);
+
 				shader.uniform("uDepthMap", 0);
 				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
 
@@ -88,7 +90,8 @@ namespace Byte {
 			RenderData& data, 
 			const Mat4& projection, 
 			const Mat4& view,
-			const Mat4& lightSpace) {
+			const Mat4& lightSpace,
+			const Vec3& lightDir) {
 
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 			for (auto& pair : context.instances()) {
@@ -105,6 +108,8 @@ namespace Byte {
 				shader.uniform<Mat4>("uProjection", projection);
 				shader.uniform<Mat4>("uView", view);
 				shader.uniform<Mat4>("uLightSpace", lightSpace);
+
+				shader.uniform<Vec3>("uLightDir", lightDir);
 
 				shader.uniform("uDepthMap", 0);
 				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
