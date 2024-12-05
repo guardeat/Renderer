@@ -382,13 +382,15 @@ namespace Byte {
             }
 
             static void release(RArrayData& renderArrayData) {
-                glDeleteVertexArrays(1, &renderArrayData.VAO);
+                if (renderArrayData.VAO != 0) {
+                    glDeleteVertexArrays(1, &renderArrayData.VAO);
 
-                for (const auto& VBuffer : renderArrayData.VBuffers) {
-                    glDeleteBuffers(1, &VBuffer.id);
+                    for (const auto& VBuffer : renderArrayData.VBuffers) {
+                        glDeleteBuffers(1, &VBuffer.id);
+                    }
+
+                    glDeleteBuffers(1, &renderArrayData.EBO);
                 }
-
-                glDeleteBuffers(1, &renderArrayData.EBO);
             }
 
             static void bind(RArrayID id) {

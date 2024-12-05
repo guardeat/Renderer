@@ -9,7 +9,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,PointLightPass,DrawPass>() };
+	Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
 	RenderConfig config;
 
 	config.shaderPaths["default_deferred"] = { "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
@@ -22,6 +22,14 @@ int main() {
 	config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
 	config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
 	config.shaderPaths["procedural_skybox"] = { "procedural_skybox_vertex.glsl","procedural_skybox_fragment.glsl" };
+
+	config.parameters.emplace("render_skybox", false);
+	config.parameters.emplace("render_shadow", true);
+	config.parameters.emplace("clear_gbuffer", true);
+
+	config.meshes.emplace("cube", MeshBuilder::cube());
+	config.meshes.emplace("quad", MeshBuilder::quad());
+	config.meshes.emplace("sphere", MeshBuilder::sphere(1,20));
 
 	FramebufferConfig gBufferConfig;
 
@@ -57,8 +65,6 @@ int main() {
 
 	renderer.initialize(window, config);
 
-	RenderContext context;
-
 	Camera camera;
 	Transform transform;
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
@@ -75,7 +81,7 @@ int main() {
 	sphereMaterial.shaderTag("instanced_deferred");
 	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });
 
-	context.instances()["spheres_1"] = RenderInstance{ sphere,sphereMaterial };
+	renderer.context().instances()["spheres_1"] = RenderInstance{sphere,sphereMaterial};
 
 	for (int x = 0; x < gridSize; ++x) {
 		for (int y = 0; y < gridSize; ++y) {
@@ -86,7 +92,7 @@ int main() {
 				transform.position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing));
 				sphereTransforms[index] = transform;
 
-				context.instances()["spheres_1"].add(transform);
+				renderer.context().instances()["spheres_1"].add(transform);
 			}
 		}
 	}
@@ -96,8 +102,8 @@ int main() {
 	dLightTransform.rotate(Vec3{ -45.0f,20.0f,0.0f });
 	dLightTransform.position(Vec3(50.0f,80.0f,80.0f));
 
-	context.submit(camera, transform);
-	context.submit(dLight,dLightTransform);
+	renderer.context().submit(camera, transform);
+	renderer.context().submit(dLight,dLightTransform);
 
 	Mesh plane(MeshBuilder::plane(10000,10000,1));
 	Material pMaterial;
@@ -106,19 +112,19 @@ int main() {
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
 	
-	context.submit(plane,pMaterial,planeTransform);
+	renderer.context().submit(plane,pMaterial,planeTransform);
 	
 	PointLight pl;
 	Transform plTransform;
 
-	context.submit(pl,plTransform);
+	renderer.context().submit(pl,plTransform);
 
 	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
 	lmMaterial.shaderTag("default_deferred");
 	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-	context.submit(lightMesh,lmMaterial,plTransform);
+	renderer.context().submit(lightMesh,lmMaterial,plTransform);
 
 	float lightAngle = 0.0f;
 	const float lightSpeed = 1.0f;
@@ -128,7 +134,7 @@ int main() {
 	int frameCount = 0;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
-		renderer.render(context);
+		renderer.render();
 		renderer.update(window);
 		fpsCamera.update(window, transform);
 		glfwPollEvents();

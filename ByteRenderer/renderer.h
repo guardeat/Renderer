@@ -15,6 +15,12 @@ namespace Byte {
 
 		using FramebufferConfigMap = std::unordered_map<FramebufferTag, FramebufferConfig>;
 		FramebufferConfigMap frameBufferConfigs;
+
+		using ParameterMap = RenderData::ParameterMap;
+		ParameterMap parameters;
+
+		using MeshMap = RenderData::MeshMap;
+		MeshMap meshes;
 	};
 
 	class Renderer {
@@ -22,6 +28,7 @@ namespace Byte {
 		using URenderPass = std::unique_ptr<RenderPass>;
 		using Pipeline = std::vector<URenderPass>;
 
+		RenderContext _context;
 		RenderData _data;
 		Pipeline _pipeline;
 
@@ -36,23 +43,22 @@ namespace Byte {
 				_data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
 			}
 
-			_data.quad = MeshBuilder::quad();
-			fillVertexArray(_data.quad);
-
-			_data.sphere = MeshBuilder::sphere(1, 10);
-			fillVertexArray(_data.sphere);
-
-			_data.cube = MeshBuilder::cube();
-			fillVertexArray(_data.cube);
-
 			compileShaders(config);
+
+			_data.parameters = config.parameters;
+
+			_data.meshes = std::move(config.meshes);
+
+			for (auto& pair : _data.meshes) {
+				fillVertexArray(pair.second);
+			}
 		}
 
-		void render(RenderContext& context) {
-			prepareVertexArrays(context);
+		void render() {
+			prepareVertexArrays(_context);
 
 			for (auto& pass : _pipeline) {
-				pass->render(context, _data);
+				pass->render(_context, _data);
 			}
 		}
 
@@ -66,6 +72,32 @@ namespace Byte {
 				ShaderCompiler::compile(shader);
 				_data.shaders[shaderTag] = std::move(shader);
 			}
+		}
+
+		RenderContext& context() {
+			return _context;
+		}
+
+		const RenderContext& context() const {
+			return _context;
+		}
+
+		template<typename Type>
+		Type& parameter(const std::string& parameter) {
+			return std::get<Type>(_data.parameters.at(parameter));
+		}
+
+		template<typename Type>
+		const Type& parameter(const std::string& parameter) const {
+			return std::get<Type>(_data.parameters.at(parameter));
+		}
+
+		Pipeline& pipeline() {
+			return _pipeline;
+		}
+
+		const Pipeline& pipeline() const {
+			return _pipeline;
 		}
 
 		template<typename... Passes>

@@ -27,7 +27,7 @@ void main() {
     vec3 normal = normalize(vec3(0.0) - vRotatedPos);
     float intensity = pow(max(dot(normal, normalize(uDirectionalLight.direction)), 0.0), 64.0) * uDirectionalLight.intensity;
 
-    vec4 sunColor = vec4(1.0, 0.8, 0.0, 1.0);
+    vec4 sunColor = vec4(1.0, 0.8, 0.4, 1.0);
     vec4 centerColor = vec4(1.0, 0.9, 0.7, 1.0);
 
     vec4 blendedSunCircle = mix(sunColor, centerColor, smoothstep(0.9, 0.95, intensity));

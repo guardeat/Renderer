@@ -19,6 +19,7 @@ namespace Byte {
 
 	using ShaderTag = std::string;
 	using FramebufferTag = std::string;
+	using MeshTag = std::string;
 
 	using TextureID = uint32_t;
 	using FramebufferID = uint32_t;
