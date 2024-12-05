@@ -148,6 +148,8 @@
     <None Include="procedural_skybox_fragment.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="procedural_skybox_vertex.glsl" />
+    <None Include="procedural_skybox_vertex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

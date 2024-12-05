@@ -93,7 +93,6 @@ int main() {
 
 	DirectionalLight dLight;
 	Transform dLightTransform;
-	Mesh dlMesh{ MeshBuilder::plane(5,5,10) };
 	dLightTransform.rotate(Vec3{ -45.0f,20.0f,0.0f });
 	dLightTransform.position(Vec3(50.0f,80.0f,80.0f));
 
@@ -108,7 +107,6 @@ int main() {
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
 	
 	context.submit(plane,pMaterial,planeTransform);
-	context.submit(dlMesh, pMaterial, dLightTransform);
 	
 	PointLight pl;
 	Transform plTransform;

@@ -5,6 +5,7 @@ layout(location = 2) out vec4 gAlbedoSpecular;
 uniform vec3 uDirection;
 
 in vec3 vFragPos;
+in vec3 vRotatedPos;
 
 void main() {
     float bottomBlend = smoothstep(-1.0, 0.5, vFragPos.y); 
@@ -18,5 +19,15 @@ void main() {
 
     vec4 finalColor = mix(blendedBelowMiddle, colorAbove, middleBlend);
 
-    gAlbedoSpecular = finalColor;
+    vec3 normal = normalize(vRotatedPos - vec3(0.0));
+
+    float intensity = pow(max(dot(normal, uDirection), 0.0), 32.0);
+    vec4 sunColor = vec4(1.0, 0.8, 0.0,1.0);
+
+    if(intensity > 0.9){
+        gAlbedoSpecular = sunColor * intensity;
+    }
+    else{
+        gAlbedoSpecular =  mix(finalColor,sunColor * intensity,intensity);
+    }
 }
