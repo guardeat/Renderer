@@ -198,13 +198,15 @@ namespace Byte {
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
-			auto [_, dlTransform] = context.directionalLight();
+			auto [dl, dlTransform] = context.directionalLight();
 
 			skyboxShader.bind();
 
 			skyboxShader.uniform<Mat4>("uProjection", projection);
 			skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
-			skyboxShader.uniform<Vec3>("uDirection", -dlTransform->front());
+			skyboxShader.uniform<Vec3>("uDirectionalLight.direction", dlTransform->front());
+			skyboxShader.uniform<Vec3>("uDirectionalLight.color", dl->color);
+			skyboxShader.uniform<float>("uDirectionalLight.intensity", dl->intensity);
 
 			data.cube.renderArray().bind();
 

@@ -40,5 +40,9 @@ void main()
     vec3 finalColor = (ambient + (1.0 - shadow) * (diffuse + specular));
 
     gAlbedoSpecular = vec4(finalColor, 1.0);
+
+    if(fragPos == vec3(0.0)){
+        gAlbedoSpecular.xyz = albedo;
+    }
 }
 
