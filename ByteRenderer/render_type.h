@@ -12,6 +12,8 @@
 
 namespace Byte {
 
+	using RenderID = uint64_t;
+
 	using Path = std::filesystem::path;
 
 	template<typename T>

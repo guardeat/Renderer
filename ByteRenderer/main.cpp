@@ -10,7 +10,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ Default::deferred(window) };
+	Renderer renderer{ RendererGenerator::deferred(window) };
 
 	Camera camera;
 	Transform transform;
@@ -28,7 +28,7 @@ int main() {
 	sphereMaterial.shaderTag("instanced_deferred");
 	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });
 
-	renderer.context().instances()["spheres_1"] = RenderInstance{sphere,sphereMaterial};
+	renderer.context().createInstance("spheres_1",sphere,sphereMaterial);
 
 	for (int x = 0; x < gridSize; ++x) {
 		for (int y = 0; y < gridSize; ++y) {
@@ -39,7 +39,7 @@ int main() {
 				transform.position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing));
 				sphereTransforms[index] = transform;
 
-				renderer.context().instances()["spheres_1"].add(transform);
+				renderer.context().submit("spheres_1",transform);
 			}
 		}
 	}

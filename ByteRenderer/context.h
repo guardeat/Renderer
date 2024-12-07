@@ -2,6 +2,8 @@
 
 #include <tuple>
 #include <unordered_map>
+#include <random>
+#include <limits>
 
 #include "render_type.h"
 #include "mesh.h"
@@ -14,6 +16,16 @@
 #include "instancing.h"
 
 namespace Byte {
+
+    struct RenderIDGenerator {
+        static RenderID generate() {
+            static std::random_device rd;
+            static std::mt19937_64 gen(rd());
+            static std::uniform_int_distribution<RenderID> dist(1, std::numeric_limits<uint64_t>::max());
+
+            return dist(gen);
+        }
+    };
 
     class RenderContext {
     public:
@@ -30,110 +42,117 @@ namespace Byte {
         };
 
     private:
-        Buffer<RenderEntity> _renderEntities;
+        using EntityMap = std::unordered_map<RenderID, RenderEntity>;
+        EntityMap _renderEntities;
 
         RenderItem<Camera> _camera{};
         RenderItem<DirectionalLight> _directionalLight{};
 
-        Buffer<RenderItem<PointLight>> _pointLights;
+        using PointLightMap = std::unordered_map<RenderID, RenderItem<PointLight>>;
+        PointLightMap _pointLights;
 
         using InstanceMap = std::unordered_map<InstanceTag, RenderInstance>;
         InstanceMap _instances;
 
     public:
-        void submit(Mesh& mesh, Material& material, Transform& transform) {
-            _renderEntities.emplace_back(&mesh, &material, &transform);
+        RenderID submit(Mesh& mesh, Material& material, Transform& transform) {
+            RenderID id{ RenderIDGenerator::generate() };
+            _renderEntities.emplace(id, RenderEntity{ &mesh, &material, &transform });
+            return id;
         }
 
-        void submit(Camera& camera, Transform& cameraTransform) {
+        RenderID submit(const InstanceTag& tag, Mesh& mesh, Material& material, Transform& transform) {
+            _instances.emplace(tag, RenderInstance{ mesh,material });
+            RenderID id{ RenderIDGenerator::generate() };
+            _instances.at(tag).add(transform,id);
+            return id;
+        }
+
+        RenderID submit(const InstanceTag& tag, Transform& transform) {
+            RenderID id{ RenderIDGenerator::generate() };
+            _instances.at(tag).add(transform, id);
+            return id;
+        }
+
+        RenderID submit(Camera& camera, Transform& cameraTransform) {
+            RenderID id{ RenderIDGenerator::generate() };
             _camera = { &camera, &cameraTransform };
+            return id;
         }
 
-        void submit(DirectionalLight& light, Transform& lightTransform) {
+        RenderID submit(DirectionalLight& light, Transform& lightTransform) {
+            RenderID id{ RenderIDGenerator::generate() };
             _directionalLight = { &light, &lightTransform };
+            return id;
         }
 
-        void submit(PointLight& light, Transform& lightTransform) {
-            _pointLights.emplace_back(&light, &lightTransform);
+        RenderID submit(PointLight& light, Transform& lightTransform) {
+            RenderID id{ RenderIDGenerator::generate() };
+            _pointLights.emplace(id, RenderItem<PointLight>{ &light, & lightTransform });
+            return id;
         }
 
-        RenderEntity& entity(size_t index) {
-            return _renderEntities[index];
+        void eraseEntity(RenderID id) {
+            _renderEntities.erase(id);
         }
 
-        const RenderEntity& entity(size_t index) const { 
-            return _renderEntities[index];
+        void eraseEntity(const InstanceTag& tag, RenderID id) {
+            _instances.at(tag).erase(id);
         }
 
-        Mesh& mesh(size_t index) {
-            return *_renderEntities[index].mesh;
+        void eraseInstance(const InstanceTag& tag) {
+            _instances.erase(tag);
         }
 
-        const Mesh& mesh(size_t index) const { 
-            return *_renderEntities[index].mesh;
+        void eraseItem(RenderID id) {
+            _pointLights.erase(id);
         }
 
-        Material& material(size_t index) {
-            return *_renderEntities[index].material;
+        void createInstance(const InstanceTag& tag, Mesh& mesh, Material& material) {
+            _instances.emplace(tag, RenderInstance{ mesh,material });
         }
 
-        const Material& material(size_t index) const {
-            return *_renderEntities[index].material;
+        RenderEntity& entity(RenderID id) {
+            return _renderEntities.at(id);
         }
 
-        Transform& transform(size_t index) {
-            return *_renderEntities[index].transform;
+        const RenderEntity& entity(RenderID id) const {
+            return _renderEntities.at(id);
         }
 
-        const Transform& transform(size_t index) const { 
-            return *_renderEntities[index].transform;
-        }
-
-        Buffer<RenderEntity>& entities() {
-            return _renderEntities;
-        }
-
-        const Buffer<RenderEntity>& entities() const { 
-            return _renderEntities;
-        }
-
-        size_t entityCount() const {
-            return _renderEntities.size();
-        }
-
-        RenderItem<Camera> camera() {
+        RenderItem<Camera> camera() const {
             return _camera;
         }
 
-        const RenderItem<Camera> camera() const { 
-            return _camera;
-        }
-
-        RenderItem<DirectionalLight> directionalLight() {
+        RenderItem<DirectionalLight> directionalLight() const {
             return _directionalLight;
         }
 
-        const RenderItem<DirectionalLight> directionalLight() const { 
-            return _directionalLight;
+        RenderItem<PointLight> pointLight(RenderID id) const {
+            return _pointLights.at(id);
         }
 
-        RenderItem<PointLight> pointLight(size_t index) {
-            return _pointLights[index];
+        EntityMap& renderEntities() {
+            return _renderEntities;
         }
 
-        const RenderItem<PointLight> pointLight(size_t index) const { 
-            return _pointLights[index];
+        const EntityMap& renderEntities() const {
+            return _renderEntities;
         }
 
-        size_t pointLightCount() const {
-            return _pointLights.size();
+        PointLightMap& pointLights() {
+            return _pointLights;
+        }
+
+        const PointLightMap& pointLights() const {
+            return _pointLights;
         }
 
         RenderInstance& instance(const InstanceTag& tag) {
             return _instances.at(tag);
         }
 
-        const RenderInstance& instance(const InstanceTag& tag) const { 
+        const RenderInstance& instance(const InstanceTag& tag) const {
             return _instances.at(tag);
         }
 
@@ -141,7 +160,7 @@ namespace Byte {
             return _instances;
         }
 
-        const InstanceMap& instances() const { 
+        const InstanceMap& instances() const {
             return _instances;
         }
 

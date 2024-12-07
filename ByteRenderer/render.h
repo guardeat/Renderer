@@ -4,7 +4,7 @@
 
 namespace Byte {
 
-	struct Default {
+	struct RendererGenerator {
 		static Renderer deferred(Window& window) {
 			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
 			RenderConfig config;
@@ -20,7 +20,7 @@ namespace Byte {
 			config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
 			config.shaderPaths["procedural_skybox"] = { "procedural_skybox_vertex.glsl","procedural_skybox_fragment.glsl" };
 
-			config.parameters.emplace("render_skybox", false);
+			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);
 			config.parameters.emplace("clear_gbuffer", true);
 

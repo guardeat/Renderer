@@ -21,6 +21,8 @@ namespace Byte {
         size_t _size{ 0 };
         size_t _bufferCapacity{ 0 };
 
+        Buffer<RenderID> _renderIDs;
+
     public:
         RenderInstance() = default;
 
@@ -52,7 +54,7 @@ namespace Byte {
             _material = &newMaterial;
         }
 
-        void add(Transform& transform) {
+        void add(Transform& transform, RenderID id) {
             _change = true;
             ++_size;
 
@@ -69,6 +71,29 @@ namespace Byte {
             _data.push_back(transform.rotation().z);
             _data.push_back(transform.rotation().w);
             
+            _renderIDs.push_back(id);
+        }
+
+        bool erase(RenderID id) {
+            auto it{ std::find(_renderIDs.begin(), _renderIDs.end(), id) };
+            if (it == _renderIDs.end()) {
+                return false;
+            }
+
+            size_t index{ static_cast<size_t>(std::distance(_renderIDs.begin(), it)) };
+
+            constexpr size_t strideSize{ 10 };
+
+            size_t dataStart{ index * strideSize };
+
+            _data.erase(_data.begin() + dataStart, _data.begin() + dataStart + strideSize);
+
+            _renderIDs.erase(it);
+
+            --_size;
+            _change = true;
+
+            return true;
         }
 
         Buffer<float>& data() {

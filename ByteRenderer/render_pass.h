@@ -109,8 +109,8 @@ namespace Byte {
 		}
 
 		void renderEntities(RenderContext& context, const Shader& shader) {
-			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
-				auto [mesh, material, transform] = context.entity(i);
+			for (auto& pair: context.renderEntities()) {
+				auto [mesh, material, transform] = pair.second;
 
 				mesh->renderArray().bind();
 
@@ -176,8 +176,8 @@ namespace Byte {
 			const Vec3& lightDir) {
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 
-			for (size_t i{ 0 }; i < context.entityCount(); ++i) {
-				auto [mesh, material, transform] = context.entity(i);
+			for (auto& pair : context.renderEntities()) {
+				auto [mesh, material, transform] = pair.second;
 
 				Shader& shader{ data.shaders[material->shaderTag()] };
 				shader.bind();
@@ -274,7 +274,7 @@ namespace Byte {
 
 			lightingShader.unbind();
 
-			if (context.pointLightCount() > 0) {
+			if (!context.pointLights().empty()) {
 				plShader.bind();
 
 				OpenglAPI::enableBlend();
@@ -300,8 +300,8 @@ namespace Byte {
 
 				OpenglAPI::disableDepth();
 
-				for (size_t i{ 0 }; i < context.pointLightCount(); ++i) {
-					auto [pointLight, _transform] = context.pointLight(i);
+				for (auto& pair: context.pointLights()) {
+					auto [pointLight, _transform] = pair.second;
 					Transform transform{ *_transform };
 
 					float radius{ pointLight->radius() };

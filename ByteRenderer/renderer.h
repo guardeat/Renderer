@@ -110,8 +110,8 @@ namespace Byte {
 
 	private:
 		void prepareVertexArrays(RenderContext& context) {
-			for (size_t i{}; i < context.entityCount(); ++i) {
-				Mesh& mesh{ context.mesh(i) };
+			for (auto& pair : context.renderEntities()) {
+				Mesh& mesh{ *pair.second.mesh };
 				if (!mesh.readyRender() && !mesh.empty()) {
 					fillVertexArray(mesh);
 				}

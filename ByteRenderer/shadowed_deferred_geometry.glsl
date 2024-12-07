@@ -28,7 +28,7 @@ float calculateShadow(vec4 fragPosLightSpace)
     float closestDepth = texture(uDepthMap, projCoords.xy).r; 
     float currentDepth = projCoords.z;
 
-    float bias = max(0.05 * (1.0 - dot(vNormal, -uLightDir)), 0.005);  
+    float bias = max(0.05 * (1.0 - dot(vNormal, uLightDir)), 0.005);  
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(uDepthMap, 0);
