@@ -7,9 +7,6 @@
 #include <string>
 #include <exception>
 
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-
 namespace Byte {
 
 	using RenderID = uint64_t;
@@ -29,6 +26,43 @@ namespace Byte {
 	using RArrayID = uint32_t;
 	using RBufferID = uint32_t;
 
+	enum class TextureUnit {
+		T0, T1, T2, T3,
+		T4, T5, T6, T7,
+		T8, T9, T10, T11,
+		T12, T13, T14, T15,
+	};
+
+	enum class ShaderType {
+		FRAGMENT,
+		VERTEX,
+	};
+
+	enum class DataType : unsigned int {
+		BYTE,
+		UNSIGNED_BYTE,
+		SHORT,
+		UNSIGNED_SHORT,
+		INT,
+		UNSIGNED_INT,
+		FLOAT
+	};
+
+	enum class ColorFormat : unsigned int {
+		DEPTH = 0x1902,
+		RED = 0x1903,
+		GREEN = 0x1904,
+		BLUE = 0x1905,
+		ALPHA = 0x1906,
+		RGB = 0x1907,
+		RGBA = 0x1908,
+
+		RGBA32F = 0x8814,
+		RGB32F = 0x8815,
+		RGBA16F = 0x881A,
+		RGB16F = 0x881B
+	};
+
 	struct TextureData {
 		size_t height;
 		size_t width;
@@ -43,9 +77,9 @@ namespace Byte {
 		struct TextureAttachment {
 			std::string tag;
 			uint32_t index;
-			GLenum internalFormat{ GL_RGBA };
-			GLenum format{ GL_RGBA };
-			GLenum type{ GL_UNSIGNED_BYTE };
+			ColorFormat internalFormat{ ColorFormat::RGBA };
+			ColorFormat format{ ColorFormat::RGBA };
+			DataType type{ DataType::BYTE };
 		};
 
 		using AttachmentContainer = std::vector<TextureAttachment>;
@@ -95,8 +129,6 @@ namespace Byte {
 
 		RBufferID EBO{ 0 };
 		size_t elementCount{ 0 };
-
-		bool isStatic{ true };
 	};
 
 }

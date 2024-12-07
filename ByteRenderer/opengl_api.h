@@ -65,7 +65,7 @@ namespace Byte {
             glDisable(GL_BLEND);
         }
 
-        static void setBlend(GLenum sFactor, GLenum dFactor) {
+        static void setBlend(int sFactor, int dFactor) {
             glBlendFunc(sFactor, dFactor);
         }
 
@@ -136,10 +136,10 @@ namespace Byte {
                 TextureID depthMap{ Texture::build(
                     config.width, config.height,
                     nullptr,
-                    GL_DEPTH_COMPONENT,
-                    GL_DEPTH_COMPONENT,
-                    GL_FLOAT
-                ) };
+                    ColorFormat::DEPTH,
+                    ColorFormat::DEPTH,
+                    DataType::FLOAT
+                )};
 
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
 
@@ -290,7 +290,7 @@ namespace Byte {
 
                 Buffer<RBufferData> buffers{ RBufferData{VBO,attributes} };
 
-                return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
+                return RArrayData{ VAO, buffers, EBO, indices.size() };
             }
 
             static RArrayData build(
@@ -355,7 +355,7 @@ namespace Byte {
 
                 Buffer<RBufferData> buffers{ RBufferData{VBO,attributes}, RBufferData{iVBO,attributes} };
 
-                return RArrayData{ VAO, buffers, EBO, indices.size(), isStatic };
+                return RArrayData{ VAO, buffers, EBO, indices.size() };
             }
 
             static Buffer<VertexAttribute> buildAttributes(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
@@ -518,7 +518,7 @@ namespace Byte {
                 glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value.data);
             }
 
-            static uint32_t compile(const std::string& shaderPath, GLenum shaderType) {
+            static uint32_t compile(const std::string& shaderPath, ShaderType shaderType) {
                 std::string shaderCode;
                 std::ifstream shaderFile;
 
@@ -537,7 +537,7 @@ namespace Byte {
 
                 uint32_t id;
 
-                id = glCreateShader(shaderType);
+                id = glCreateShader(EnumConverter::convert(shaderType));
                 glShaderSource(id, 1, &sCode, NULL);
                 glCompileShader(id);
                 check(id);
@@ -563,9 +563,9 @@ namespace Byte {
                 size_t width, 
                 size_t height, 
                 const uint8_t* data = nullptr, 
-                GLenum internalFormat = GL_RGBA, 
-                GLenum format = GL_RGBA, 
-                GLenum type = GL_UNSIGNED_BYTE) {
+                ColorFormat internalFormat = ColorFormat::RGBA,
+                ColorFormat format = ColorFormat::RGBA,
+                DataType type = DataType::UNSIGNED_BYTE) {
                 TextureID textureID;
 
                 GLint glWidth{ static_cast<GLint>(width) };
@@ -580,7 +580,12 @@ namespace Byte {
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);     
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);     
 
-                glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, glWidth, glHeight, 0, format, type, data);
+                glTexImage2D(
+                    GL_TEXTURE_2D, 0, 
+                    EnumConverter::convert(internalFormat), 
+                    glWidth, glHeight, 0, 
+                    EnumConverter::convert(format), 
+                    EnumConverter::convert(type), data);
 
                 glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -589,8 +594,8 @@ namespace Byte {
                 return textureID;
             }
 
-            static void bind(TextureID textureID, GLenum textureUnit = GL_TEXTURE0) {
-                glActiveTexture(textureUnit);
+            static void bind(TextureID textureID, TextureUnit unit = TextureUnit::T0) {
+                glActiveTexture(EnumConverter::convert(unit));
                 glBindTexture(GL_TEXTURE_2D, textureID);
             }
 
@@ -600,6 +605,24 @@ namespace Byte {
 
             static void release(TextureID textureID) {
                 glDeleteTextures(1, &textureID);
+            }
+        };
+
+        struct EnumConverter {
+            static GLenum convert(TextureUnit unit) {
+                return static_cast<GLenum>(unit) + GL_TEXTURE0;
+            }
+
+            static GLenum convert(ShaderType type) {
+                return static_cast<GLenum>(type) + GL_FRAGMENT_SHADER;
+            }
+
+            static GLenum convert(DataType type) {
+                return static_cast<GLenum>(type) + GL_BYTE;
+            }
+
+            static GLenum convert(ColorFormat format) {
+                return static_cast<GLenum>(format);
             }
         };
         

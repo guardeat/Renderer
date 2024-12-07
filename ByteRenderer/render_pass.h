@@ -1,6 +1,8 @@
 #pragma once
 
 #include <variant>
+#include <unordered_map>
+#include <cstdint>
 
 #include "context.h"
 
@@ -197,7 +199,7 @@ namespace Byte {
 				shader.uniform<Vec3>("uLightDir", lightDir);
 
 				shader.uniform("uDepthMap", 0);
-				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
+				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
 				OpenglAPI::Draw::elements(mesh->indices().size());
 
@@ -233,7 +235,7 @@ namespace Byte {
 				shader.uniform<Vec3>("uLightDir", lightDir);
 
 				shader.uniform("uDepthMap", 0);
-				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), GL_TEXTURE0);
+				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
 				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
@@ -278,7 +280,7 @@ namespace Byte {
 				plShader.bind();
 
 				OpenglAPI::enableBlend();
-				OpenglAPI::setBlend(GL_ONE, GL_ONE);
+				OpenglAPI::setBlend(1, 1);
 				OpenglAPI::enableCulling();
 				OpenglAPI::cullFront();
 
@@ -341,9 +343,9 @@ namespace Byte {
 			shader.uniform(normalName, 1);
 			shader.uniform(albedoSpecName, 2);
 
-			OpenglAPI::Texture::bind(gBuffer.textureID("position"), GL_TEXTURE0);
-			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), GL_TEXTURE1);
-			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), GL_TEXTURE2);
+			OpenglAPI::Texture::bind(gBuffer.textureID("position"), TextureUnit::T0);
+			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T1);
+			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), TextureUnit::T2);
 		}
 	};
 
@@ -359,7 +361,7 @@ namespace Byte {
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 
@@ -381,7 +383,7 @@ namespace Byte {
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("depth"), GL_TEXTURE0);
+			OpenglAPI::Texture::bind(colorBuffer.textureID("depth"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 

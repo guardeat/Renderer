@@ -51,8 +51,8 @@ namespace Byte {
 
     struct ShaderCompiler {
         static void compile(Shader& shader) {
-            uint32_t vertexShader{ compile(shader.path.vertex, GL_VERTEX_SHADER) };
-            uint32_t fragmentShader{ compile(shader.path.fragment, GL_FRAGMENT_SHADER) };
+            uint32_t vertexShader{ compile(shader.path.vertex, ShaderType::VERTEX ) };
+            uint32_t fragmentShader{ compile(shader.path.fragment, ShaderType::FRAGMENT ) };
 
             shader._id = createProgram(vertexShader, fragmentShader);
 
@@ -60,7 +60,7 @@ namespace Byte {
             OpenglAPI::Shader::release(fragmentShader);
         }
 
-        static uint32_t compile(const std::string& shaderPath, GLenum shaderType) {
+        static uint32_t compile(const std::string& shaderPath, ShaderType shaderType) {
             return OpenglAPI::Shader::compile(shaderPath, shaderType);
         }
 

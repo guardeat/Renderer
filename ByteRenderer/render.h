@@ -9,16 +9,26 @@ namespace Byte {
 			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
 			RenderConfig config;
 
-			config.shaderPaths["default_deferred"] = { "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
-			config.shaderPaths["default_forward"] = { "default_vertex.glsl","forward_fragment.glsl" };
-			config.shaderPaths["quad_shader"] = { "quad_vertex.glsl","quad_fragment.glsl" };
-			config.shaderPaths["lighting_shader"] = { "quad_vertex.glsl","lighting_fragment.glsl" };
-			config.shaderPaths["point_light_shader"] = { "point_light_vertex.glsl","point_light_fragment.glsl" };
-			config.shaderPaths["instanced_deferred"] = { "instanced_shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
-			config.shaderPaths["depth_shader"] = { "depth_vertex.glsl","depth_fragment.glsl" };
-			config.shaderPaths["instanced_depth"] = { "instanced_depth_vertex.glsl","depth_fragment.glsl" };
-			config.shaderPaths["quad_depth_shader"] = { "quad_vertex.glsl","quad_depth_fragment.glsl" };
-			config.shaderPaths["procedural_skybox"] = { "procedural_skybox_vertex.glsl","procedural_skybox_fragment.glsl" };
+			config.shaderPaths["default_deferred"] = 
+			{ "shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
+			config.shaderPaths["default_forward"] = 
+			{ "default_vertex.glsl","forward_fragment.glsl" };
+			config.shaderPaths["quad_shader"] = 
+			{ "quad_vertex.glsl","quad_fragment.glsl" };
+			config.shaderPaths["lighting_shader"] = 
+			{ "quad_vertex.glsl","lighting_fragment.glsl" };
+			config.shaderPaths["point_light_shader"] = 
+			{ "point_light_vertex.glsl","point_light_fragment.glsl" };
+			config.shaderPaths["instanced_deferred"] = 
+			{ "instanced_shadowed_vertex.glsl","shadowed_deferred_geometry.glsl" };
+			config.shaderPaths["depth_shader"] = 
+			{ "depth_vertex.glsl","depth_fragment.glsl" };
+			config.shaderPaths["instanced_depth"] = 
+			{ "instanced_depth_vertex.glsl","depth_fragment.glsl" };
+			config.shaderPaths["quad_depth_shader"] = 
+			{ "quad_vertex.glsl","quad_depth_fragment.glsl" };
+			config.shaderPaths["procedural_skybox"] = 
+			{ "procedural_skybox_vertex.glsl","procedural_skybox_fragment.glsl" };
 
 			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);
@@ -34,9 +44,9 @@ namespace Byte {
 			gBufferConfig.height = window.height();
 
 			gBufferConfig.attachments = {
-				{ "position", 0, GL_RGBA16F, GL_RGBA, GL_FLOAT },
-				{ "normal", 1, GL_RGBA16F, GL_RGBA, GL_FLOAT },
-				{ "albedoSpecular", 2, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE }
+				{ "position", 0, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
+				{ "normal", 1,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
+				{ "albedoSpecular", 2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
 			};
 
 			config.frameBufferConfigs["gBuffer"] = gBufferConfig;
@@ -47,7 +57,7 @@ namespace Byte {
 			colorBufferConfig.height = window.height();
 
 			colorBufferConfig.attachments = {
-				{ "albedoSpecular", 0, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE },
+				{ "albedoSpecular", 0, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
 			};
 
 			config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
