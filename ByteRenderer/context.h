@@ -45,7 +45,10 @@ namespace Byte {
         using EntityMap = std::unordered_map<RenderID, RenderEntity>;
         EntityMap _renderEntities;
 
+        RenderID _cameraID{};
         RenderItem<Camera> _camera{};
+
+        RenderID _directionalLightID;
         RenderItem<DirectionalLight> _directionalLight{};
 
         using PointLightMap = std::unordered_map<RenderID, RenderItem<PointLight>>;
@@ -76,12 +79,14 @@ namespace Byte {
 
         RenderID submit(Camera& camera, Transform& cameraTransform) {
             RenderID id{ RenderIDGenerator::generate() };
+            _cameraID = id;
             _camera = { &camera, &cameraTransform };
             return id;
         }
 
         RenderID submit(DirectionalLight& light, Transform& lightTransform) {
             RenderID id{ RenderIDGenerator::generate() };
+            _directionalLightID = id;
             _directionalLight = { &light, &lightTransform };
             return id;
         }
