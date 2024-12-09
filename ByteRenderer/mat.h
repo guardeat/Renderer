@@ -237,6 +237,33 @@ namespace Byte {
             return adj / det;
         }
 
+        static _Mat lookAt(const _Vec3<Type>& eye, const _Vec3<Type>& target, const _Vec3<Type>& up) {
+            if constexpr (X != 4 && Y != 4) {
+                std::logic_error("LookAt is defined only for 4x4 matrices.");
+            }
+
+            Vec3 forward{ (target - eye).normalized() };
+            Vec3 right{ forward.cross(up).normalized() };
+
+            _Mat viewMatrix{ _Mat::identity() };
+
+            viewMatrix(0, 0) = right.x;
+            viewMatrix(0, 1) = right.y;
+            viewMatrix(0, 2) = right.z;
+            viewMatrix(1, 0) = up.x;
+            viewMatrix(1, 1) = up.y;
+            viewMatrix(1, 2) = up.z;
+            viewMatrix(2, 0) = -forward.x;
+            viewMatrix(2, 1) = -forward.y;
+            viewMatrix(2, 2) = -forward.z;
+
+            viewMatrix(0, 3) = -eye.dot(right);
+            viewMatrix(1, 3) = -eye.dot(up);
+            viewMatrix(2, 3) = eye.dot(forward);
+
+            return viewMatrix;
+        }
+
     };
 
     template<size_t Y, size_t X, typename Type>

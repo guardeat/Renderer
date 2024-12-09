@@ -106,24 +106,7 @@ namespace Byte {
 
 			Vec3 u{ r.cross(f) };
 
-			Vec3 pos{ position() };
-
-			Mat4 viewMatrix{ Mat4::identity() };
-			viewMatrix(0, 0) = r.x;
-			viewMatrix(0, 1) = r.y;
-			viewMatrix(0, 2) = r.z;
-			viewMatrix(1, 0) = u.x;
-			viewMatrix(1, 1) = u.y;
-			viewMatrix(1, 2) = u.z;
-			viewMatrix(2, 0) = -f.x;
-			viewMatrix(2, 1) = -f.y;
-			viewMatrix(2, 2) = -f.z;
-
-			viewMatrix(0, 3) = -pos.dot(r);
-			viewMatrix(1, 3) = -pos.dot(u);
-			viewMatrix(2, 3) = pos.dot(f);
-
-			return viewMatrix;
+			return Mat4::lookAt(_globalPos, _globalPos + f, u);
 		}
 	};
 
