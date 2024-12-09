@@ -76,9 +76,9 @@ namespace Byte {
             center /= corners.size();
 
             const auto lightView{ Mat4::lookAt(
-                center + lightTransform.front(),
+                center - lightTransform.front(),
                 center,
-                Vec3(0.0f, 1.0f, 0.0f)
+                lightTransform.up()
             ) };
 
             float minX{ std::numeric_limits<float>::max() };
@@ -96,20 +96,6 @@ namespace Byte {
                 maxY = std::max(maxY, trf.y);
                 minZ = std::min(minZ, trf.z);
                 maxZ = std::max(maxZ, trf.z);
-            }
-
-            constexpr float zMult = 10.0f;
-            if (minZ < 0) {
-                minZ *= zMult;
-            }
-            else {
-                minZ /= zMult;
-            }
-            if (maxZ < 0) {
-                maxZ /= zMult;
-            }
-            else {
-                maxZ *= zMult;
             }
 
             Mat4 lightProjection{ orthographic(minX, maxX, minY, maxY, minZ, maxZ) };

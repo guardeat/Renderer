@@ -100,7 +100,7 @@ namespace Byte {
 			return _globalRot * Vec3{ 1,0,0 };
 		}
 
-		Mat4 view() {
+		Mat4 view() const {
 			Vec3 f{ front().normalized() };
 			Vec3 r{ right().normalized() };
 

@@ -81,13 +81,14 @@ namespace Byte {
 			Shader& depthShader{ data.shaders["depth_shader"] };
 			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
-
+			
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
+			Mat4 projection{ camera->perspective(aspectRatio) };
 
 			auto [_, dlTransform] = context.directionalLight();
 
-			Mat4 lightSpace{ projection * dlTransform->view() };
+			Mat4 lightSpace{ camera->frustumSpace(projection,cTransform->view(),*dlTransform) };
 
 			depthBuffer.bind();
 			depthBuffer.clearContent();
@@ -149,9 +150,8 @@ namespace Byte {
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
-			Mat4 orthographic{ camera->orthographic(-80.0f, 80.0f, -45.0f, 45.0f) };
 			auto [_, dlTransform] = context.directionalLight();
-			Mat4 lightSpace{ orthographic * dlTransform->view() };
+			Mat4 lightSpace{ camera->frustumSpace(projection,view, *dlTransform) };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
