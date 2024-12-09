@@ -257,7 +257,7 @@ namespace Byte {
     using Mat3d = MatNd<4>;
 
     template<size_t Y, size_t X, typename Type>
-    std::ostream& operator<<(std::ostream& os, const _Mat<Y, X, Type>& matrix) {
+    inline std::ostream& operator<<(std::ostream& os, const _Mat<Y, X, Type>& matrix) {
         os << "{";
         for (size_t i{ 0 }; i < X; ++i) {
             for (size_t j{ 0 }; j < Y; ++j) {
