@@ -26,19 +26,19 @@ namespace Byte {
 	using RArrayID = uint32_t;
 	using RBufferID = uint32_t;
 
-	enum class TextureUnit {
+	enum class TextureUnit: uint8_t {
 		T0, T1, T2, T3,
 		T4, T5, T6, T7,
 		T8, T9, T10, T11,
 		T12, T13, T14, T15,
 	};
 
-	enum class ShaderType {
+	enum class ShaderType: uint8_t {
 		FRAGMENT,
 		VERTEX,
 	};
 
-	enum class DataType : unsigned int {
+	enum class DataType : uint8_t {
 		BYTE,
 		UNSIGNED_BYTE,
 		SHORT,
@@ -48,7 +48,7 @@ namespace Byte {
 		FLOAT
 	};
 
-	enum class ColorFormat : unsigned int {
+	enum class ColorFormat : uint32_t {
 		DEPTH = 0x1902,
 		RED = 0x1903,
 		GREEN = 0x1904,
@@ -61,6 +61,14 @@ namespace Byte {
 		RGB32F = 0x8815,
 		RGBA16F = 0x881A,
 		RGB16F = 0x881B
+	};
+
+	enum class AttachmentType: uint8_t {
+		COLOR_0,
+		COLOR_1,
+		COLOR_2,
+		COLOR_3,
+		DEPTH = 32,
 	};
 
 	struct TextureData {
@@ -76,20 +84,17 @@ namespace Byte {
 	struct FramebufferConfig {
 		struct TextureAttachment {
 			std::string tag;
-			uint32_t index;
+			AttachmentType attachment;
 			ColorFormat internalFormat{ ColorFormat::RGBA };
 			ColorFormat format{ ColorFormat::RGBA };
 			DataType type{ DataType::BYTE };
 		};
 
-		using AttachmentContainer = std::vector<TextureAttachment>;
-
-		AttachmentContainer attachments;
+		using AttachmentVector = std::vector<TextureAttachment>;
+		AttachmentVector attachments;
 
 		size_t width{};
 		size_t height{};
-
-		bool depthMap{ false };
 	};
 
 	struct FramebufferData {

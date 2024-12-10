@@ -87,10 +87,6 @@ namespace Byte {
 
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
-                if (config.depthMap) {
-                    return buildDepthBuffer(config);
-                }
-
                 FramebufferID frameBufferID;
                 glGenFramebuffers(1, &frameBufferID);
                 glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
@@ -102,22 +98,31 @@ namespace Byte {
 
                 Buffer<uint32_t> attachments;
 
+                bool hasDepth{ false };
+
                 for (auto& att : config.attachments) {
                     TextureID id{Texture::build(config.width,config.height,nullptr, att.internalFormat,att.format,att.type)};
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + att.index, GL_TEXTURE_2D, id, 0);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, EnumConverter::convert(att.attachment), GL_TEXTURE_2D, id, 0);
                     textures[att.tag] = id;
-                    attachments.push_back(GL_COLOR_ATTACHMENT0 + att.index);
+                    if (att.attachment == AttachmentType::DEPTH) {
+                        hasDepth = true;
+                    }
+                    else {
+                        attachments.push_back(EnumConverter::convert(att.attachment));
+                    }
                 }
 
                 if (attachments.size() > 1) {
                     glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
                 }
 
-                unsigned int rboDepth;
-                glGenRenderbuffers(1, &rboDepth);
-                glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, glWidth, glHeight);
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+                if (!hasDepth) {
+                    unsigned int rboDepth;
+                    glGenRenderbuffers(1, &rboDepth);
+                    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, glWidth, glHeight);
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+                }
 
                 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                     throw std::exception("Framebuffer not complete");
@@ -126,33 +131,6 @@ namespace Byte {
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
                 return FramebufferData{ frameBufferID, textures, attachments, config.width,config.height };
-            }
-
-            static FramebufferData buildDepthBuffer(const FramebufferConfig& config) {
-                FramebufferID bufferID;
-                glGenFramebuffers(1, &bufferID);
-                glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
-
-                TextureID depthMap{ Texture::build(
-                    config.width, config.height,
-                    nullptr,
-                    ColorFormat::DEPTH,
-                    ColorFormat::DEPTH,
-                    DataType::FLOAT
-                )};
-
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-
-                glDrawBuffer(GL_NONE);
-                glReadBuffer(GL_NONE);
-
-                if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-                    throw std::exception("Depth framebuffer not complete");
-                }
-
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                return FramebufferData{ bufferID, { { "depth", depthMap } } ,{}, config.width,config.height };
             }
 
             static void clear(FramebufferID id) {
@@ -623,6 +601,10 @@ namespace Byte {
 
             static GLenum convert(ColorFormat format) {
                 return static_cast<GLenum>(format);
+            }
+
+            static GLenum convert(AttachmentType type) {
+                return static_cast<GLenum>(type) + GL_COLOR_ATTACHMENT0;
             }
         };
         

@@ -44,9 +44,9 @@ namespace Byte {
 			gBufferConfig.height = window.height();
 
 			gBufferConfig.attachments = {
-				{ "position", 0, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "normal", 1,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "albedoSpecular", 2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
+				{ "position", AttachmentType::COLOR_0, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
+				{ "normal", AttachmentType::COLOR_1,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
+				{ "albedoSpecular", AttachmentType::COLOR_3, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
 			};
 
 			config.frameBufferConfigs["gBuffer"] = gBufferConfig;
@@ -57,16 +57,18 @@ namespace Byte {
 			colorBufferConfig.height = window.height();
 
 			colorBufferConfig.attachments = {
-				{ "albedoSpecular", 0, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
+				{ "albedoSpecular", AttachmentType::COLOR_0, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
 			};
 
 			config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
 
 			FramebufferConfig depthBufferConfig;
+			depthBufferConfig.attachments = {
+				{ "depth", AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT },
+			};
 
 			depthBufferConfig.width = 2048;
 			depthBufferConfig.height = 2048;
-			depthBufferConfig.depthMap = true;
 
 			config.frameBufferConfigs["depthBuffer"] = depthBufferConfig;
 
