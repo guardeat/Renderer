@@ -167,43 +167,6 @@ namespace Byte {
                 }
             }
 
-            static void blitDepth(FramebufferID source, FramebufferID dest, size_t width, size_t height) {
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, dest);
-                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, source);
-
-                GLint glHeight{ static_cast<GLint>(height) };
-                GLint glWidth{ static_cast<GLint>(width) };
-                glBlitFramebuffer(0, 0, glWidth, glHeight, 0, 0, glWidth, glHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            }
-
-            static void blit(
-                FramebufferID src,
-                FramebufferID dest, 
-                size_t width, 
-                size_t height, 
-                GLenum srcAtt, 
-                GLenum destAtt) {
-                GLint glWidth{ static_cast<GLint>(width) };
-                GLint glHeight{ static_cast<GLint>(height) };
-
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, src);
-                glReadBuffer(srcAtt);
-
-                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest);
-                glDrawBuffer(destAtt);
-
-                glBlitFramebuffer(
-                    0, 0, glWidth, glHeight,  
-                    0, 0, glWidth, glHeight, 
-                    GL_COLOR_BUFFER_BIT,       
-                    GL_NEAREST                
-                );
-
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-            }
-
         };
 
         struct Draw {
