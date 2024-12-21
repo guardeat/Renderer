@@ -147,16 +147,16 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="context.h" />
-    <ClInclude Include="forward_fragment.glsl" />
-    <ClInclude Include="default_vertex.glsl" />
-    <ClInclude Include="instanced_vertex.glsl" />
+    <ClInclude Include="forward.frag" />
+    <ClInclude Include="default.vert" />
+    <ClInclude Include="instanced.vert" />
     <ClInclude Include="instancing.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="quad_depth_fragment.glsl" />
+    <ClInclude Include="quad_depth.frag" />
     <ClInclude Include="quaternion.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="renderer.h" />
@@ -174,20 +174,20 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="deferred_geometry.glsl" />
-    <None Include="depth_fragment.glsl" />
-    <None Include="depth_vertex.glsl" />
-    <None Include="instanced_depth_vertex.glsl" />
-    <None Include="instanced_shadowed_vertex.glsl" />
-    <None Include="lighting_fragment.glsl" />
-    <None Include="point_light_fragment.glsl" />
-    <None Include="point_light_vertex.glsl" />
-    <None Include="procedural_skybox_vertex.glsl" />
-    <None Include="quad_fragment.glsl" />
-    <None Include="quad_vertex.glsl" />
-    <None Include="shadowed_deferred_geometry.glsl" />
-    <None Include="shadowed_vertex.glsl" />
-    <None Include="procedural_skybox_fragment.glsl" />
+    <None Include="deferred.frag" />
+    <None Include="depth.frag" />
+    <None Include="depth.vert" />
+    <None Include="instanced_depth.vert" />
+    <None Include="instanced_shadowed.vert" />
+    <None Include="lighting.frag" />
+    <None Include="point_light.frag" />
+    <None Include="point_light.vert" />
+    <None Include="procedural_skybox.vert" />
+    <None Include="quad.frag" />
+    <None Include="quad.vert" />
+    <None Include="shadowed_deferred.frag" />
+    <None Include="shadowed.vert" />
+    <None Include="procedural_skybox.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

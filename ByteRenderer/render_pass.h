@@ -18,7 +18,8 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		using ParameterMap = std::unordered_map<std::string, std::variant<std::string,uint8_t,bool>>;
+		using ParameterMap = std::unordered_map<std::string,
+			std::variant<std::string, uint32_t, int32_t, bool, float>>;
 		ParameterMap parameters;
 
 		using MeshMap = std::unordered_map<MeshTag, Mesh>;
@@ -78,7 +79,7 @@ namespace Byte {
 				return;
 			}
 
-			Shader& depthShader{ data.shaders["depth_shader"] };
+			Shader& depthShader{ data.shaders["depth"] };
 			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 			
@@ -93,11 +94,11 @@ namespace Byte {
 			depthBuffer.bind();
 			depthBuffer.clearContent();
 
-			depthShader.bind();
-			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
-
 			OpenglAPI::enableCulling();
 			OpenglAPI::cullFront();
+
+			depthShader.bind();
+			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
 
 			renderEntities(context, depthShader);
 
@@ -111,6 +112,7 @@ namespace Byte {
 			depthBuffer.unbind();
 		}
 
+	private:
 		void renderEntities(RenderContext& context, const Shader& shader) {
 			for (auto& pair: context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
@@ -249,8 +251,8 @@ namespace Byte {
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			Shader& lightingShader{ data.shaders["lighting_shader"] };
-			Shader& plShader{ data.shaders["point_light_shader"] };
+			Shader& lightingShader{ data.shaders["lighting"] };
+			Shader& plShader{ data.shaders["point_light"] };
 
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
@@ -335,7 +337,9 @@ namespace Byte {
 		}
 
 	private:
-		void bindGBufferTextures(Framebuffer& gBuffer, Shader& shader,
+		void bindGBufferTextures(
+			Framebuffer& gBuffer, 
+			Shader& shader,
 			const std::string& positionName,
 			const std::string& normalName,
 			const std::string& albedoSpecName) {
@@ -356,7 +360,7 @@ namespace Byte {
 			OpenglAPI::Framebuffer::unbind();
 			OpenglAPI::Framebuffer::clear(0);
 
-			Shader& quadShader{ data.shaders["quad_shader"] };
+			Shader& quadShader{ data.shaders["quad"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
 			quadShader.bind();
@@ -378,7 +382,7 @@ namespace Byte {
 			OpenglAPI::Framebuffer::unbind();
 			OpenglAPI::Framebuffer::clear(0);
 
-			Shader& quadShader{ data.shaders["quad_depth_shader"] };
+			Shader& quadShader{ data.shaders["quad_depth"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["depthBuffer"] };
 
 			quadShader.bind();

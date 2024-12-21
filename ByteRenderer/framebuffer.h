@@ -33,6 +33,14 @@ namespace Byte {
 			clear();
 		}
 
+		size_t width() const {
+			return _data.width;
+		}
+
+		size_t height() const {
+			return _data.height;
+		}
+
 		void bind() {
 			OpenglAPI::Framebuffer::bind(_data);
 		}
