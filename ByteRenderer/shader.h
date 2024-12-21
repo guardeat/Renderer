@@ -8,13 +8,14 @@ namespace Byte {
     struct ShaderPath {
         std::string vertex;
         std::string fragment;
+        std::string geometry;
     };
 
     struct Shader {
     private:
         uint32_t _id{ 0 };
 
-        ShaderPath path;
+        ShaderPath _path;
 
         friend struct ShaderCompiler;
 
@@ -22,7 +23,7 @@ namespace Byte {
         Shader() = default;
 
         Shader(const std::string& vertexPath, const std::string& fragmentPath)
-            :path{ vertexPath,fragmentPath } {
+            :_path{ vertexPath,fragmentPath } {
         }
 
         ~Shader() = default;
@@ -51,10 +52,17 @@ namespace Byte {
 
     struct ShaderCompiler {
         static void compile(Shader& shader) {
-            uint32_t vertexShader{ compile(shader.path.vertex, ShaderType::VERTEX ) };
-            uint32_t fragmentShader{ compile(shader.path.fragment, ShaderType::FRAGMENT ) };
+            uint32_t vertexShader{ compile(shader._path.vertex, ShaderType::VERTEX ) };
+            uint32_t fragmentShader{ compile(shader._path.fragment, ShaderType::FRAGMENT ) };
 
-            shader._id = createProgram(vertexShader, fragmentShader);
+            if (!shader._path.geometry.empty()) {
+                uint32_t geometryShader{ compile(shader._path.geometry, ShaderType::GEOMETRY) };
+                shader._id = createProgram(vertexShader, fragmentShader, geometryShader);
+                OpenglAPI::Shader::release(geometryShader);
+            }
+            else {
+                shader._id = createProgram(vertexShader, fragmentShader);
+            }
 
             OpenglAPI::Shader::release(vertexShader);
             OpenglAPI::Shader::release(fragmentShader);
@@ -64,8 +72,11 @@ namespace Byte {
             return OpenglAPI::Shader::compile(shaderPath, shaderType);
         }
 
-        static uint32_t createProgram(uint32_t vertexShader, uint32_t fragmentShader) {
-            return OpenglAPI::Program::build(vertexShader, fragmentShader);
+        static uint32_t createProgram(
+            uint32_t vertex, 
+            uint32_t fragment, 
+            uint32_t geometry = 0) {
+            return OpenglAPI::Program::build(vertex, fragment, geometry);
         }
     };
 

@@ -36,6 +36,7 @@ namespace Byte {
 	enum class ShaderType: uint8_t {
 		FRAGMENT,
 		VERTEX,
+		GEOMETRY,
 	};
 
 	enum class DataType : uint8_t {
@@ -82,7 +83,7 @@ namespace Byte {
 	};
 
 	struct FramebufferConfig {
-		struct TextureAttachment {
+		struct TextureAttachmentConfig {
 			std::string tag;
 			AttachmentType attachment;
 			ColorFormat internalFormat{ ColorFormat::RGBA };
@@ -90,7 +91,7 @@ namespace Byte {
 			DataType type{ DataType::BYTE };
 		};
 
-		using AttachmentVector = std::vector<TextureAttachment>;
+		using AttachmentVector = std::vector<TextureAttachmentConfig>;
 		AttachmentVector attachments;
 
 		size_t width{};
@@ -103,7 +104,7 @@ namespace Byte {
 		using TextureMap = std::unordered_map<std::string, TextureID>;
 
 		TextureMap textures;
-		Buffer<uint32_t> attachments;
+		Buffer<AttachmentType> attachments;
 
 		size_t width{};
 		size_t height{};

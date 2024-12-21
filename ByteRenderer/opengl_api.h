@@ -96,7 +96,7 @@ namespace Byte {
 
                 FramebufferData::TextureMap textures;
 
-                Buffer<uint32_t> attachments;
+                Buffer<AttachmentType> attachments;
 
                 bool hasDepth{ false };
 
@@ -108,12 +108,8 @@ namespace Byte {
                         hasDepth = true;
                     }
                     else {
-                        attachments.push_back(EnumConverter::convert(att.attachment));
+                        attachments.push_back(att.attachment);
                     }
-                }
-
-                if (attachments.size() > 1) {
-                    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
                 }
 
                 if (!hasDepth) {
@@ -147,7 +143,11 @@ namespace Byte {
                 glBindFramebuffer(GL_FRAMEBUFFER, data.id);
 
                 if (!data.attachments.empty()) {
-                    glDrawBuffers(static_cast<GLsizei>(data.attachments.size()), data.attachments.data());
+                    Buffer<uint32_t> attachments;
+                    for (auto& att : data.attachments) {
+                        attachments.push_back(EnumConverter::convert(att));
+                    }
+                    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
                 }
 
                 glViewport(0,0,static_cast<GLsizei>(data.width),static_cast<GLsizei>(data.height));
@@ -360,12 +360,16 @@ namespace Byte {
                 glDeleteProgram(id);
             }
 
-            static uint32_t build(uint32_t vertexShader, uint32_t fragmentShader) {
-                uint32_t id;
+            static uint32_t build(uint32_t vertex, uint32_t fragment, uint32_t geometry = 0) {
+                uint32_t id{ glCreateProgram() };
 
-                id = glCreateProgram();
-                glAttachShader(id, vertexShader);
-                glAttachShader(id, fragmentShader);
+                glAttachShader(id, vertex);
+                glAttachShader(id, fragment);
+
+                if (geometry) {
+                    glAttachShader(id, geometry);
+                }
+
                 glLinkProgram(id);
                 check(id);
 

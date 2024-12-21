@@ -53,8 +53,9 @@ namespace Byte {
 			Mat4 view{ cTransform->view() };
 
 			auto [dl, dlTransform] = context.directionalLight();
-
 			skyboxShader.bind();
+
+			OpenglAPI::disableDepth();
 
 			skyboxShader.uniform<Mat4>("uProjection", projection);
 			skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
@@ -67,8 +68,9 @@ namespace Byte {
 			OpenglAPI::Draw::elements(data.meshes.at("cube").indices().size());
 
 			data.meshes.at("cube").renderArray().unbind();
-			OpenglAPI::Framebuffer::clearDepth(gBuffer.id());
 			gBuffer.unbind();
+
+			OpenglAPI::enableDepth();
 		}
 	};
 

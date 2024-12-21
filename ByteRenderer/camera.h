@@ -9,28 +9,40 @@ namespace Byte {
 
     class Camera {
     private:
-        float fov{ 45.0f };
-        float nearPlane{ 0.5f };
-        float farPlane{ 400.0f };
+        float _fov{ 45.0f };
+        float _nearPlane{ 0.5f };
+        float _farPlane{ 400.0f };
 
     public:
         Camera() = default;
 
         Camera(float fov, float nearPlane, float farPlane)
-            : fov{ fov }, nearPlane{ nearPlane }, farPlane{ farPlane } {
+            : _fov{ fov }, _nearPlane{ nearPlane }, _farPlane{ farPlane } {
         }
 
-        Mat4 perspective(float aspectRatio) const {
+        float nearPlane() const {
+            return _nearPlane;
+        }
+
+        float farPlane() const {
+            return _farPlane;
+        }
+
+        Mat4 perspective(float aspectRatio, float near, float far) const {
             Mat4 out{ 0 };
-            float tanHalfFov{ std::tan(radians(fov) / 2.0f) };
+            float tanHalfFov{ std::tan(radians(_fov) / 2.0f) };
 
             out(0, 0) = 1.0f / (aspectRatio * tanHalfFov);
             out(1, 1) = 1.0f / tanHalfFov;
-            out(2, 2) = -(farPlane + nearPlane) / (farPlane - nearPlane);
+            out(2, 2) = -(far + near) / (far - near);
             out(3, 2) = -1.0f;
-            out(2, 3) = -(2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+            out(2, 3) = -(2.0f * far * near) / (far - near);
 
             return out;
+        }
+
+        Mat4 perspective(float aspectRatio) const {
+            return perspective(aspectRatio,_nearPlane,_farPlane);
         }
 
         Mat4 orthographic(float left, float right, float bottom, float top, float near, float far) const {
@@ -48,7 +60,7 @@ namespace Byte {
         }
 
         Mat4 orthographic(float left, float right, float bottom, float top) const {
-            return orthographic(left, right, bottom, top, nearPlane, farPlane);
+            return orthographic(left, right, bottom, top, _nearPlane, _farPlane);
         }
 
         Mat4 frustumSpace(const Mat4& projection, const Mat4& view, const Transform& lightTransform) {

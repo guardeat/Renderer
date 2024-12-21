@@ -52,7 +52,7 @@ int main() {
 	renderer.context().submit(camera, transform);
 	renderer.context().submit(dLight,dLightTransform);
 
-	Mesh plane(MeshBuilder::plane(10000,10000,1));
+	Mesh plane(MeshBuilder::plane(100,100,1));
 	Material pMaterial;
 	pMaterial.shaderTag("default_deferred");
 	pMaterial.albedo(Vec4(0.2f, 0.7f, 0.2f, 1.0f));
