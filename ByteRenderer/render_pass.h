@@ -18,12 +18,18 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		using ParameterMap = std::unordered_map<std::string,
-			std::variant<std::string, uint32_t, int32_t, bool, float>>;
+		using Variant = std::variant<std::string, uint32_t, int32_t, bool, float>;
+		using ParameterTag = std::string;
+		using ParameterMap = std::unordered_map<ParameterTag, Variant>;
 		ParameterMap parameters;
 
 		using MeshMap = std::unordered_map<MeshTag, Mesh>;
 		MeshMap meshes;
+
+		template<typename Type>
+		Type& parameter(const ParameterTag& tag) {
+			return std::get<Type>(parameters.at(tag));
+		}
 	};
 
 	class RenderPass {
@@ -34,7 +40,7 @@ namespace Byte {
 	class SkyboxPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			if (!std::get<bool>(data.parameters.at("render_skybox"))) {
+			if (!data.parameter<bool>("render_skybox")) {
 				return;
 			}
 
@@ -43,7 +49,7 @@ namespace Byte {
 			gBuffer.bind();
 			gBuffer.clearContent();
 
-			std::get<bool>(data.parameters.at("clear_gbuffer")) = false;
+			data.parameter<bool>("clear_gbuffer") = false;
 
 			Shader& skyboxShader{ data.shaders["procedural_skybox"] };
 
@@ -77,7 +83,7 @@ namespace Byte {
 	class ShadowPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			if (!std::get<bool>(data.parameters.at("render_shadow"))) {
+			if (!data.parameter<bool>("render_shadow")) {
 				return;
 			}
 
@@ -160,7 +166,7 @@ namespace Byte {
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
 
-			if (std::get<bool>(data.parameters.at("clear_gbuffer"))) {
+			if (data.parameter<bool>("clear_gbuffer")) {
 				gBuffer.clearContent();
 			}
 
@@ -169,7 +175,7 @@ namespace Byte {
 
 			gBuffer.unbind();
 
-			std::get<bool>(data.parameters.at("clear_gbuffer")) = true;
+			data.parameter<bool>("clear_gbuffer") = true;
 		}
 
 	private:

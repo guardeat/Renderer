@@ -98,7 +98,7 @@ int main() {
 		float x = circleRadius * std::cos(lightAngle);
 		float z = circleRadius * std::sin(lightAngle);
 		plTransform.position(Vec3(x + 13.5f, 1.0f, z + 13.5f));
-		dLightTransform.rotate(Vec3(0.01f, 0.0f, 0.0f));
+		//dLightTransform.rotate(Vec3(0.01f, 0.0f, 0.0f));
 
 		frameCount++;
 		static float fpsTimer = 0.0f;
