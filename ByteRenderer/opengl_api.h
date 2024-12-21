@@ -85,6 +85,15 @@ namespace Byte {
             glDisable(GL_CULL_FACE);
         }
 
+        static void viewPort(size_t width, size_t height, size_t x = 0, size_t y = 0) {
+            GLint glWidth{ static_cast<GLint>(width) };
+            GLint glHeight{ static_cast<GLint>(height) };
+            GLint glX{ static_cast<GLint>(x) };
+            GLint glY{ static_cast<GLint>(y) };
+
+            glViewport(glX, glY, glWidth, glHeight);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
                 FramebufferID frameBufferID;

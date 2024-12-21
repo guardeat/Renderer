@@ -120,7 +120,7 @@ namespace Byte {
 			depthBuffer.unbind();
 		}
 
-	private:
+	protected:
 		void renderEntities(RenderContext& context, const Shader& shader) {
 			for (auto& pair: context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
@@ -150,6 +150,78 @@ namespace Byte {
 			}
 		}
 
+	};
+
+	class CascadedShadowPass : public ShadowPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			if (!data.parameter<bool>("render_shadow")) {
+				return;
+			}
+
+			Shader& depthShader{ data.shaders["depth"] };
+			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
+
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			auto [camera, cTransform] = context.camera();
+
+			auto [_, dlTransform] = context.directionalLight();
+
+			depthBuffer.bind();
+			depthBuffer.clearContent();
+
+			OpenglAPI::enableCulling();
+			OpenglAPI::cullFront();
+
+			size_t cascadeCount{data.parameter<uint32_t>("cascade_count")};
+			for (size_t i{}; i < cascadeCount / 2; ++i) {
+				for (size_t j{}; j < 2; ++j) {
+					float divisor{};
+					size_t index{2 * i + j};
+					switch (index) {
+					case 0:
+						divisor = data.parameter<float>("cascade_divisor_1");
+						break;
+					case 1:
+						divisor = data.parameter<float>("cascade_divisor_2");
+						break;
+					case 2:
+						divisor = data.parameter<float>("cascade_divisor_3");
+						break;
+					case 3:
+						divisor = data.parameter<float>("cascade_divisor_4");
+						break;
+					}
+
+					float near{ camera->nearPlane() };
+					float far{ camera->farPlane() };
+					Mat4 projection{ camera->perspective(aspectRatio,near,far/divisor) };
+					Mat4 lightSpace{ camera->frustumSpace(projection,cTransform->view(),*dlTransform) };
+
+					size_t height{ depthBuffer.height() / (cascadeCount / 2) };
+					size_t width{ depthBuffer.width() / 2 };
+					size_t x{ j * width };
+					size_t y{ i * height };
+
+					OpenglAPI::viewPort(width, height, x, y);
+
+					depthShader.bind();
+					depthShader.uniform<Mat4>("uLightSpace", lightSpace);
+
+					renderEntities(context, depthShader);
+
+					instancedDepthShader.bind();
+					instancedDepthShader.uniform<Mat4>("uLightSpace", lightSpace);
+					renderInstances(context);
+				}
+			}
+
+			OpenglAPI::cullBack();
+			OpenglAPI::disableCulling();
+
+			depthBuffer.unbind();
+		}
 	};
 
 	class GeometryPass : public RenderPass {

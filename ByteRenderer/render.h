@@ -6,7 +6,7 @@ namespace Byte {
 
 	struct RendererGenerator {
 		static Renderer deferred(Window& window) {
-			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
+			Renderer renderer{ Renderer::build<SkyboxPass,CascadedShadowPass,GeometryPass,LightingPass,DrawPass>() };
 			RenderConfig config;
 
 			config.shaderPaths["default_deferred"] =
@@ -29,11 +29,19 @@ namespace Byte {
 			{ "quad.vert", "quad_depth.frag" };
 			config.shaderPaths["procedural_skybox"] =
 			{ "procedural_skybox.vert", "procedural_skybox.frag" };
-
+			config.shaderPaths["cascaded_deferred"] =
+			{ "cascaded.vert", "cascaded_deferred.frag" };
+			config.shaderPaths["instanced_cascaded_deferred"] =
+			{ "instanced_cascaded.vert", "cascaded_deferred.frag" };
 
 			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);
 			config.parameters.emplace("clear_gbuffer", true);
+			config.parameters.emplace("cascade_count", 2U);
+			config.parameters.emplace("cascade_divisor_1", 1.0f);
+			config.parameters.emplace("cascade_divisor_2", 5.0f);
+			config.parameters.emplace("cascade_divisor_3", 10.0f);
+			config.parameters.emplace("cascade_divisor_4", 25.0f);
 
 			config.meshes.emplace("cube", MeshBuilder::cube());
 			config.meshes.emplace("quad", MeshBuilder::quad());
