@@ -101,9 +101,28 @@ namespace Byte {
                 bool hasDepth{ false };
 
                 for (auto& att : config.attachments) {
-                    TextureID id{Texture::build(config.width,config.height,nullptr, att.internalFormat,att.format,att.type)};
-                    glFramebufferTexture2D(GL_FRAMEBUFFER, EnumConverter::convert(att.attachment), GL_TEXTURE_2D, id, 0);
-                    textures[att.tag] = id;
+                    TextureID id;
+
+                    size_t width{ att.width ? att.width : config.width };
+                    size_t height{ att.height ? att.height : config.height };
+
+                    if (att.type == TextureType::TEXTURE_2D) {
+                        id = Texture::build(
+                            width,height,nullptr, 
+                            att.internalFormat,att.format,att.dataType);
+                        glFramebufferTexture2D(
+                            GL_FRAMEBUFFER, EnumConverter::convert(att.attachment), 
+                            GL_TEXTURE_2D, id, 0);
+                    }
+                    else {
+                        id = Texture::buildArray(
+                            width, height, att.layerCount, nullptr,
+                            att.internalFormat, att.format, att.dataType);
+                        glFramebufferTexture(
+                            GL_FRAMEBUFFER, EnumConverter::convert(att.attachment),
+                            id, 0);
+                    }
+                    textures[att.tag] = TextureAttachmentData{ id,att.type,width,height,att.layerCount };
                     if (att.attachment == AttachmentType::DEPTH) {
                         hasDepth = true;
                     }
@@ -111,7 +130,7 @@ namespace Byte {
                         attachments.push_back(att.attachment);
                     }
                 }
-
+  
                 if (!hasDepth) {
                     unsigned int rboDepth;
                     glGenRenderbuffers(1, &rboDepth);
@@ -161,8 +180,8 @@ namespace Byte {
                 glDeleteBuffers(1, &data.id);
 
                 for (auto& pair : data.textures) {
-                    if (pair.second) {
-                        Texture::release(pair.second);
+                    if (pair.second.id) {
+                        Texture::release(pair.second.id);
                     }
                 }
             }
@@ -535,6 +554,41 @@ namespace Byte {
                 glGenerateMipmap(GL_TEXTURE_2D);
 
                 glBindTexture(GL_TEXTURE_2D, 0);
+
+                return textureID;
+            }
+
+            static TextureID buildArray(
+                size_t width,
+                size_t height,
+                size_t layerCount,
+                const uint8_t* data = nullptr,
+                ColorFormat internalFormat = ColorFormat::RGBA,
+                ColorFormat format = ColorFormat::RGBA,
+                DataType type = DataType::UNSIGNED_BYTE) {
+                TextureID textureID;
+
+                GLint glWidth{ static_cast<GLint>(width) };
+                GLint glHeight{ static_cast<GLint>(height) };
+                GLint glLayerCount{ static_cast<GLint>(layerCount) };
+
+                glGenTextures(1, &textureID);
+
+                glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
+
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+                glTexImage3D(
+                    GL_TEXTURE_2D, 0,
+                    EnumConverter::convert(internalFormat),
+                    glWidth, glHeight, glLayerCount, 0,
+                    EnumConverter::convert(format),
+                    EnumConverter::convert(type), data);
+
+                glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
                 return textureID;
             }

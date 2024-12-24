@@ -33,6 +33,11 @@ namespace Byte {
 		T12, T13, T14, T15,
 	};
 
+	enum class TextureType : uint32_t {
+		TEXTURE_2D = 0x0DE1,
+		TEXTURE_ARRAY = 0x8C1A,
+	};
+
 	enum class ShaderType: uint8_t {
 		FRAGMENT,
 		VERTEX,
@@ -85,10 +90,18 @@ namespace Byte {
 	struct FramebufferConfig {
 		struct TextureAttachmentConfig {
 			std::string tag;
+
 			AttachmentType attachment;
+
 			ColorFormat internalFormat{ ColorFormat::RGBA };
 			ColorFormat format{ ColorFormat::RGBA };
-			DataType type{ DataType::BYTE };
+			DataType dataType{ DataType::BYTE };
+
+			TextureType type{ TextureType::TEXTURE_2D };
+
+			size_t width{};
+			size_t height{};
+			size_t layerCount{};
 		};
 
 		using AttachmentVector = std::vector<TextureAttachmentConfig>;
@@ -98,10 +111,20 @@ namespace Byte {
 		size_t height{};
 	};
 
+	struct TextureAttachmentData {
+		TextureID id{};
+
+		TextureType type{ TextureType::TEXTURE_2D };
+		
+		size_t width{};
+		size_t height{};
+		size_t layerCount{};
+	};
+
 	struct FramebufferData {
 		FramebufferID id{};
 
-		using TextureMap = std::unordered_map<std::string, TextureID>;
+		using TextureMap = std::unordered_map<std::string, TextureAttachmentData>;
 
 		TextureMap textures;
 		Buffer<AttachmentType> attachments;

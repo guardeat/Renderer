@@ -48,7 +48,7 @@ namespace Byte {
         RenderID _cameraID{};
         RenderItem<Camera> _camera{};
 
-        RenderID _directionalLightID;
+        RenderID _directionalLightID{};
         RenderItem<DirectionalLight> _directionalLight{};
 
         using PointLightMap = std::unordered_map<RenderID, RenderItem<PointLight>>;
