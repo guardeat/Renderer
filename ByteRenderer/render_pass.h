@@ -163,6 +163,7 @@ namespace Byte {
 			auto [_, dlTransform] = context.directionalLight();
 			Mat4 lightSpace{ camera->frustumSpace(projection,view, *dlTransform) };
 
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
 
@@ -170,8 +171,35 @@ namespace Byte {
 				gBuffer.clearContent();
 			}
 
-			renderEntities(context, data, projection, view, lightSpace, dlTransform->front());
-			renderInstances(context, data, projection, view, lightSpace, dlTransform->front());
+			bool renderShadows{ data.parameter<bool>("render_shadow") };
+
+			Shader& shader{ data.shaders["default_deferred"] };
+			shader.bind();
+
+			shader.uniform<Mat4>("uProjection", projection);
+			shader.uniform<Mat4>("uView", view);
+			shader.uniform<Mat4>("uLightSpace", lightSpace);
+
+			shader.uniform<Vec3>("uLightDir", dlTransform->front());
+
+			shader.uniform("uDepthMap", 0);
+			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+
+			renderEntities(context, data, shader);
+
+			Shader& instancedShader{ data.shaders["instanced_deferred"] };
+			instancedShader.bind();
+
+			instancedShader.uniform<Mat4>("uProjection", projection);
+			instancedShader.uniform<Mat4>("uView", view);
+			instancedShader.uniform<Mat4>("uLightSpace", lightSpace);
+
+			instancedShader.uniform<Vec3>("uLightDir", dlTransform->front());
+
+			instancedShader.uniform("uDepthMap", 0);
+			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+
+			renderInstances(context, data, instancedShader);
 
 			gBuffer.unbind();
 
@@ -182,17 +210,10 @@ namespace Byte {
 		void renderEntities(
 			RenderContext& context, 
 			RenderData& data, 
-			const Mat4& projection, 
-			const Mat4& view,
-			const Mat4& lightSpace,
-			const Vec3& lightDir) {
-			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
+			Shader& shader) {
 
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
-
-				Shader& shader{ data.shaders[material->shaderTag()] };
-				shader.bind();
 
 				mesh->renderArray().bind();
 
@@ -202,18 +223,8 @@ namespace Byte {
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-				shader.uniform<Mat4>("uProjection", projection);
-				shader.uniform<Mat4>("uView", view);
-				shader.uniform<Mat4>("uLightSpace", lightSpace);
-
-				shader.uniform<Vec3>("uLightDir", lightDir);
-
-				shader.uniform("uDepthMap", 0);
-				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
-
 				OpenglAPI::Draw::elements(mesh->indices().size());
 
-				shader.unbind();
 				mesh->renderArray().unbind();
 			}
 		}
@@ -221,35 +232,17 @@ namespace Byte {
 		void renderInstances(
 			RenderContext& context, 
 			RenderData& data, 
-			const Mat4& projection, 
-			const Mat4& view,
-			const Mat4& lightSpace,
-			const Vec3& lightDir) {
-
-			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
+			Shader& shader) {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
-
-				Shader& shader{ data.shaders[material.shaderTag()] };
-				shader.bind();
 
 				mesh.renderArray().bind();
 
 				shader.uniform<Vec4>("uAlbedo", material.albedo());
 
-				shader.uniform<Mat4>("uProjection", projection);
-				shader.uniform<Mat4>("uView", view);
-				shader.uniform<Mat4>("uLightSpace", lightSpace);
-
-				shader.uniform<Vec3>("uLightDir", lightDir);
-
-				shader.uniform("uDepthMap", 0);
-				OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
-
 				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
-				shader.unbind();
 				mesh.renderArray().unbind();
 			}
 		}

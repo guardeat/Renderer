@@ -41,6 +41,13 @@ namespace Byte {
             OpenglAPI::Shader::uniform(_id, name, value);
         }
 
+        template<typename Type>
+        void uniform(const std::string& name, const Buffer<Type>& values) const {
+            for (size_t i{}; i < values.size(); ++i) {
+                OpenglAPI::Shader::uniform(_id, name + "[" + std::to_string(i) + "]", values[i]);
+            }
+        }
+
         uint32_t id() const {
             return _id;
         }
