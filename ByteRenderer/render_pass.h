@@ -121,7 +121,7 @@ namespace Byte {
 		}
 
 	private:
-		void renderEntities(RenderContext& context, const Shader& shader) {
+		void renderEntities(RenderContext& context, const Shader& shader) const {
 			for (auto& pair: context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
@@ -137,7 +137,7 @@ namespace Byte {
 			}
 		}
 
-		void renderInstances(RenderContext& context) {
+		void renderInstances(RenderContext& context) const {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
@@ -185,7 +185,7 @@ namespace Byte {
 			shader.uniform("uDepthMap", 0);
 			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
-			renderEntities(context, data, shader);
+			renderEntities(context, shader);
 
 			Shader& instancedShader{ data.shaders["instanced_deferred"] };
 			instancedShader.bind();
@@ -199,7 +199,7 @@ namespace Byte {
 			instancedShader.uniform("uDepthMap", 0);
 			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
-			renderInstances(context, data, instancedShader);
+			renderInstances(context, instancedShader);
 
 			gBuffer.unbind();
 
@@ -207,10 +207,7 @@ namespace Byte {
 		}
 
 	private:
-		void renderEntities(
-			RenderContext& context, 
-			RenderData& data, 
-			Shader& shader) {
+		void renderEntities(RenderContext& context, Shader& shader) const {
 
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
@@ -229,10 +226,7 @@ namespace Byte {
 			}
 		}
 
-		void renderInstances(
-			RenderContext& context, 
-			RenderData& data, 
-			Shader& shader) {
+		void renderInstances(RenderContext& context, Shader& shader) const {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
@@ -343,7 +337,7 @@ namespace Byte {
 			Shader& shader,
 			const std::string& positionName,
 			const std::string& normalName,
-			const std::string& albedoSpecName) {
+			const std::string& albedoSpecName) const {
 			shader.uniform(positionName, 0);
 			shader.uniform(normalName, 1);
 			shader.uniform(albedoSpecName, 2);

@@ -6,9 +6,9 @@
 namespace Byte {
 
     struct ShaderPath {
-        std::string vertex;
-        std::string fragment;
-        std::string geometry;
+        Path vertex;
+        Path fragment;
+        Path geometry;
     };
 
     struct Shader {
@@ -22,8 +22,8 @@ namespace Byte {
     public:
         Shader() = default;
 
-        Shader(const std::string& vertexPath, const std::string& fragmentPath)
-            :_path{ vertexPath,fragmentPath } {
+        Shader(const Path& vertex, const Path& fragment, const Path& geometry = "")
+            :_path{ vertex,fragment,geometry } {
         }
 
         ~Shader() = default;
@@ -75,7 +75,7 @@ namespace Byte {
             OpenglAPI::Shader::release(fragmentShader);
         }
 
-        static uint32_t compile(const std::string& shaderPath, ShaderType shaderType) {
+        static uint32_t compile(const Path& shaderPath, ShaderType shaderType) {
             return OpenglAPI::Shader::compile(shaderPath, shaderType);
         }
 

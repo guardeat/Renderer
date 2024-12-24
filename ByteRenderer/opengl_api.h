@@ -482,7 +482,7 @@ namespace Byte {
                 glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value.data);
             }
 
-            static uint32_t compile(const std::string& shaderPath, ShaderType shaderType) {
+            static uint32_t compile(const Path& shaderPath, ShaderType shaderType) {
                 std::string shaderCode;
                 std::ifstream shaderFile;
 
@@ -593,9 +593,12 @@ namespace Byte {
                 return textureID;
             }
 
-            static void bind(TextureID textureID, TextureUnit unit = TextureUnit::T0) {
+            static void bind(
+                TextureID textureID, 
+                TextureUnit unit = TextureUnit::T0,
+                TextureType type = TextureType::TEXTURE_2D) {
                 glActiveTexture(EnumConverter::convert(unit));
-                glBindTexture(GL_TEXTURE_2D, textureID);
+                glBindTexture(EnumConverter::convert(type), textureID);
             }
 
             static void unbind() {
@@ -626,6 +629,10 @@ namespace Byte {
 
             static GLenum convert(AttachmentType type) {
                 return static_cast<GLenum>(type) + GL_COLOR_ATTACHMENT0;
+            }
+
+            static GLenum convert(TextureType type) {
+                return static_cast<GLenum>(type);
             }
         };
         

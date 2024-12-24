@@ -66,14 +66,6 @@ namespace Byte {
 			OpenglAPI::update(window);
 		}
 
-		void compileShaders(RenderConfig& config) {
-			for (const auto& [shaderTag, shaderPath] : config.shaderPaths) {
-				Shader shader(shaderPath.vertex, shaderPath.fragment);
-				ShaderCompiler::compile(shader);
-				_data.shaders[shaderTag] = std::move(shader);
-			}
-		}
-
 		RenderContext& context() {
 			return _context;
 		}
@@ -109,6 +101,14 @@ namespace Byte {
 		}
 
 	private:
+		void compileShaders(RenderConfig& config) {
+			for (const auto& [shaderTag, shaderPath] : config.shaderPaths) {
+				Shader shader(shaderPath.vertex, shaderPath.fragment, shaderPath.geometry);
+				ShaderCompiler::compile(shader);
+				_data.shaders[shaderTag] = std::move(shader);
+			}
+		}
+
 		void prepareVertexArrays(RenderContext& context) {
 			for (auto& pair : context.renderEntities()) {
 				Mesh& mesh{ *pair.second.mesh };
