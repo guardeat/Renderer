@@ -38,10 +38,10 @@ namespace Byte {
 		TEXTURE_ARRAY = 0x8C1A,
 	};
 
-	enum class ShaderType: uint8_t {
-		FRAGMENT,
-		VERTEX,
-		GEOMETRY,
+	enum class ShaderType: uint32_t {
+		FRAGMENT = 0x8B30,
+		VERTEX = 0x8B31,
+		GEOMETRY = 0x8DD9,
 	};
 
 	enum class DataType : uint8_t {

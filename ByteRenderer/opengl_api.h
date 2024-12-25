@@ -85,6 +85,15 @@ namespace Byte {
             glDisable(GL_CULL_FACE);
         }
 
+        static void viewPort(size_t width, size_t height, size_t x = 0, size_t y = 0) {
+            GLint glWidth{ static_cast<GLint>(width) };
+            GLint glHeight{ static_cast<GLint>(height) };
+            GLint glX{ static_cast<GLint>(x) };
+            GLint glY{ static_cast<GLint>(y) };
+
+            glViewport(glX, glY, glWidth, glHeight);
+        }
+
         struct Framebuffer {
             static FramebufferData build(const FramebufferConfig& config) {
                 FramebufferID frameBufferID;
@@ -579,13 +588,13 @@ namespace Byte {
 
                 glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
 
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
                 glTexImage3D(
-                    GL_TEXTURE_2D, 0,
+                    GL_TEXTURE_2D_ARRAY, 0,
                     EnumConverter::convert(internalFormat),
                     glWidth, glHeight, glLayerCount, 0,
                     EnumConverter::convert(format),
@@ -619,7 +628,7 @@ namespace Byte {
             }
 
             static GLenum convert(ShaderType type) {
-                return static_cast<GLenum>(type) + GL_FRAGMENT_SHADER;
+                return static_cast<GLenum>(type);
             }
 
             static GLenum convert(DataType type) {

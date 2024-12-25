@@ -57,6 +57,10 @@ namespace Byte {
 			OpenglAPI::Framebuffer::clear(_data.id);
 		}
 
+		void clearDepth() {
+			OpenglAPI::Framebuffer::clearDepth(_data.id);
+		}
+
 		void clear() {
 			OpenglAPI::Framebuffer::release(_data);
 

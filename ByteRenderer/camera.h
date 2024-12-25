@@ -11,7 +11,7 @@ namespace Byte {
     private:
         float _fov{ 45.0f };
         float _nearPlane{ 0.5f };
-        float _farPlane{ 400.0f };
+        float _farPlane{ 500.0f };
 
     public:
         Camera() = default;
@@ -63,7 +63,7 @@ namespace Byte {
             return orthographic(left, right, bottom, top, _nearPlane, _farPlane);
         }
 
-        Mat4 frustumSpace(const Mat4& projection, const Mat4& view, const Transform& lightTransform) {
+        Mat4 frustumSpace(const Mat4& projection, const Mat4& view, const Transform& lightTransform) const {
             const auto inv{ (projection * view).inverse() };
 
             Buffer<Vec4> corners;
@@ -108,6 +108,24 @@ namespace Byte {
                 maxY = std::max(maxY, trf.y);
                 minZ = std::min(minZ, trf.z);
                 maxZ = std::max(maxZ, trf.z);
+            }
+
+            float zMult{ _farPlane / 100.0f };
+            if (minZ < 0)
+            {
+                minZ *= zMult;
+            }
+            else
+            {
+                minZ /= zMult;
+            }
+            if (maxZ < 0)
+            {
+                maxZ /= zMult;
+            }
+            else
+            {
+                maxZ *= zMult;
             }
 
             Mat4 lightProjection{ orthographic(minX, maxX, minY, maxY, minZ, maxZ) };

@@ -103,6 +103,10 @@ int main() {
 
 		if (fpsTimer >= 1.0f) {
 			std::cout << "FPS: " << frameCount << std::endl;
+			GLenum error{ glGetError() };
+			if (error) {
+				std::cout << "GRAPHIC ERROR: " << error << std::endl;
+			}
 			frameCount = 0;
 			fpsTimer = 0.0f;
 		}

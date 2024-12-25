@@ -151,5 +151,8 @@
     <None Include="shadowed_deferred.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="cascaded_deferred.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

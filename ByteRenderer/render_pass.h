@@ -18,7 +18,7 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		using Variant = std::variant<std::string, uint32_t, int32_t, bool, float>;
+		using Variant = std::variant<std::string, uint32_t, int32_t, bool, float, Mat4>;
 		using ParameterTag = std::string;
 		using ParameterMap = std::unordered_map<ParameterTag, Variant>;
 		ParameterMap parameters;
@@ -89,35 +89,41 @@ namespace Byte {
 
 			Shader& depthShader{ data.shaders["depth"] };
 			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
-			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
-			
+
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->perspective(aspectRatio) };
 
-			auto [_, dlTransform] = context.directionalLight();
+			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
 
-			Mat4 lightSpace{ camera->frustumSpace(projection,cTransform->view(),*dlTransform) };
+			Buffer<Framebuffer*> depthBuffers;
+			for (size_t i = 0; i < cascadeCount; ++i) {
+				depthBuffers.push_back(&data.frameBuffers.at("depthBuffer" + std::to_string(i + 1)));
+			}
 
-			depthBuffer.bind();
-			depthBuffer.clearContent();
+			updateLightMatrices(aspectRatio, data, context);
 
 			OpenglAPI::enableCulling();
 			OpenglAPI::cullFront();
 
-			depthShader.bind();
-			depthShader.uniform<Mat4>("uLightSpace", lightSpace);
+			for (size_t i{}; i < depthBuffers.size(); ++i) {
+				Mat4 lightSpace{ data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)) };
 
-			renderEntities(context, depthShader);
+				depthBuffers[i]->bind();
+				depthBuffers[i]->clearContent();
 
-			instancedDepthShader.bind();
-			instancedDepthShader.uniform<Mat4>("uLightSpace", lightSpace);
-			renderInstances(context);
+				depthShader.bind();
+				depthShader.uniform<Mat4>("uLightSpace", lightSpace);
+
+				renderEntities(context, depthShader);
+
+				instancedDepthShader.bind();
+				instancedDepthShader.uniform<Mat4>("uLightSpace", lightSpace);
+				renderInstances(context);
+
+				depthBuffers[i]->unbind();
+			}
 
 			OpenglAPI::cullBack();
 			OpenglAPI::disableCulling();
-
-			depthBuffer.unbind();
 		}
 
 	private:
@@ -150,6 +156,25 @@ namespace Byte {
 			}
 		}
 
+		void updateLightMatrices(float aspectRatio, RenderData& data, RenderContext& context) {
+			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
+
+			auto [_, dlTransform] = context.directionalLight();
+
+			auto [camera, cTransform] = context.camera();
+			Mat4 view{ cTransform->view() };
+
+			float far{ camera->farPlane() };
+			float near{ camera->nearPlane() };
+
+			for (size_t i{}; i < cascadeCount; ++i) {
+				float divisor{ data.parameter<float>("cascade_divisor_" + std::to_string(i + 1)) };
+				Mat4 projection{ camera->perspective(aspectRatio,near,far / divisor) };
+				Mat4 lightSpace{ camera->frustumSpace(projection, view, *dlTransform) };
+				data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)) = lightSpace;
+			}
+		}
+
 	};
 
 	class GeometryPass : public RenderPass {
@@ -160,10 +185,19 @@ namespace Byte {
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
-			auto [_, dlTransform] = context.directionalLight();
-			Mat4 lightSpace{ camera->frustumSpace(projection,view, *dlTransform) };
+			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
 
-			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer"] };
+			float far{ camera->farPlane() };
+			Buffer<float> farPlanes;
+			Buffer<Mat4> lightSpaces{};
+			Buffer<TextureID> dbTextures;
+			for (size_t i{ 0 }; i < cascadeCount; ++i) {
+				float divisor{ data.parameter<float>("cascade_divisor_" + std::to_string(i + 1)) };
+				farPlanes.push_back(far / divisor);
+				lightSpaces.push_back(data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)));
+				dbTextures.push_back(data.frameBuffers.at("depthBuffer" + std::to_string(i + 1)).textureID("depth"));
+			}
+
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
 
@@ -171,19 +205,20 @@ namespace Byte {
 				gBuffer.clearContent();
 			}
 
-			bool renderShadows{ data.parameter<bool>("render_shadow") };
-
-			Shader& shader{ data.shaders["default_deferred"] };
+			Shader& shader{ data.shaders["deferred"] };
 			shader.bind();
 
 			shader.uniform<Mat4>("uProjection", projection);
 			shader.uniform<Mat4>("uView", view);
-			shader.uniform<Mat4>("uLightSpace", lightSpace);
+			shader.uniform<Mat4>("uLightSpaces", lightSpaces);
+			shader.uniform<float>("uCascadeFars", farPlanes);
+			shader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
 
-			shader.uniform<Vec3>("uLightDir", dlTransform->front());
-
-			shader.uniform("uDepthMap", 0);
-			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+			for (size_t i{}; i < dbTextures.size(); ++i) {
+				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
+				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
+				OpenglAPI::Texture::bind(dbTextures[i], unit);
+			}
 
 			renderEntities(context, shader);
 
@@ -192,12 +227,15 @@ namespace Byte {
 
 			instancedShader.uniform<Mat4>("uProjection", projection);
 			instancedShader.uniform<Mat4>("uView", view);
-			instancedShader.uniform<Mat4>("uLightSpace", lightSpace);
+			instancedShader.uniform<Mat4>("uLightSpaces", lightSpaces);
+			instancedShader.uniform<float>("uCascadeFars", farPlanes);
+			instancedShader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
 
-			instancedShader.uniform<Vec3>("uLightDir", dlTransform->front());
-
-			instancedShader.uniform("uDepthMap", 0);
-			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+			for (size_t i{}; i < dbTextures.size(); ++i) {
+				instancedShader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
+				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
+				OpenglAPI::Texture::bind(dbTextures[i], unit);
+			}
 
 			renderInstances(context, instancedShader);
 
@@ -378,11 +416,11 @@ namespace Byte {
 			OpenglAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad_depth"] };
-			Framebuffer& colorBuffer{ data.frameBuffers["depthBuffer"] };
+			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer1"] };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("depth"), TextureUnit::T0);
+			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 
