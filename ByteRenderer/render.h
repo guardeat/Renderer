@@ -42,6 +42,9 @@ namespace Byte {
 			config.parameters.emplace("cascade_light_3", Mat4{});
 			config.parameters.emplace("cascade_light_4", Mat4{});
 
+			config.parameters.emplace("current_shadow_draw_frame", 0U);
+			config.parameters.emplace("shadow_draw_frame", 4U);
+
 			config.meshes.emplace("cube", MeshBuilder::cube());
 			config.meshes.emplace("quad", MeshBuilder::quad());
 			config.meshes.emplace("sphere", MeshBuilder::sphere(1, 20));

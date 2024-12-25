@@ -87,6 +87,12 @@ namespace Byte {
 				return;
 			}
 
+			size_t drawFrame{ data.parameter<uint32_t>("shadow_draw_frame") };
+			size_t current{ data.parameter<uint32_t>("current_shadow_draw_frame")++ % drawFrame };
+			if (current != 0) {
+				return;
+			}
+
 			Shader& depthShader{ data.shaders["depth"] };
 			Shader& instancedDepthShader{ data.shaders["instanced_depth"] };
 

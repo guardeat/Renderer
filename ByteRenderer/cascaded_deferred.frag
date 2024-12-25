@@ -48,11 +48,23 @@ float calculateShadow(vec3 fragWorldPos)
     float closestDepth = texture(uDepthMaps[layer], projCoords.xy).r;
     float currentDepth = projCoords.z;
 
-    if (currentDepth > closestDepth + 0.001) 
+    float shadowValue = 0.0;
+    vec2 texelSize = 1.0 / textureSize(uDepthMaps[layer], 0);
+    int pcfRadius = 1;
+    
+    for(int x = -pcfRadius; x <= pcfRadius; ++x)
     {
-        shadow = 1.0; 
+        for(int y = -pcfRadius; y <= pcfRadius; ++y)
+        {
+            vec2 offset = vec2(x, y) * texelSize;
+            float closestDepth = texture(uDepthMaps[layer], projCoords.xy + offset).r;
+            shadowValue += currentDepth > closestDepth + 0.001 ? 1.0 : 0.0;
+        }
     }
-
+    
+    int samples = (pcfRadius * 2 + 1) * (pcfRadius * 2 + 1);
+    shadow = shadowValue / float(samples);
+    
     return shadow;
 }
 
