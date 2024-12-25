@@ -25,7 +25,6 @@ int main() {
 
 	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
 	Material sphereMaterial{};
-	sphereMaterial.shaderTag("instanced_deferred");
 	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });
 
 	renderer.context().createInstance("spheres_1",sphere,sphereMaterial);
@@ -54,7 +53,6 @@ int main() {
 
 	Mesh plane(MeshBuilder::plane(100,100,1));
 	Material pMaterial;
-	pMaterial.shaderTag("default_deferred");
 	pMaterial.albedo(Vec4(0.2f, 0.7f, 0.2f, 1.0f));
 	Transform planeTransform;
 	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
@@ -68,7 +66,6 @@ int main() {
 
 	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
-	lmMaterial.shaderTag("default_deferred");
 	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	renderer.context().submit(lightMesh,lmMaterial,plTransform);

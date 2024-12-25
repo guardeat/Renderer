@@ -139,13 +139,16 @@ namespace Byte {
                     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
                 }
 
+                FramebufferData out{ frameBufferID, textures, attachments, config.width,config.height };
+
                 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                    release(out);
                     throw std::exception("Framebuffer not complete");
                 }
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                return FramebufferData{ frameBufferID, textures, attachments, config.width,config.height };
+                return out;
             }
 
             static void clear(FramebufferID id) {
