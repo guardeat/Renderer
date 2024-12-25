@@ -74,12 +74,6 @@
     <ClInclude Include="camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="default_vertex.glsl">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="forward_fragment.glsl">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -101,54 +95,60 @@
     <ClInclude Include="instancing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="instanced_vertex.glsl">
+    <ClInclude Include="default.vert">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="quad_depth_fragment.glsl">
+    <ClInclude Include="forward.frag">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instanced.vert">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quad_depth.frag">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="deferred_geometry.glsl">
+    <None Include="deferred.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="quad_vertex.glsl">
+    <None Include="depth.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="quad_fragment.glsl">
+    <None Include="depth.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="lighting_fragment.glsl">
+    <None Include="instanced_depth.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="point_light_fragment.glsl">
+    <None Include="instanced_shadowed.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="point_light_vertex.glsl">
+    <None Include="lighting.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="depth_fragment.glsl">
+    <None Include="point_light.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="depth_vertex.glsl">
+    <None Include="point_light.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="instanced_depth_vertex.glsl">
+    <None Include="procedural_skybox.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shadowed_vertex.glsl">
+    <None Include="procedural_skybox.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="instanced_shadowed_vertex.glsl">
+    <None Include="quad.frag">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shadowed_deferred_geometry.glsl">
+    <None Include="quad.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="procedural_skybox_fragment.glsl">
+    <None Include="shadowed.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="procedural_skybox_vertex.glsl">
+    <None Include="shadowed_deferred.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
