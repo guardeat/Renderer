@@ -17,9 +17,9 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize = 10;
-	const float sphereRadius = 1.0f;
-	const float spacing = 3.0f * sphereRadius; 
+	const int gridSize{ 10 };
+	const float sphereRadius{ 1.0f };
+	const float spacing{ 3.0f * sphereRadius };
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
@@ -70,12 +70,13 @@ int main() {
 
 	renderer.context().submit(lightMesh,lmMaterial,plTransform);
 
-	float lightAngle = 0.0f;
-	const float lightSpeed = 1.0f;
-	const float circleRadius = 20.0f;
+	float lightAngle{ 0.0f };
+	const float lightSpeed{ 1.0f };
+	const float circleRadius{ 20.0f };
 
-	auto lastTime = std::chrono::high_resolution_clock::now();
-	int frameCount = 0;
+	auto lastTime{ std::chrono::high_resolution_clock::now() };
+	int frameCount{ 0 };
+	float fpsTimer{ 0.0f };
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		renderer.render();
@@ -83,22 +84,21 @@ int main() {
 		fpsCamera.update(window, transform);
 		glfwPollEvents();
 
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
-		lastTime = currentTime; 
+		auto currentTime{ std::chrono::high_resolution_clock::now() };
+		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
+		lastTime = currentTime;
 
 		lightAngle += lightSpeed * deltaTime;
 		if (lightAngle >= 2 * 3.141592f) {
 			lightAngle -= 2 * 3.141592f;  
 		}
 
-		float x = circleRadius * std::cos(lightAngle);
-		float z = circleRadius * std::sin(lightAngle);
+		float x{ circleRadius * std::cos(lightAngle) };
+		float z{ circleRadius * std::sin(lightAngle) };
 		plTransform.position(Vec3(x + 13.5f, 1.0f, z + 13.5f));
 		//dLightTransform.rotate(Vec3(0.01f, 0.0f, 0.0f));
 
 		frameCount++;
-		static float fpsTimer = 0.0f;
 		fpsTimer += deltaTime;
 
 		if (fpsTimer >= 1.0f) {
