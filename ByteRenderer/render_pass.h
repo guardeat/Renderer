@@ -176,9 +176,68 @@ namespace Byte {
 			for (size_t i{}; i < cascadeCount; ++i) {
 				float divisor{ data.parameter<float>("cascade_divisor_" + std::to_string(i + 1)) };
 				Mat4 projection{ camera->perspective(aspectRatio,near,far / divisor) };
-				Mat4 lightSpace{ camera->frustumSpace(projection, view, *dlTransform) };
+				Mat4 lightSpace{ frustumSpace(projection, view, *dlTransform, far) };
 				data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)) = lightSpace;
 			}
+		}
+
+		Mat4 frustumSpace(
+			const Mat4& projection, 
+			const Mat4& view, 
+			const Transform& lightTransform, 
+			float far) const {
+			const auto inv{ (projection * view).inverse() };
+
+			Buffer<Vec4> corners;
+			for (unsigned int x = 0; x < 2; ++x) {
+				for (unsigned int y = 0; y < 2; ++y) {
+					for (unsigned int z = 0; z < 2; ++z) {
+						const Vec4 pt{
+							inv * Vec4(
+								2.0f * x - 1.0f,
+								2.0f * y - 1.0f,
+								2.0f * z - 1.0f,
+								1.0f) };
+						corners.push_back(pt / pt.w);
+					}
+				}
+			}
+
+			Vec3 center{};
+			for (const auto& v : corners) {
+				center += Vec3(v.x, v.y, v.z);
+			}
+			center /= corners.size();
+
+			const auto lightView{ Mat4::lookAt(
+				center - lightTransform.front(),
+				center,
+				lightTransform.up()
+			) };
+
+			float minX{ std::numeric_limits<float>::max() };
+			float maxX{ std::numeric_limits<float>::lowest() };
+			float minY{ std::numeric_limits<float>::max() };
+			float maxY{ std::numeric_limits<float>::lowest() };
+			float minZ{ std::numeric_limits<float>::max() };
+			float maxZ{ std::numeric_limits<float>::lowest() };
+
+			for (const auto& v : corners) {
+				const auto trf{ lightView * v };
+				minX = std::min(minX, trf.x);
+				maxX = std::max(maxX, trf.x);
+				minY = std::min(minY, trf.y);
+				maxY = std::max(maxY, trf.y);
+				minZ = std::min(minZ, trf.z);
+				maxZ = std::max(maxZ, trf.z);
+			}
+
+			minZ = std::min(minZ, -far);
+			maxZ = std::max(maxZ, far);
+
+			Mat4 lightProjection{ Mat4::orthographic(minX, maxX, minY, maxY, minZ, maxZ) };
+
+			return lightProjection * lightView;
 		}
 
 	};

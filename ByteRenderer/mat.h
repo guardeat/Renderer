@@ -2,9 +2,9 @@
 
 #include <cstdint>
 #include <iostream>
-#include <stdexcept>
 
 #include "vec.h"
+#include "trigonometry.h"
 
 namespace Byte {
 
@@ -142,9 +142,7 @@ namespace Byte {
         }
 
         Type determinant() const {
-            if constexpr (Y != X) {
-                throw std::logic_error("Determinant is defined only for square matrices.");
-            }
+            static_assert(Y == X, "Determinant is defined only for square matrices.");
 
             if constexpr (Y == 2) {
                 return data[0] * data[3] - data[1] * data[2];
@@ -190,9 +188,7 @@ namespace Byte {
         }
 
         _Mat cofactor() const {
-            if constexpr (Y != X) {
-                throw std::logic_error("Cofactor is defined only for square matrices.");
-            }
+            static_assert(Y == X, "Cofactor is defined only for square matrices.");
 
             _Mat cofactorMatrix;
 
@@ -224,9 +220,7 @@ namespace Byte {
         }
 
         _Mat inverse() const {
-            if constexpr (Y != X) {
-                throw std::logic_error("Inverse is defined only for square matrices.");
-            }
+            static_assert(Y == X, "Inverse is defined only for square matrices.");
 
             Type det = this->determinant();
             if (det == 0) {
@@ -238,9 +232,7 @@ namespace Byte {
         }
 
         static _Mat lookAt(const _Vec3<Type>& eye, const _Vec3<Type>& target, const _Vec3<Type>& up) {
-            if constexpr (X != 4 && Y != 4) {
-                std::logic_error("LookAt is defined only for 4x4 matrices.");
-            }
+            static_assert(X == 4 && Y == 4, "LookAt is defined only for 4x4 matrices.");
 
             Vec3 forward{ (target - eye).normalized() };
             Vec3 right{ forward.cross(up).normalized() };
@@ -262,6 +254,35 @@ namespace Byte {
             viewMatrix(2, 3) = eye.dot(forward);
 
             return viewMatrix;
+        }
+
+        static _Mat orthographic(float left, float right, float bottom, float top, float near, float far) {
+            static_assert(X == 4 && Y == 4, "Orthographic is defined only for 4x4 matrices.");
+
+            _Mat out{ 0 };
+
+            out(0, 0) = 2.0f / (right - left);
+            out(1, 1) = 2.0f / (top - bottom);
+            out(2, 2) = -2.0f / (far - near);
+            out(0, 3) = -(right + left) / (right - left);
+            out(1, 3) = -(top + bottom) / (top - bottom);
+            out(2, 3) = -(far + near) / (far - near);
+            out(3, 3) = 1.0f;
+
+            return out;
+        }
+
+        static _Mat perspective(float aspectRatio, float fov, float near, float far) {
+            _Mat out{ 0 };
+            float tanHalfFov{ std::tan(radians(fov) / 2.0f) };
+
+            out(0, 0) = 1.0f / (aspectRatio * tanHalfFov);
+            out(1, 1) = 1.0f / tanHalfFov;
+            out(2, 2) = -(far + near) / (far - near);
+            out(3, 2) = -1.0f;
+            out(2, 3) = -(2.0f * far * near) / (far - near);
+
+            return out;
         }
 
     };
