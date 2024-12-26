@@ -9,12 +9,12 @@ namespace Byte {
 
 	class RenderArray {
 	private:
-		RArrayData _data;
+		RenderArrayData _data;
 
 	public:
 		RenderArray() = default;
 
-		RenderArray(RArrayData rArrayData)
+		RenderArray(RenderArrayData rArrayData)
 			:_data{rArrayData} {
 		}
 
@@ -43,19 +43,19 @@ namespace Byte {
 		}
 
 		void bind() const {
-			OpenglAPI::RArray::bind(_data.VAO);
+			OpenglAPI::RenderArray::bind(_data.VAO);
 		}
 
 		void unbind() const {
-			OpenglAPI::RArray::unbind();
+			OpenglAPI::RenderArray::unbind();
 		}
 
-		const RArrayData& data() const {
+		const RenderArrayData& data() const {
 			return _data;
 		}
 
 		void clear() {
-			OpenglAPI::RArray::release(_data);
+			OpenglAPI::RenderArray::release(_data);
 
 			_data.VAO = 0;
 			_data.VBuffers.clear();

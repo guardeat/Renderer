@@ -218,8 +218,8 @@ namespace Byte {
             }
         };
 
-        struct RArray {
-            static RArrayData build(
+        struct RenderArray {
+            static RenderArrayData build(
                 const Buffer<float>& vertices,
                 const Buffer<uint32_t>& indices,
                 Buffer<VertexAttribute>& attributes, 
@@ -262,10 +262,10 @@ namespace Byte {
 
                 Buffer<RBufferData> buffers{ RBufferData{VBO,attributes} };
 
-                return RArrayData{ VAO, buffers, EBO, indices.size() };
+                return RenderArrayData{ VAO, buffers, EBO, indices.size() };
             }
 
-            static RArrayData build(
+            static RenderArrayData build(
                 const Buffer<float>& vertices,
                 const Buffer<uint32_t>& indices,
                 Buffer<VertexAttribute>& attributes,
@@ -327,7 +327,7 @@ namespace Byte {
 
                 Buffer<RBufferData> buffers{ RBufferData{VBO,attributes}, RBufferData{iVBO,attributes} };
 
-                return RArrayData{ VAO, buffers, EBO, indices.size() };
+                return RenderArrayData{ VAO, buffers, EBO, indices.size() };
             }
 
             static Buffer<VertexAttribute> buildAttributes(const Buffer<uint8_t>& layout, uint8_t indexOffset = 0) {
@@ -353,7 +353,7 @@ namespace Byte {
                 glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), data.data(), draw);
             }
 
-            static void release(RArrayData& renderArrayData) {
+            static void release(RenderArrayData& renderArrayData) {
                 if (renderArrayData.VAO != 0) {
                     glDeleteVertexArrays(1, &renderArrayData.VAO);
 

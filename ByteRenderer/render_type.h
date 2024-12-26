@@ -151,7 +151,7 @@ namespace Byte {
 		Buffer<VertexAttribute> attributes;
 	};
 
-	struct RArrayData {
+	struct RenderArrayData {
 		RArrayID VAO{ 0 };
 		
 		Buffer<RBufferData> VBuffers;

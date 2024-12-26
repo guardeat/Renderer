@@ -131,21 +131,21 @@ namespace Byte {
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
-			auto atts{ OpenglAPI::RArray::buildAttributes(mesh.data().vertexLayout) };
+			auto atts{ OpenglAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
 			 
-			mesh.renderArray(OpenglAPI::RArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
+			mesh.renderArray(OpenglAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
 
 		void fillInstancedVertexArray(RenderInstance& instance) const {
 			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
-			auto atts{ OpenglAPI::RArray::buildAttributes(instance.mesh().data().vertexLayout)};
+			auto atts{ OpenglAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
 
-			auto iAtts{ OpenglAPI::RArray::buildAttributes({3,3,4},3) };
+			auto iAtts{ OpenglAPI::RenderArray::buildAttributes({3,3,4},3) };
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
-			auto rArrayData{ OpenglAPI::RArray::build(vertices,indices,atts,iAtts,isStatic) };
+			auto rArrayData{ OpenglAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
 			instance.mesh().renderArray(std::move(rArrayData));
 		}
 
