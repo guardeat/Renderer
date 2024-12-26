@@ -113,11 +113,11 @@ namespace Byte {
 
             if (_size > _bufferCapacity) {
                 _data.reserve(_size * 2);
-                OpenglAPI::RenderArray::bufferData(bufferID, _data, _size * 20, true);
+                OpenGLAPI::RenderArray::bufferData(bufferID, _data, _size * 20, true);
                 _bufferCapacity = 2 * _size;
             }
             else {
-                OpenglAPI::RenderArray::subBufferData(bufferID, _data, 0);
+                OpenGLAPI::RenderArray::subBufferData(bufferID, _data, 0);
             }
             _change = false;
         }

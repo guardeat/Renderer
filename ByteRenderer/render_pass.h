@@ -61,7 +61,7 @@ namespace Byte {
 			auto [dl, dlTransform] = context.directionalLight();
 			skyboxShader.bind();
 
-			OpenglAPI::disableDepth();
+			OpenGLAPI::disableDepth();
 
 			skyboxShader.uniform<Mat4>("uProjection", projection);
 			skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
@@ -71,12 +71,12 @@ namespace Byte {
 
 			data.meshes.at("cube").renderArray().bind();
 
-			OpenglAPI::Draw::elements(data.meshes.at("cube").indices().size());
+			OpenGLAPI::Draw::elements(data.meshes.at("cube").indices().size());
 
 			data.meshes.at("cube").renderArray().unbind();
 			gBuffer.unbind();
 
-			OpenglAPI::enableDepth();
+			OpenGLAPI::enableDepth();
 		}
 	};
 
@@ -107,8 +107,8 @@ namespace Byte {
 
 			updateLightMatrices(aspectRatio, data, context);
 
-			OpenglAPI::enableCulling();
-			OpenglAPI::cullFront();
+			OpenGLAPI::enableCulling();
+			OpenGLAPI::cullFront();
 
 			for (size_t i{}; i < depthBuffers.size(); ++i) {
 				Mat4 lightSpace{ data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)) };
@@ -128,8 +128,8 @@ namespace Byte {
 				depthBuffers[i]->unbind();
 			}
 
-			OpenglAPI::cullBack();
-			OpenglAPI::disableCulling();
+			OpenGLAPI::cullBack();
+			OpenGLAPI::disableCulling();
 		}
 
 	private:
@@ -143,7 +143,7 @@ namespace Byte {
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-				OpenglAPI::Draw::elements(mesh->indices().size());
+				OpenGLAPI::Draw::elements(mesh->indices().size());
 
 				mesh->renderArray().unbind();
 			}
@@ -156,7 +156,7 @@ namespace Byte {
 
 				mesh.renderArray().bind();
 
-				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
 				mesh.renderArray().unbind();
 			}
@@ -282,7 +282,7 @@ namespace Byte {
 			for (size_t i{}; i < dbTextures.size(); ++i) {
 				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
 				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
-				OpenglAPI::Texture::bind(dbTextures[i], unit);
+				OpenGLAPI::Texture::bind(dbTextures[i], unit);
 			}
 
 			renderEntities(context, shader);
@@ -299,7 +299,7 @@ namespace Byte {
 			for (size_t i{}; i < dbTextures.size(); ++i) {
 				instancedShader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
 				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
-				OpenglAPI::Texture::bind(dbTextures[i], unit);
+				OpenGLAPI::Texture::bind(dbTextures[i], unit);
 			}
 
 			renderInstances(context, instancedShader);
@@ -323,7 +323,7 @@ namespace Byte {
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-				OpenglAPI::Draw::elements(mesh->indices().size());
+				OpenGLAPI::Draw::elements(mesh->indices().size());
 
 				mesh->renderArray().unbind();
 			}
@@ -338,7 +338,7 @@ namespace Byte {
 
 				shader.uniform<Vec4>("uAlbedo", material.albedo());
 
-				OpenglAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
 				mesh.renderArray().unbind();
 			}
@@ -371,7 +371,7 @@ namespace Byte {
 			lightingShader.uniform<float>("uDirectionalLight.intensity", directionalLight->intensity);
 
 			data.meshes.at("quad").renderArray().bind();
-			OpenglAPI::Draw::quad();
+			OpenGLAPI::Draw::quad();
 			data.meshes.at("quad").renderArray().unbind();
 
 			lightingShader.unbind();
@@ -379,10 +379,10 @@ namespace Byte {
 			if (!context.pointLights().empty()) {
 				plShader.bind();
 
-				OpenglAPI::enableBlend();
-				OpenglAPI::setBlend(1, 1);
-				OpenglAPI::enableCulling();
-				OpenglAPI::cullFront();
+				OpenGLAPI::enableBlend();
+				OpenGLAPI::setBlend(1, 1);
+				OpenGLAPI::enableCulling();
+				OpenGLAPI::cullFront();
 
 				plShader.uniform<Vec2>(
 					"uViewPortSize",
@@ -400,7 +400,7 @@ namespace Byte {
 
 				data.meshes.at("sphere").renderArray().bind();
 
-				OpenglAPI::disableDepth();
+				OpenGLAPI::disableDepth();
 
 				for (auto& pair: context.pointLights()) {
 					auto [pointLight, _transform] = pair.second;
@@ -419,16 +419,16 @@ namespace Byte {
 					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
 					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
-					OpenglAPI::Draw::elements(data.meshes.at("sphere").indices().size());
+					OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
 				}
 
 				data.meshes.at("sphere").renderArray().unbind();
 				plShader.unbind();
 
-				OpenglAPI::enableDepth();
-				OpenglAPI::disableBlend();
-				OpenglAPI::cullBack();
-				OpenglAPI::disableCulling();
+				OpenGLAPI::enableDepth();
+				OpenGLAPI::disableBlend();
+				OpenGLAPI::cullBack();
+				OpenGLAPI::disableCulling();
 			}
 
 			colorBuffer.unbind();
@@ -445,9 +445,9 @@ namespace Byte {
 			shader.uniform(normalName, 1);
 			shader.uniform(albedoSpecName, 2);
 
-			OpenglAPI::Texture::bind(gBuffer.textureID("position"), TextureUnit::T0);
-			OpenglAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T1);
-			OpenglAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), TextureUnit::T2);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("position"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T1);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), TextureUnit::T2);
 		}
 	};
 
@@ -455,19 +455,19 @@ namespace Byte {
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenglAPI::Framebuffer::unbind();
-			OpenglAPI::Framebuffer::clear(0);
+			OpenGLAPI::Framebuffer::unbind();
+			OpenGLAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 
-			OpenglAPI::Draw::quad();
+			OpenGLAPI::Draw::quad();
 
 			data.meshes.at("quad").renderArray().unbind();
 		}
@@ -477,19 +477,19 @@ namespace Byte {
 	class DebugPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenglAPI::Framebuffer::unbind();
-			OpenglAPI::Framebuffer::clear(0);
+			OpenGLAPI::Framebuffer::unbind();
+			OpenGLAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad_depth"] };
 			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer1"] };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenglAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 
-			OpenglAPI::Draw::quad();
+			OpenGLAPI::Draw::quad();
 
 			data.meshes.at("quad").renderArray().unbind();
 		}

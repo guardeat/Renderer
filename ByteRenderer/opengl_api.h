@@ -15,7 +15,7 @@
 
 namespace Byte {
 
-    class OpenglAPI {
+    class OpenGLAPI {
     public:
         static void initialize(Window& window) {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -23,7 +23,7 @@ namespace Byte {
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
             glfwMakeContextCurrent(window.glfwWindow);
-            glfwSetFramebufferSizeCallback(window.glfwWindow, OpenglAPI::framebufferSizeCallback);
+            glfwSetFramebufferSizeCallback(window.glfwWindow, OpenGLAPI::framebufferSizeCallback);
 
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
                 throw std::exception{ "GLAD cannot be loaded" };
@@ -120,7 +120,7 @@ namespace Byte {
                             width,height,nullptr, 
                             att.internalFormat,att.format,att.dataType);
                         glFramebufferTexture2D(
-                            GL_FRAMEBUFFER, EnumConverter::convert(att.attachment), 
+                            GL_FRAMEBUFFER, TypeCast::convert(att.attachment), 
                             GL_TEXTURE_2D, id, 0);
                     }
                     else {
@@ -128,7 +128,7 @@ namespace Byte {
                             width, height, att.layerCount, nullptr,
                             att.internalFormat, att.format, att.dataType);
                         glFramebufferTexture(
-                            GL_FRAMEBUFFER, EnumConverter::convert(att.attachment),
+                            GL_FRAMEBUFFER, TypeCast::convert(att.attachment),
                             id, 0);
                     }
                     textures[att.tag] = TextureAttachmentData{ id,att.type,width,height,att.layerCount };
@@ -176,7 +176,7 @@ namespace Byte {
                 if (!data.attachments.empty()) {
                     Buffer<uint32_t> attachments;
                     for (auto& att : data.attachments) {
-                        attachments.push_back(EnumConverter::convert(att));
+                        attachments.push_back(TypeCast::convert(att));
                     }
                     glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
                 }
@@ -513,7 +513,7 @@ namespace Byte {
 
                 uint32_t id;
 
-                id = glCreateShader(EnumConverter::convert(shaderType));
+                id = glCreateShader(TypeCast::convert(shaderType));
                 glShaderSource(id, 1, &sCode, NULL);
                 glCompileShader(id);
                 check(id);
@@ -558,10 +558,10 @@ namespace Byte {
 
                 glTexImage2D(
                     GL_TEXTURE_2D, 0, 
-                    EnumConverter::convert(internalFormat), 
+                    TypeCast::convert(internalFormat), 
                     glWidth, glHeight, 0, 
-                    EnumConverter::convert(format), 
-                    EnumConverter::convert(type), data);
+                    TypeCast::convert(format), 
+                    TypeCast::convert(type), data);
 
                 glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -595,10 +595,10 @@ namespace Byte {
 
                 glTexImage3D(
                     GL_TEXTURE_2D_ARRAY, 0,
-                    EnumConverter::convert(internalFormat),
+                    TypeCast::convert(internalFormat),
                     glWidth, glHeight, glLayerCount, 0,
-                    EnumConverter::convert(format),
-                    EnumConverter::convert(type), data);
+                    TypeCast::convert(format),
+                    TypeCast::convert(type), data);
 
                 glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
@@ -609,8 +609,8 @@ namespace Byte {
                 TextureID textureID, 
                 TextureUnit unit = TextureUnit::T0,
                 TextureType type = TextureType::TEXTURE_2D) {
-                glActiveTexture(EnumConverter::convert(unit));
-                glBindTexture(EnumConverter::convert(type), textureID);
+                glActiveTexture(TypeCast::convert(unit));
+                glBindTexture(TypeCast::convert(type), textureID);
             }
 
             static void unbind() {
@@ -622,7 +622,7 @@ namespace Byte {
             }
         };
 
-        struct EnumConverter {
+        struct TypeCast {
             static GLenum convert(TextureUnit unit) {
                 return static_cast<GLenum>(unit) + GL_TEXTURE0;
             }

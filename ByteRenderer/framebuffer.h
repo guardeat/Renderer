@@ -42,11 +42,11 @@ namespace Byte {
 		}
 
 		void bind() {
-			OpenglAPI::Framebuffer::bind(_data);
+			OpenGLAPI::Framebuffer::bind(_data);
 		}
 
 		void unbind() {
-			OpenglAPI::Framebuffer::unbind();
+			OpenGLAPI::Framebuffer::unbind();
 		}
 
 		const FramebufferData& data() const {
@@ -54,15 +54,15 @@ namespace Byte {
 		}
 
 		void clearContent() {
-			OpenglAPI::Framebuffer::clear(_data.id);
+			OpenGLAPI::Framebuffer::clear(_data.id);
 		}
 
 		void clearDepth() {
-			OpenglAPI::Framebuffer::clearDepth(_data.id);
+			OpenGLAPI::Framebuffer::clearDepth(_data.id);
 		}
 
 		void clear() {
-			OpenglAPI::Framebuffer::release(_data);
+			OpenGLAPI::Framebuffer::release(_data);
 
 			_data.id = 0;
 			_data.textures.clear();

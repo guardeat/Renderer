@@ -34,13 +34,13 @@ namespace Byte {
 
 	public:
 		void initialize(Window& window, RenderConfig& config) {
-			OpenglAPI::initialize(window);
+			OpenGLAPI::initialize(window);
 
 			_data.width = window.width();
 			_data.height = window.height();
 			
 			for (auto& pair : config.frameBufferConfigs) {
-				_data.frameBuffers[pair.first] = OpenglAPI::Framebuffer::build(pair.second);
+				_data.frameBuffers[pair.first] = OpenGLAPI::Framebuffer::build(pair.second);
 			}
 
 			compileShaders(config);
@@ -63,7 +63,7 @@ namespace Byte {
 		}
 
 		void update(Window& window) const {
-			OpenglAPI::update(window);
+			OpenGLAPI::update(window);
 		}
 
 		RenderContext& context() {
@@ -131,21 +131,21 @@ namespace Byte {
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
-			auto atts{ OpenglAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
+			auto atts{ OpenGLAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
 			 
-			mesh.renderArray(OpenglAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
+			mesh.renderArray(OpenGLAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
 
 		void fillInstancedVertexArray(RenderInstance& instance) const {
 			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
-			auto atts{ OpenglAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
+			auto atts{ OpenGLAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
 
-			auto iAtts{ OpenglAPI::RenderArray::buildAttributes({3,3,4},3) };
+			auto iAtts{ OpenGLAPI::RenderArray::buildAttributes({3,3,4},3) };
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
-			auto rArrayData{ OpenglAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
+			auto rArrayData{ OpenGLAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
 			instance.mesh().renderArray(std::move(rArrayData));
 		}
 
