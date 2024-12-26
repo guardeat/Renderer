@@ -11,6 +11,8 @@ namespace Byte {
 
 			config.shaderPaths["quad"] =
 			{ "quad.vert", "quad.frag" };
+			config.shaderPaths["quad_depth"] =
+			{ "quad.vert", "quad_depth.frag" };
 			config.shaderPaths["lighting"] =
 			{ "quad.vert", "lighting.frag" };
 			config.shaderPaths["point_light"] =

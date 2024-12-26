@@ -18,8 +18,8 @@ int main() {
 	FPSCamera fpsCamera;
 
 	const int gridSize{ 10 };
-	const float sphereRadius{ 1.0f };
-	const float spacing{ 3.0f * sphereRadius };
+	const float sphereRadius{ 1.4f };
+	const float spacing{ 3.0f };
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
@@ -39,6 +39,29 @@ int main() {
 				sphereTransforms[index] = transform;
 
 				renderer.context().submit("spheres_1",transform);
+			}
+		}
+	}
+
+	std::vector<Transform> cubeTransforms(gridSize * gridSize * gridSize);
+
+	Mesh cube{ MeshBuilder::cube() };
+	Material cubeMaterial{};
+	cubeMaterial.albedo(Vec4{ 1.0f,0.0f,1.0f,0.0f });
+
+	renderer.context().createInstance("cubes_1", cube, cubeMaterial);
+
+	for (int x = 0; x < gridSize; ++x) {
+		for (int y = 0; y < gridSize; ++y) {
+			for (int z = 0; z < gridSize; ++z) {
+				int index = x + y * gridSize + z * gridSize * gridSize;
+
+				Transform transform;
+				transform.scale(Vec3{ 2.4f,2.4f,2.4f });
+				transform.position(Vec3(x * spacing - 35, y * spacing + 1.0f, z * spacing - 35));
+				cubeTransforms[index] = transform;
+
+				renderer.context().submit("cubes_1", transform);
 			}
 		}
 	}

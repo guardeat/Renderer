@@ -110,23 +110,8 @@ namespace Byte {
                 maxZ = std::max(maxZ, trf.z);
             }
 
-            float zMult{ _farPlane / 100.0f };
-            if (minZ < 0)
-            {
-                minZ *= zMult;
-            }
-            else
-            {
-                minZ /= zMult;
-            }
-            if (maxZ < 0)
-            {
-                maxZ /= zMult;
-            }
-            else
-            {
-                maxZ *= zMult;
-            }
+            minZ = std::min(minZ, -_farPlane);
+            maxZ = std::max(maxZ, _farPlane);
 
             Mat4 lightProjection{ orthographic(minX, maxX, minY, maxY, minZ, maxZ) };
 
