@@ -454,7 +454,6 @@ namespace Byte {
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenGLAPI::Framebuffer::unbind();
 			OpenGLAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad"] };
