@@ -14,7 +14,7 @@ in vec3 vFragPos;
 in vec3 vRotatedPos;
 
 void main() {
-    float bottomBlend = smoothstep(-1.0, 0.5, vFragPos.y); 
+    float bottomBlend = smoothstep(-1.0, 1.0, vFragPos.y); 
     float middleBlend = smoothstep(0.0, 0.3, vFragPos.y);  
 
     vec4 colorBelow = vec4(0.0, 0.0, 0.2, 1.0);     
