@@ -58,6 +58,9 @@ namespace Byte {
             _change = true;
             ++_size;
 
+            constexpr size_t strideSize{ 10 };
+            _data.reserve(_data.size() + strideSize);
+
             _data.push_back(transform.position().x);
             _data.push_back(transform.position().y);
             _data.push_back(transform.position().z);
@@ -112,8 +115,8 @@ namespace Byte {
             RBufferID bufferID{ _mesh->renderArray().data().VBuffers[1].id };
 
             if (_size > _bufferCapacity) {
-                _data.resize(_size * 2);
-                OpenGLAPI::RenderArray::bufferData(bufferID, _data, _size * 20, true);
+                _data.reserve(_size * 2);
+                OpenGLAPI::RenderArray::bufferData(bufferID, _data, _size * 10, true);
                 _bufferCapacity = 2 * _size;
             }
             else {
