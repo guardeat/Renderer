@@ -451,7 +451,6 @@ namespace Byte {
 		}
 	};
 
-
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
