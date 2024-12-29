@@ -1,6 +1,6 @@
 #version 330 core
 
-layout(location = 2) out vec4 gAlbedoSpecular;
+layout(location = 1) out vec4 gAlbedo;
 
 struct DirectionalLight {
     vec3 direction; 
@@ -45,5 +45,5 @@ void main() {
     }
 
     finalColor.rgb *= uDirectionalLight.intensity;
-    gAlbedoSpecular = finalColor; 
+    gAlbedo = finalColor; 
 }

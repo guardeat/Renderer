@@ -25,7 +25,7 @@ float calculateShadow(vec3 fragWorldPos)
     float shadow = 0.0;
 
     int layer = 0;
-    for (int i = uCascadeCount; i > 0; --i)
+    for (int i = uCascadeCount - 1; i > 0; --i)
     {
         if (depthValue < uCascadeFars[i])
         {

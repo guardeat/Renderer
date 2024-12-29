@@ -1,6 +1,9 @@
 #version 330 core
 
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 vTextCoord;
 
 uniform vec3 uPosition;
 uniform vec3 uScale;
@@ -33,5 +36,6 @@ vec3 translate(vec3 aPos, vec3 position, vec3 scale, vec4 rotation) {
 
 void main() {
     vec3 translated = translate(aPos,uPosition,uScale,uRotation);
+    vec2 vTextCoord = aTexCoord;
 	gl_Position = uProjection * uView * vec4(translated.xyz, 1.0);
 }

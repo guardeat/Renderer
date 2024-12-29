@@ -253,19 +253,6 @@ namespace Byte {
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
-			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
-
-			float far{ camera->farPlane() };
-			Buffer<float> farPlanes;
-			Buffer<Mat4> lightSpaces{};
-			Buffer<TextureID> dbTextures;
-			for (size_t i{ 0 }; i < cascadeCount; ++i) {
-				float divisor{ data.parameter<float>("cascade_divisor_" + std::to_string(i + 1)) };
-				farPlanes.push_back(far / divisor);
-				lightSpaces.push_back(data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)));
-				dbTextures.push_back(data.frameBuffers.at("depthBuffer" + std::to_string(i + 1)).textureID("depth"));
-			}
-
 			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
 			gBuffer.bind();
 
@@ -278,15 +265,6 @@ namespace Byte {
 
 			shader.uniform<Mat4>("uProjection", projection);
 			shader.uniform<Mat4>("uView", view);
-			shader.uniform<Mat4>("uLightSpaces", lightSpaces);
-			shader.uniform<float>("uCascadeFars", farPlanes);
-			shader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
-
-			for (size_t i{}; i < dbTextures.size(); ++i) {
-				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
-				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
-				OpenGLAPI::Texture::bind(dbTextures[i], unit);
-			}
 
 			renderEntities(context, shader);
 
@@ -295,16 +273,6 @@ namespace Byte {
 
 			instancedShader.uniform<Mat4>("uProjection", projection);
 			instancedShader.uniform<Mat4>("uView", view);
-			instancedShader.uniform<Mat4>("uLightSpaces", lightSpaces);
-			instancedShader.uniform<float>("uCascadeFars", farPlanes);
-			instancedShader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
-
-			for (size_t i{}; i < dbTextures.size(); ++i) {
-				instancedShader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i));
-				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T0) + i) };
-				OpenGLAPI::Texture::bind(dbTextures[i], unit);
-			}
-
 			renderInstances(context, instancedShader);
 
 			gBuffer.unbind();
@@ -363,10 +331,23 @@ namespace Byte {
 
 			lightingShader.bind();
 
-			bindGBufferTextures(gBuffer, lightingShader, "uPosition", "uNormal", "uAlbedoSpec");
+			float aspectRatio{ static_cast<float>(data.width)/ static_cast<float>(data.height) };
 
-			auto [_, cTransform] = context.camera();
+			auto [camera, cTransform] = context.camera();
 			auto [directionalLight, dlTransform] = context.directionalLight();
+
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ cTransform->view() };
+			Mat4 inverseView{ view.inverse() };
+			Mat4 inverseProjection{ projection.inverse() };
+
+			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("albedo"), TextureUnit::T1);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T2);
+
+			setupGBufferTextures(lightingShader);
+			setupCascades(data, lightingShader, *camera);
+			bindCommon(lightingShader, view, inverseView, inverseProjection);
 
 			lightingShader.uniform<Vec3>("uViewPos", cTransform->position());
 			lightingShader.uniform<Vec3>("uDirectionalLight.direction", dlTransform->front());
@@ -380,78 +361,109 @@ namespace Byte {
 			lightingShader.unbind();
 
 			if (!context.pointLights().empty()) {
-				plShader.bind();
-
-				OpenGLAPI::enableBlend();
-				OpenGLAPI::setBlend(1, 1);
-				OpenGLAPI::enableCulling();
-				OpenGLAPI::cullFront();
-
-				plShader.uniform<Vec2>(
-					"uViewPortSize",
-					Vec2{ static_cast<float>(data.width), static_cast<float>(data.height) });
-
-				float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-				auto [camera, cTransform] = context.camera();
-				Mat4 projection{ camera->perspective(aspectRatio) };
-				Mat4 view{ cTransform->view() };
-
-				plShader.uniform<Mat4>("uProjection", projection);
-				plShader.uniform<Mat4>("uView", view);
-
-				bindGBufferTextures(gBuffer, plShader, "uSPosition", "uSNormal", "uSAlbedoSpec");
-
-				data.meshes.at("sphere").renderArray().bind();
-
-				OpenGLAPI::disableDepth();
-
-				for (auto& pair: context.pointLights()) {
-					auto [pointLight, _transform] = pair.second;
-					Transform transform{ *_transform };
-
-					float radius{ pointLight->radius() };
-					transform.scale(Vec3{ radius, radius, radius });
-
-					plShader.uniform<Vec3>("uPosition", transform.position());
-					plShader.uniform<Vec3>("uScale", transform.scale());
-					plShader.uniform<Quaternion>("uRotation", transform.rotation());
-
-					plShader.uniform<Vec3>("uPointLight.position", transform.position());
-					plShader.uniform<Vec3>("uPointLight.color", pointLight->color);
-					plShader.uniform<float>("uPointLight.constant", pointLight->constant);
-					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
-					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
-
-					OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
-				}
-
-				data.meshes.at("sphere").renderArray().unbind();
-				plShader.unbind();
-
-				OpenGLAPI::enableDepth();
-				OpenGLAPI::disableBlend();
-				OpenGLAPI::cullBack();
-				OpenGLAPI::disableCulling();
+				renderPointLights(context,data,view,inverseView,inverseProjection,projection);
 			}
 
 			colorBuffer.unbind();
 		}
-
 	private:
-		void bindGBufferTextures(
-			Framebuffer& gBuffer, 
-			Shader& shader,
-			const std::string& positionName,
-			const std::string& normalName,
-			const std::string& albedoSpecName) const {
-			shader.uniform(positionName, 0);
-			shader.uniform(normalName, 1);
-			shader.uniform(albedoSpecName, 2);
+		void renderPointLights(
+			RenderContext& context, 
+			RenderData& data, 
+			Mat4& view, 
+			Mat4& inverseView, 
+			Mat4& inverseProjection, 
+			Mat4& projection) {
 
-			OpenGLAPI::Texture::bind(gBuffer.textureID("position"), TextureUnit::T0);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T1);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("albedoSpecular"), TextureUnit::T2);
+			Shader& plShader{ data.shaders["point_light"] };
+			plShader.bind();
+
+			OpenGLAPI::enableBlend();
+			OpenGLAPI::setBlend(1, 1);
+			OpenGLAPI::enableCulling();
+			OpenGLAPI::cullFront();
+
+			plShader.uniform<Vec2>(
+				"uViewPortSize",
+				Vec2{ static_cast<float>(data.width), static_cast<float>(data.height) });
+
+			bindCommon(plShader, view, inverseView, inverseProjection);
+			plShader.uniform<Mat4>("uProjection", projection);
+
+			setupGBufferTextures(plShader);
+
+			data.meshes.at("sphere").renderArray().bind();
+
+			OpenGLAPI::disableDepth();
+
+			for (auto& pair : context.pointLights()) {
+				auto [pointLight, _transform] = pair.second;
+				Transform transform{ *_transform };
+
+				float radius{ pointLight->radius() };
+				transform.scale(Vec3{ radius, radius, radius });
+
+				plShader.uniform<Vec3>("uPosition", transform.position());
+				plShader.uniform<Vec3>("uScale", transform.scale());
+				plShader.uniform<Quaternion>("uRotation", transform.rotation());
+
+				plShader.uniform<Vec3>("uPointLight.position", transform.position());
+				plShader.uniform<Vec3>("uPointLight.color", pointLight->color);
+				plShader.uniform<float>("uPointLight.constant", pointLight->constant);
+				plShader.uniform<float>("uPointLight.linear", pointLight->linear);
+				plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
+
+				OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
+			}
+
+			data.meshes.at("sphere").renderArray().unbind();
+			plShader.unbind();
+
+			OpenGLAPI::enableDepth();
+			OpenGLAPI::disableBlend();
+			OpenGLAPI::cullBack();
+			OpenGLAPI::disableCulling();
 		}
+
+
+		void setupGBufferTextures(Shader& shader) {
+			shader.uniform("uNormal", 0);
+			shader.uniform("uAlbedo", 1);
+			shader.uniform("uDepth", 2);
+		}
+
+		void setupCascades(RenderData& data, Shader& shader, Camera& camera) {
+			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
+
+			float far{ camera.farPlane() };
+			Buffer<float> farPlanes;
+			Buffer<Mat4> lightSpaces{};
+			Buffer<TextureID> dbTextures;
+
+			for (size_t i{ 0 }; i < cascadeCount; ++i) {
+				float divisor{ data.parameter<float>("cascade_divisor_" + std::to_string(i + 1)) };
+				farPlanes.push_back(far / divisor);
+				lightSpaces.push_back(data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)));
+				dbTextures.push_back(data.frameBuffers.at("depthBuffer" + std::to_string(i + 1)).textureID("depth"));
+			}
+
+			for (size_t i{}; i < dbTextures.size(); ++i) {
+				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i + 3));
+				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T3) + i) };
+				OpenGLAPI::Texture::bind(dbTextures[i], unit);
+			}
+
+			shader.uniform<Mat4>("uLightSpaces", lightSpaces);
+			shader.uniform<float>("uCascadeFars", farPlanes);
+			shader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
+		}
+
+		void bindCommon(Shader& shader, Mat4& view, Mat4& iView, Mat4& iProjection) {
+			shader.uniform<Mat4>("uView", view);
+			shader.uniform<Mat4>("uInverseView", iView);
+			shader.uniform<Mat4>("uInverseProjection", iProjection);
+		}
+
 	};
 
 	class DrawPass : public RenderPass {
@@ -463,31 +475,9 @@ namespace Byte {
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
 
 			quadShader.bind();
-			quadShader.uniform("uAlbedoSpecular", 0);
+			quadShader.uniform("uAlbedo", 0);
 			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
-			OpenGLAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), TextureUnit::T0);
-
-			data.meshes.at("quad").renderArray().bind();
-
-			OpenGLAPI::Draw::quad();
-
-			data.meshes.at("quad").renderArray().unbind();
-		}
-
-	};
-
-	class DebugPass : public RenderPass {
-	public:
-		void render(RenderContext& context, RenderData& data) override {
-			OpenGLAPI::Framebuffer::unbind();
-			OpenGLAPI::Framebuffer::clear(0);
-
-			Shader& quadShader{ data.shaders["quad_depth"] };
-			Framebuffer& depthBuffer{ data.frameBuffers["depthBuffer1"] };
-
-			quadShader.bind();
-			quadShader.uniform("uAlbedoSpecular", 0);
-			OpenGLAPI::Texture::bind(depthBuffer.textureID("depth"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(colorBuffer.textureID("albedo"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 

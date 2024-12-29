@@ -4,11 +4,11 @@ in vec2 vTexCoord;
 
 out vec4 FragColor;
 
-uniform sampler2D uAlbedoSpecular;
+uniform sampler2D uAlbedo;
 uniform float uGamma;
 
 void main() {
-    vec3 albedo = texture(uAlbedoSpecular, vTexCoord).rgb;
+    vec3 albedo = texture(uAlbedo, vTexCoord).rgb;
 
     vec3 mapped = albedo / (albedo + vec3(1.0));
 

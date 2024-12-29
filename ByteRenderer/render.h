@@ -24,9 +24,9 @@ namespace Byte {
 			config.shaderPaths["procedural_skybox"] =
 			{ "procedural_skybox.vert", "procedural_skybox.frag" };
 			config.shaderPaths["deferred"] =
-			{ "default.vert", "cascaded_deferred.frag" };
+			{ "default.vert", "deferred.frag" };
 			config.shaderPaths["instanced_deferred"] =
-			{ "instanced.vert", "cascaded_deferred.frag" };
+			{ "instanced.vert", "deferred.frag" };
 
 			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);
@@ -58,9 +58,9 @@ namespace Byte {
 			gBufferConfig.height = window.height();
 
 			gBufferConfig.attachments = {
-				{ "position", AttachmentType::COLOR_0, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "normal", AttachmentType::COLOR_1,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "albedoSpecular", AttachmentType::COLOR_2, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
+				{ "normal", AttachmentType::COLOR_0,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
+				{ "albedo", AttachmentType::COLOR_1, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
+				{ "depth", AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT },
 			};
 
 			config.frameBufferConfigs["gBuffer"] = gBufferConfig;
@@ -70,7 +70,7 @@ namespace Byte {
 			colorBufferConfig.height = window.height();
 
 			colorBufferConfig.attachments = {
-				{ "albedoSpecular", AttachmentType::COLOR_0, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
+				{ "albedo", AttachmentType::COLOR_0, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
 			};
 
 			config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
