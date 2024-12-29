@@ -463,6 +463,7 @@ namespace Byte {
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedoSpecular", 0);
+			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
 			OpenGLAPI::Texture::bind(colorBuffer.textureID("albedoSpecular"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();

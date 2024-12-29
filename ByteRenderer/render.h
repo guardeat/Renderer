@@ -32,6 +32,8 @@ namespace Byte {
 			config.parameters.emplace("render_shadow", true);
 			config.parameters.emplace("clear_gbuffer", true);
 
+			config.parameters.emplace("gamma", 2.2f);
+
 			config.parameters.emplace("cascade_count", 4U);
 
 			config.parameters.emplace("cascade_divisor_1", 1.0f);

@@ -58,7 +58,7 @@ int main() {
 
 				Transform transform;
 				transform.scale(Vec3{ 2.4f,2.4f,2.4f });
-				transform.position(Vec3(x * spacing - 35, y * spacing + 1.0f, z * spacing - 35));
+				transform.position(Vec3{ x * spacing - 35, y * spacing + 1.0f, z * spacing - 35 });
 				cubeTransforms[index] = transform;
 
 				renderer.context().submit("cubes_1", transform);
@@ -69,16 +69,16 @@ int main() {
 	DirectionalLight dLight;
 	Transform dLightTransform;
 	dLightTransform.rotate(Vec3{ -45.0f,20.0f,0.0f });
-	dLightTransform.position(Vec3(50.0f,80.0f,80.0f));
+	dLightTransform.position(Vec3{ 50.0f,80.0f,80.0f });
 
 	renderer.context().submit(camera, transform);
 	renderer.context().submit(dLight,dLightTransform);
 
-	Mesh plane(MeshBuilder::plane(100,100,1));
+	Mesh plane{ MeshBuilder::plane(100,100,1) };
 	Material pMaterial;
-	pMaterial.albedo(Vec4(0.2f, 0.7f, 0.2f, 1.0f));
+	pMaterial.albedo(Vec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 	Transform planeTransform;
-	planeTransform.rotate(Vec3(270.0f, 0.0f, 0.0f));
+	planeTransform.rotate(Vec3{ 270.0f, 0.0f, 0.0f });
 	
 	renderer.context().submit(plane,pMaterial,planeTransform);
 	
@@ -89,7 +89,7 @@ int main() {
 
 	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
-	lmMaterial.albedo(Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	lmMaterial.albedo(Vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
 
 	renderer.context().submit(lightMesh,lmMaterial,plTransform);
 
