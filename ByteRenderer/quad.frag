@@ -8,7 +8,9 @@ uniform sampler2D uAlbedoSpecular;
 uniform float uGamma;
 
 void main() {
-    vec3 albedoSpecular = texture(uAlbedoSpecular, vTexCoord).rgb;
+    vec3 albedo = texture(uAlbedoSpecular, vTexCoord).rgb;
 
-    FragColor = vec4(pow(albedoSpecular.rgb, vec3(1.0/uGamma)), 1.0);
+    vec3 mapped = albedo / (albedo + vec3(1.0));
+
+    FragColor = vec4(pow(mapped.rgb, vec3(1.0/uGamma)), 1.0);
 }

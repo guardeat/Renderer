@@ -8,6 +8,8 @@ namespace Byte {
 	struct MaterialData {
 		ShaderTag shaderTag;
 		Vec4 albedo;
+		float metallic{ 1.0f };
+		float roughness{ 1.0f };
 	};
 
 	class Material {

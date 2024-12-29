@@ -60,7 +60,7 @@ namespace Byte {
 			gBufferConfig.attachments = {
 				{ "position", AttachmentType::COLOR_0, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
 				{ "normal", AttachmentType::COLOR_1,ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "albedoSpecular", AttachmentType::COLOR_2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
+				{ "albedoSpecular", AttachmentType::COLOR_2, ColorFormat::RGBA16F, ColorFormat::RGBA, DataType::UNSIGNED_BYTE }
 			};
 
 			config.frameBufferConfigs["gBuffer"] = gBufferConfig;
