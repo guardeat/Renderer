@@ -112,7 +112,7 @@ namespace Byte {
             RBufferID bufferID{ _mesh->renderArray().data().VBuffers[1].id };
 
             if (_size > _bufferCapacity) {
-                _data.reserve(_size * 2);
+                _data.resize(_size * 2);
                 OpenGLAPI::RenderArray::bufferData(bufferID, _data, _size * 20, true);
                 _bufferCapacity = 2 * _size;
             }
