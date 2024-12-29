@@ -55,8 +55,11 @@ namespace Byte {
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			auto [camera, cTransform] = context.camera();
+
+			float oldFov{ camera->fov() };
+			camera->fov(45.0f);
 			Mat4 projection{ camera->perspective(aspectRatio) };
-			Mat4 view{ cTransform->view() };
+			camera->fov(oldFov);
 
 			auto [dl, dlTransform] = context.directionalLight();
 			skyboxShader.bind();
@@ -69,11 +72,11 @@ namespace Byte {
 			skyboxShader.uniform<Vec3>("uDirectionalLight.color", dl->color);
 			skyboxShader.uniform<float>("uDirectionalLight.intensity", dl->intensity);
 
-			data.meshes.at("cube").renderArray().bind();
+			data.meshes.at("sphere").renderArray().bind();
 
-			OpenGLAPI::Draw::elements(data.meshes.at("cube").indices().size());
+			OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
 
-			data.meshes.at("cube").renderArray().unbind();
+			data.meshes.at("sphere").renderArray().unbind();
 			gBuffer.unbind();
 
 			OpenGLAPI::enableDepth();

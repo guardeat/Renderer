@@ -28,6 +28,22 @@ namespace Byte {
             return _farPlane;
         }
 
+        float fov() const {
+            return _fov;
+        }
+
+        float nearPlane(float near) {
+            return _nearPlane = near;
+        }
+
+        float farPlane(float far) {
+            return _farPlane = far;
+        }
+
+        float fov(float fov) {
+            return _fov = fov;
+        }
+
         Mat4 perspective(float aspectRatio, float near, float far) const {
             return Mat4::perspective(aspectRatio,_fov,near,far);
         }

@@ -51,7 +51,7 @@ namespace Byte {
 
 			config.meshes.emplace("cube", MeshBuilder::cube());
 			config.meshes.emplace("quad", MeshBuilder::quad());
-			config.meshes.emplace("sphere", MeshBuilder::sphere(1, 20));
+			config.meshes.emplace("sphere", MeshBuilder::sphere(1, 10));
 
 			FramebufferConfig gBufferConfig;
 			gBufferConfig.width = window.width();
