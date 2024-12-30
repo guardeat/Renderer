@@ -10,7 +10,7 @@ namespace Byte {
 		Vec3 albedo;
 		float metallic{ 0.5f };
 		float roughness{ 0.5f };
-		float ambientOcclusion{ 0.5f };
+		float ambientOcclusion{ 0.1f };
 		float emission{ 0.0f };
 	};
 
