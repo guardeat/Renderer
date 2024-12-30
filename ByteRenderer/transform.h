@@ -106,7 +106,7 @@ namespace Byte {
 
 			Vec3 u{ r.cross(f) };
 
-			return Mat4::lookAt(_globalPos, _globalPos + f, u);
+			return Mat4::view(_globalPos, _globalPos + f, u);
 		}
 	};
 

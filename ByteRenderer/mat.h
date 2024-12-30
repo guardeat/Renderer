@@ -231,7 +231,7 @@ namespace Byte {
             return adj / det;
         }
 
-        static _Mat lookAt(const _Vec3<Type>& eye, const _Vec3<Type>& target, const _Vec3<Type>& up) {
+        static _Mat view(const _Vec3<Type>& eye, const _Vec3<Type>& target, const _Vec3<Type>& up) {
             static_assert(X == 4 && Y == 4, "LookAt is defined only for 4x4 matrices.");
 
             Vec3 forward{ (target - eye).normalized() };
@@ -273,6 +273,8 @@ namespace Byte {
         }
 
         static _Mat perspective(float aspectRatio, float fov, float near, float far) {
+            static_assert(X == 4 && Y == 4, "Perspective is defined only for 4x4 matrices.");
+
             _Mat out{ 0 };
             float tanHalfFov{ std::tan(radians(fov) / 2.0f) };
 

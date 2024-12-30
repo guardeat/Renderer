@@ -212,7 +212,7 @@ namespace Byte {
 			}
 			center /= corners.size();
 
-			const auto lightView{ Mat4::lookAt(
+			const auto lightView{ Mat4::view(
 				center - lightTransform.front(),
 				center,
 				lightTransform.up()
