@@ -33,6 +33,12 @@ namespace Byte {
 		Pipeline _pipeline;
 
 	public:
+		Renderer() = default;
+
+		Renderer(Window& window, RenderConfig& config) {
+			initialize(window, config);
+		}
+
 		void initialize(Window& window, RenderConfig& config) {
 			OpenGLAPI::initialize(window);
 
