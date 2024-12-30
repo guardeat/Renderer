@@ -365,7 +365,7 @@ namespace Byte {
                 }
             }
 
-            static void bind(RArrayID id) {
+            static void bind(RenderArrayID id) {
                 glBindVertexArray(id);
             }
 
@@ -373,14 +373,14 @@ namespace Byte {
                 glBindVertexArray(0);
             }
 
-            static void bufferData(RBufferID id, Buffer<float>& data, size_t size, bool isStatic) {
+            static void bufferData(RenderBufferID id, Buffer<float>& data, size_t size, bool isStatic) {
                 auto draw{ isStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW };
 
                 glBindBuffer(GL_ARRAY_BUFFER, id);
                 glBufferData(GL_ARRAY_BUFFER, size * sizeof(float), data.data(), draw);
             }
 
-            static void subBufferData(RBufferID id, Buffer<float>& data, size_t offset = 0) {
+            static void subBufferData(RenderBufferID id, Buffer<float>& data, size_t offset = 0) {
                 glBindBuffer(GL_ARRAY_BUFFER, id);
                 glBufferSubData(GL_ARRAY_BUFFER, offset, data.size() * sizeof(float), data.data());
             }

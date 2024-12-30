@@ -23,8 +23,8 @@ namespace Byte {
 	using TextureID = uint32_t;
 	using FramebufferID = uint32_t;
 
-	using RArrayID = uint32_t;
-	using RBufferID = uint32_t;
+	using RenderArrayID = uint32_t;
+	using RenderBufferID = uint32_t;
 
 	enum class TextureUnit: uint8_t {
 		T0, T1, T2, T3,
@@ -134,7 +134,7 @@ namespace Byte {
 	};
 
 	struct VertexAttribute {
-		RBufferID bufferID;
+		RenderBufferID bufferID;
 
 		uint32_t size;
 		uint32_t type;
@@ -147,16 +147,16 @@ namespace Byte {
 	};
 
 	struct RBufferData {
-		RBufferID id{};
+		RenderBufferID id{};
 		Buffer<VertexAttribute> attributes;
 	};
 
 	struct RenderArrayData {
-		RArrayID VAO{ 0 };
+		RenderArrayID VAO{ 0 };
 		
 		Buffer<RBufferData> VBuffers;
 
-		RBufferID EBO{ 0 };
+		RenderBufferID EBO{ 0 };
 		size_t elementCount{ 0 };
 	};
 
