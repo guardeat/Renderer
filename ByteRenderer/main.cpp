@@ -23,7 +23,7 @@ int main() {
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
-	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
+	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 10) };
 	Material sphereMaterial{};
 	sphereMaterial.albedo(Vec3{ 1.0f,0.0f,0.0f });
 	sphereMaterial.roughness(1.0f);

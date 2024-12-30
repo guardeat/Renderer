@@ -232,7 +232,7 @@ namespace Byte {
         }
 
         static _Mat view(const _Vec3<Type>& eye, const _Vec3<Type>& target, const _Vec3<Type>& up) {
-            static_assert(X == 4 && Y == 4, "LookAt is defined only for 4x4 matrices.");
+            static_assert(X == 4 && Y == 4, "View is defined only for 4x4 matrices.");
 
             Vec3 forward{ (target - eye).normalized() };
             Vec3 right{ forward.cross(up).normalized() };

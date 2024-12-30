@@ -391,6 +391,7 @@ namespace Byte {
 			OpenGLAPI::setBlend(1, 1);
 			OpenGLAPI::enableCulling();
 			OpenGLAPI::cullFront();
+			OpenGLAPI::disableDepth();
 
 			plShader.uniform<Vec2>(
 				"uViewPortSize",
@@ -401,9 +402,7 @@ namespace Byte {
 
 			setupGBufferTextures(plShader);
 
-			data.meshes.at("sphere").renderArray().bind();
-
-			OpenGLAPI::disableDepth();
+			data.meshes.at("low_poly_sphere").renderArray().bind();
 
 			for (auto& pair : context.pointLights()) {
 				auto [pointLight, _transform] = pair.second;
@@ -422,10 +421,10 @@ namespace Byte {
 				plShader.uniform<float>("uPointLight.linear", pointLight->linear);
 				plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
-				OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
+				OpenGLAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
 			}
 
-			data.meshes.at("sphere").renderArray().unbind();
+			data.meshes.at("low_poly_sphere").renderArray().unbind();
 			plShader.unbind();
 
 			OpenGLAPI::enableDepth();
