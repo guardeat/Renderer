@@ -7,9 +7,11 @@ namespace Byte {
 
 	struct MaterialData {
 		ShaderTag shaderTag;
-		Vec4 albedo;
-		float metallic{ 1.0f };
-		float roughness{ 1.0f };
+		Vec3 albedo;
+		float metallic{ 0.5f };
+		float roughness{ 0.5f };
+		float ambientOcclusion{ 0.5f };
+		float emission{ 0.0f };
 	};
 
 	class Material {
@@ -17,11 +19,11 @@ namespace Byte {
 		MaterialData _data;
 
 	public:
-		Vec4 albedo() const {
+		Vec3 albedo() const {
 			return _data.albedo;
 		}
 
-		void albedo(Vec4 value) {
+		void albedo(Vec3 value) {
 			_data.albedo = value;
 		}
 
@@ -31,6 +33,46 @@ namespace Byte {
 
 		void shaderTag(const ShaderTag& tag) {
 			_data.shaderTag = tag;
+		}
+
+		float metallic() const {
+			return _data.metallic;
+		}
+
+		void metallic(float value) {
+			_data.metallic = value;
+		}
+
+		float roughness() const {
+			return _data.roughness;
+		}
+
+		void roughness(float value) {
+			_data.roughness = value;
+		}
+
+		float ambientOcclusion() const {
+			return _data.ambientOcclusion;
+		}
+
+		void ambientOcclusion(float value) {
+			_data.ambientOcclusion = value;
+		}
+
+		float emission() const {
+			return _data.emission;
+		}
+
+		void emission(float value) {
+			_data.emission = value;
+		}
+
+		const MaterialData& data() const {
+			return _data;
+		}
+
+		void data(const MaterialData& materialData) {
+			_data = materialData;
 		}
 	};
 

@@ -174,20 +174,16 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cascaded_deferred.frag" />
     <None Include="deferred.frag" />
     <None Include="depth.frag" />
     <None Include="depth.vert" />
     <None Include="instanced_depth.vert" />
-    <None Include="instanced_shadowed.vert" />
     <None Include="lighting.frag" />
     <None Include="point_light.frag" />
     <None Include="point_light.vert" />
     <None Include="procedural_skybox.vert" />
     <None Include="quad.frag" />
     <None Include="quad.vert" />
-    <None Include="shadowed_deferred.frag" />
-    <None Include="shadowed.vert" />
     <None Include="procedural_skybox.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
