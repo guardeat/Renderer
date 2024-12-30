@@ -25,7 +25,7 @@ int main() {
 
 	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
 	Material sphereMaterial{};
-	sphereMaterial.albedo(Vec4{ 1.0f,1.0f,0.0f,0.0f });
+	sphereMaterial.albedo(Vec3{ 1.0f,1.0f,0.0f });
 
 	renderer.context().createInstance("spheres_1",sphere,sphereMaterial);
 
@@ -47,7 +47,7 @@ int main() {
 
 	Mesh cube{ MeshBuilder::cube() };
 	Material cubeMaterial{};
-	cubeMaterial.albedo(Vec4{ 1.0f,0.0f,1.0f,0.0f });
+	cubeMaterial.albedo(Vec3{ 1.0f,0.0f,1.0f });
 
 	renderer.context().createInstance("cubes_1", cube, cubeMaterial);
 
@@ -76,7 +76,7 @@ int main() {
 
 	Mesh plane{ MeshBuilder::plane(100,100,1) };
 	Material pMaterial;
-	pMaterial.albedo(Vec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+	pMaterial.albedo(Vec3{ 0.2f, 0.7f, 0.2f });
 	Transform planeTransform;
 	planeTransform.rotate(Vec3{ 270.0f, 0.0f, 0.0f });
 	
@@ -89,7 +89,9 @@ int main() {
 
 	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
-	lmMaterial.albedo(Vec4{ 1.0f, 1.0f, 1.0f, 1.0f });
+	lmMaterial.albedo(Vec3{ 1.0f, 1.0f, 1.0f });
+	lmMaterial.emission(1.0f);
+	lmMaterial.ambientOcclusion(1.0f);
 
 	renderer.context().submit(lightMesh,lmMaterial,plTransform);
 

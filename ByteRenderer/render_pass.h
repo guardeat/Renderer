@@ -288,7 +288,11 @@ namespace Byte {
 
 				mesh->renderArray().bind();
 
-				shader.uniform<Vec4>("uAlbedo", material->albedo());
+				shader.uniform<Vec3>("uAlbedo", material->albedo());
+				shader.uniform<float>("uMetallic", material->metallic());
+				shader.uniform<float>("uRoughness", material->roughness());
+				shader.uniform<float>("uAO", material->ambientOcclusion());
+				shader.uniform<float>("uEmission", material->emission());
 
 				shader.uniform<Vec3>("uPosition", transform->position());
 				shader.uniform<Vec3>("uScale", transform->scale());
@@ -307,7 +311,11 @@ namespace Byte {
 
 				mesh.renderArray().bind();
 
-				shader.uniform<Vec4>("uAlbedo", material.albedo());
+				shader.uniform<Vec3>("uAlbedo", material.albedo());
+				shader.uniform<float>("uMetallic", material.metallic());
+				shader.uniform<float>("uRoughness", material.roughness());
+				shader.uniform<float>("uAO", material.ambientOcclusion());
+				shader.uniform<float>("uEmission", material.emission());
 
 				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
@@ -343,7 +351,8 @@ namespace Byte {
 
 			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
 			OpenGLAPI::Texture::bind(gBuffer.textureID("albedo"), TextureUnit::T1);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T2);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("material"), TextureUnit::T2);
+			OpenGLAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T3);
 
 			setupGBufferTextures(lightingShader);
 			setupCascades(data, lightingShader, *camera);
@@ -429,7 +438,8 @@ namespace Byte {
 		void setupGBufferTextures(Shader& shader) {
 			shader.uniform("uNormal", 0);
 			shader.uniform("uAlbedo", 1);
-			shader.uniform("uDepth", 2);
+			shader.uniform("uMaterial", 2);
+			shader.uniform("uDepth", 3);
 		}
 
 		void setupCascades(RenderData& data, Shader& shader, Camera& camera) {
@@ -448,8 +458,8 @@ namespace Byte {
 			}
 
 			for (size_t i{}; i < dbTextures.size(); ++i) {
-				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i + 3));
-				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T3) + i) };
+				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i + 4));
+				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T4) + i) };
 				OpenGLAPI::Texture::bind(dbTextures[i], unit);
 			}
 
