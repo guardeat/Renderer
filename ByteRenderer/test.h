@@ -14,7 +14,7 @@ namespace Byte {
 		float oldX{};
 		float oldY{};
 
-		float speed{ 0.2f };
+		float speed{ 50.0f };
 		float sensitivity{ 0.1f };
 
 	public:
@@ -51,7 +51,7 @@ namespace Byte {
 			return yawQuaternion * pitchQuaternion;
 		}
 
-		void update(Window& window, Transform& transform) {
+		void update(Window& window, Transform& transform, float dt) {
 
 			double xpos, ypos;
 			glfwGetCursorPos(window.glfwWindow, &xpos, &ypos);
@@ -73,7 +73,7 @@ namespace Byte {
 			}
 
 			if (offset.length() > 0) {
-				transform.position(transform.position() + offset.normalized() * speed);
+				transform.position(transform.position() + offset.normalized() * speed * dt);
 			}
 
 			glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

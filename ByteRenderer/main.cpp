@@ -25,7 +25,8 @@ int main() {
 
 	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 20) };
 	Material sphereMaterial{};
-	sphereMaterial.albedo(Vec3{ 1.0f,1.0f,0.0f });
+	sphereMaterial.albedo(Vec3{ 1.0f,0.0f,0.0f });
+	sphereMaterial.roughness(1.0f);
 
 	renderer.context().createInstance("spheres_1",sphere,sphereMaterial);
 
@@ -83,13 +84,14 @@ int main() {
 	renderer.context().submit(plane,pMaterial,planeTransform);
 	
 	PointLight pl;
+	pl.color = Vec3{0.0f,1.0f,1.0f};
 	Transform plTransform;
 
 	renderer.context().submit(pl,plTransform);
 
 	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
 	Material lmMaterial;
-	lmMaterial.albedo(Vec3{ 1.0f, 1.0f, 1.0f });
+	lmMaterial.albedo(Vec3{ 0.0f, 1.0f, 1.0f });
 	lmMaterial.emission(1.0f);
 	lmMaterial.ambientOcclusion(1.0f);
 
@@ -104,14 +106,14 @@ int main() {
 	float fpsTimer{ 0.0f };
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
-		renderer.render();
-		renderer.update(window);
-		fpsCamera.update(window, transform);
-		glfwPollEvents();
-
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
 		lastTime = currentTime;
+
+		renderer.render();
+		renderer.update(window);
+		fpsCamera.update(window, transform, deltaTime);
+		glfwPollEvents();
 
 		lightAngle += lightSpeed * deltaTime;
 		if (lightAngle >= 2 * 3.141592f) {
