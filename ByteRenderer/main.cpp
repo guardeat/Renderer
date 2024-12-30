@@ -23,7 +23,7 @@ int main() {
 
 	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
 
-	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 10) };
+	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 15) };
 	Material sphereMaterial{};
 	sphereMaterial.albedo(Vec3{ 1.0f,0.0f,0.0f });
 	sphereMaterial.roughness(1.0f);
@@ -84,14 +84,14 @@ int main() {
 	renderer.context().submit(plane,pMaterial,planeTransform);
 	
 	PointLight pl;
-	pl.color = Vec3{0.0f,1.0f,1.0f};
+	pl.color = Vec3{10.0f,0.0f,10.0f};
 	Transform plTransform;
 
 	renderer.context().submit(pl,plTransform);
 
-	Mesh lightMesh{ MeshBuilder::sphere(0.1f,100) };
+	Mesh lightMesh{ MeshBuilder::sphere(0.1f,10) };
 	Material lmMaterial;
-	lmMaterial.albedo(Vec3{ 0.0f, 1.0f, 1.0f });
+	lmMaterial.albedo(Vec3{ 1.0f, 0.0f, 1.0f });
 	lmMaterial.emission(1.0f);
 	lmMaterial.ambientOcclusion(1.0f);
 

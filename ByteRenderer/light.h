@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <algorithm>
 
 #include "vec.h"
 
@@ -25,7 +26,8 @@ namespace Byte {
 
 			float discriminant{ std::sqrtf(linear * linear - 4 * quadratic * (constant - lightStrength)) };
 
-			float radius{ (-linear + discriminant) / (2 * quadratic) };
+			constexpr float maxRadius{ 100.0f };
+			float radius{ std::min((-linear + discriminant) / (2 * quadratic),maxRadius) };
 
 			return radius;
 		}
