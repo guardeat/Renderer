@@ -388,13 +388,15 @@ namespace Byte {
 
 				setupGBufferTextures(plShader);
 
+				float halfFar{camera->farPlane() / 2};
+
 				data.meshes.at("low_poly_sphere").renderArray().bind();
 
 				for (auto& pair : context.pointLights()) {
 					auto [pointLight, _transform] = pair.second;
 					Transform transform{ *_transform };
 
-					float radius{ pointLight->radius() };
+					float radius{ std::min(pointLight->radius(),halfFar) };
 					transform.scale(Vec3{ radius, radius, radius });
 
 					plShader.uniform<Vec3>("uPosition", transform.position());

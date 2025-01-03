@@ -75,7 +75,7 @@ int main() {
 	renderer.context().submit(camera, transform);
 	renderer.context().submit(dLight,dLightTransform);
 
-	Mesh plane{ MeshBuilder::plane(100,100,1) };
+	Mesh plane{ MeshBuilder::plane(1000,1000,1) };
 	Material pMaterial;
 	pMaterial.albedo(Vec3{ 0.2f, 0.7f, 0.2f });
 	Transform planeTransform;

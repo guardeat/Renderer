@@ -26,10 +26,7 @@ namespace Byte {
 
 			float discriminant{ std::sqrtf(linear * linear - 4 * quadratic * (constant - lightStrength)) };
 
-			constexpr float maxRadius{ 100.0f };
-			float radius{ std::min((-linear + discriminant) / (2 * quadratic),maxRadius) };
-
-			return radius;
+			return (-linear + discriminant) / (2 * quadratic);
 		}
 	};
 
