@@ -511,9 +511,7 @@ namespace Byte {
 
                 const char* sCode{ shaderCode.c_str() };
 
-                uint32_t id;
-
-                id = glCreateShader(TypeCast::convert(shaderType));
+                uint32_t id{ glCreateShader(TypeCast::convert(shaderType)) };
                 glShaderSource(id, 1, &sCode, NULL);
                 glCompileShader(id);
                 check(id);
