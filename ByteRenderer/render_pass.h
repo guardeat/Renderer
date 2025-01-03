@@ -348,6 +348,7 @@ namespace Byte {
 			Mat4 view{ cTransform->view() };
 			Mat4 inverseView{ view.inverse() };
 			Mat4 inverseProjection{ projection.inverse() };
+			Vec3 viewPos{ cTransform->position() };
 
 			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
 			OpenGLAPI::Texture::bind(gBuffer.textureID("albedo"), TextureUnit::T1);
@@ -356,9 +357,8 @@ namespace Byte {
 
 			setupGBufferTextures(lightingShader);
 			setupCascades(data, lightingShader, *camera);
-			bindCommon(lightingShader, view, inverseView, inverseProjection);
+			bindCommon(lightingShader, view, inverseView, inverseProjection,viewPos);
 
-			lightingShader.uniform<Vec3>("uViewPos", cTransform->position());
 			lightingShader.uniform<Vec3>("uDirectionalLight.direction", dlTransform->front());
 			lightingShader.uniform<Vec3>("uDirectionalLight.color", directionalLight->color);
 			lightingShader.uniform<float>("uDirectionalLight.intensity", directionalLight->intensity);
@@ -370,70 +370,58 @@ namespace Byte {
 			lightingShader.unbind();
 
 			if (!context.pointLights().empty()) {
-				renderPointLights(context,data,view,inverseView,inverseProjection,projection);
+				Shader& plShader{ data.shaders["point_light"] };
+				plShader.bind();
+
+				OpenGLAPI::enableBlend();
+				OpenGLAPI::setBlend(1, 1);
+				OpenGLAPI::enableCulling();
+				OpenGLAPI::cullFront();
+				OpenGLAPI::disableDepth();
+
+				plShader.uniform<Vec2>(
+					"uViewPortSize",
+					Vec2{ static_cast<float>(data.width), static_cast<float>(data.height) });
+
+				bindCommon(plShader, view, inverseView, inverseProjection, viewPos);
+				plShader.uniform<Mat4>("uProjection", projection);
+
+				setupGBufferTextures(plShader);
+
+				data.meshes.at("low_poly_sphere").renderArray().bind();
+
+				for (auto& pair : context.pointLights()) {
+					auto [pointLight, _transform] = pair.second;
+					Transform transform{ *_transform };
+
+					float radius{ pointLight->radius() };
+					transform.scale(Vec3{ radius, radius, radius });
+
+					plShader.uniform<Vec3>("uPosition", transform.position());
+					plShader.uniform<Vec3>("uScale", transform.scale());
+					plShader.uniform<Quaternion>("uRotation", transform.rotation());
+
+					plShader.uniform<Vec3>("uPointLight.position", transform.position());
+					plShader.uniform<Vec3>("uPointLight.color", pointLight->color);
+					plShader.uniform<float>("uPointLight.constant", pointLight->constant);
+					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
+					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
+
+					OpenGLAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
+				}
+
+				data.meshes.at("low_poly_sphere").renderArray().unbind();
+				plShader.unbind();
+
+				OpenGLAPI::enableDepth();
+				OpenGLAPI::disableBlend();
+				OpenGLAPI::cullBack();
+				OpenGLAPI::disableCulling();
 			}
 
 			colorBuffer.unbind();
 		}
 	private:
-		void renderPointLights(
-			RenderContext& context, 
-			RenderData& data, 
-			Mat4& view, 
-			Mat4& inverseView, 
-			Mat4& inverseProjection, 
-			Mat4& projection) {
-
-			Shader& plShader{ data.shaders["point_light"] };
-			plShader.bind();
-
-			OpenGLAPI::enableBlend();
-			OpenGLAPI::setBlend(1, 1);
-			OpenGLAPI::enableCulling();
-			OpenGLAPI::cullFront();
-			OpenGLAPI::disableDepth();
-
-			plShader.uniform<Vec2>(
-				"uViewPortSize",
-				Vec2{ static_cast<float>(data.width), static_cast<float>(data.height) });
-
-			bindCommon(plShader, view, inverseView, inverseProjection);
-			plShader.uniform<Mat4>("uProjection", projection);
-
-			setupGBufferTextures(plShader);
-
-			data.meshes.at("low_poly_sphere").renderArray().bind();
-
-			for (auto& pair : context.pointLights()) {
-				auto [pointLight, _transform] = pair.second;
-				Transform transform{ *_transform };
-
-				float radius{ pointLight->radius() };
-				transform.scale(Vec3{ radius, radius, radius });
-
-				plShader.uniform<Vec3>("uPosition", transform.position());
-				plShader.uniform<Vec3>("uScale", transform.scale());
-				plShader.uniform<Quaternion>("uRotation", transform.rotation());
-
-				plShader.uniform<Vec3>("uPointLight.position", transform.position());
-				plShader.uniform<Vec3>("uPointLight.color", pointLight->color);
-				plShader.uniform<float>("uPointLight.constant", pointLight->constant);
-				plShader.uniform<float>("uPointLight.linear", pointLight->linear);
-				plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
-
-				OpenGLAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
-			}
-
-			data.meshes.at("low_poly_sphere").renderArray().unbind();
-			plShader.unbind();
-
-			OpenGLAPI::enableDepth();
-			OpenGLAPI::disableBlend();
-			OpenGLAPI::cullBack();
-			OpenGLAPI::disableCulling();
-		}
-
-
 		void setupGBufferTextures(Shader& shader) {
 			shader.uniform("uNormal", 0);
 			shader.uniform("uAlbedo", 1);
@@ -467,10 +455,11 @@ namespace Byte {
 			shader.uniform<int>("uCascadeCount", static_cast<int>(cascadeCount));
 		}
 
-		void bindCommon(Shader& shader, Mat4& view, Mat4& iView, Mat4& iProjection) {
+		void bindCommon(Shader& shader, Mat4& view, Mat4& iView, Mat4& iProjection, Vec3& viewPos) {
 			shader.uniform<Mat4>("uView", view);
 			shader.uniform<Mat4>("uInverseView", iView);
 			shader.uniform<Mat4>("uInverseProjection", iProjection);
+			shader.uniform<Vec3>("uViewPos", viewPos);
 		}
 
 	};
