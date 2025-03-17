@@ -85,6 +85,8 @@ namespace Byte {
 		Path path;
 
 		std::unique_ptr<uint8_t[]> data;
+
+		TextureID id{};
 	};
 
 	struct FramebufferConfig {

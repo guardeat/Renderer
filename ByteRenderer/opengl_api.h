@@ -533,6 +533,17 @@ namespace Byte {
         };
 
         struct Texture {
+            static TextureID build(const TextureData& data) {
+                ColorFormat format;
+                if (data.channels == 3) {
+                    format = ColorFormat::RGB;
+                }
+                else {
+                    format = ColorFormat::RGBA;
+                }
+                return build(data.width, data.width, data.data.get(), format, format);
+            }
+
             static TextureID build(
                 size_t width, 
                 size_t height, 

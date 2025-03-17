@@ -60,7 +60,7 @@ namespace Byte {
 			return _data;
 		}
 
-        bool readyRender() const {
+        bool drawable() const {
             return _data.renderArray.data().VAO != 0;
         }
 

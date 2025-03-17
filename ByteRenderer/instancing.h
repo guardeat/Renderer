@@ -107,7 +107,7 @@ namespace Byte {
             return _data;
         }
 
-        bool change() const {
+        bool changed() const {
             return _change;
         }
 

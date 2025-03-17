@@ -5,35 +5,55 @@
 #include <string>
 
 #include "render_type.h"
+#include "opengl_api.h"
 
 namespace Byte {
 
 	class Texture {
 	private:
-		using STextureData = std::shared_ptr<TextureData>;
-		STextureData data;
+		TextureData* _data{ nullptr };
 
 	public:
 		Texture() = default;
 
 		Texture(TextureData& data) 
-			:data{ &data } {
+			:_data{ &data } {
+		}
+
+		explicit operator bool() const {
+			return static_cast<bool>(_data);
+		}
+
+		const TextureData& data() const {
+			return *_data;
 		}
 
 		size_t height() const {
-			return data->height;
+			return _data->height;
 		}
 
 		size_t width() const {
-			return data->width;
+			return _data->width;
 		}
 
 		size_t channels() const {
-			return data->channels;
+			return _data->channels;
 		}
 
 		const Path& path() const {
-			return data->path;
+			return _data->path;
+		}
+
+		TextureID id() const {
+			return _data->id;
+		}
+
+		void id(TextureID id) {
+			_data->id = id;
+		}
+
+		void bind(TextureUnit unit = TextureUnit::T0) const {
+			OpenGLAPI::Texture::bind(_data->id, unit);
 		}
 	};
 

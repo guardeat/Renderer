@@ -281,18 +281,54 @@ namespace Byte {
 		}
 
 	private:
+		void bindMaterial(Shader& shader, const Material& material) const {
+
+			if (!material.albedoTextureID() && !material.materialTextureID()) {
+				shader.uniform<int>("uDataMode", 0);
+				shader.uniform<float>("uMetallic", material.metallic());
+				shader.uniform<float>("uRoughness", material.roughness());
+				shader.uniform<float>("uAO", material.ambientOcclusion());
+				shader.uniform<float>("uEmission", material.emission());
+			}
+
+			else if (material.albedoTextureID() && !material.materialTextureID()) {
+				shader.uniform<int>("uDataMode", 1);
+				shader.uniform<int>("uAlbedoTexture", 0);
+
+				material.albedoTexture().bind();
+				shader.uniform<float>("uMetallic", material.metallic());
+				shader.uniform<float>("uRoughness", material.roughness());
+				shader.uniform<float>("uAO", material.ambientOcclusion());
+				shader.uniform<float>("uEmission", material.emission());
+			}
+
+
+			else if (!material.albedoTextureID() && material.materialTextureID()) {
+				shader.uniform<int>("uDataMode", 2);
+				shader.uniform<int>("uMaterialTexture", 0);
+
+				material.materialTexture().bind();
+			}
+
+			else {
+				shader.uniform<int>("uDataMode", 3);
+				shader.uniform<int>("uAlbedoTexture", 0);
+				shader.uniform<int>("uMaterialTexture", 1);
+
+				material.albedoTexture().bind();
+				material.materialTexture().bind(TextureUnit::T1);
+			}
+
+			shader.uniform<Vec3>("uAlbedo", material.albedo());
+		}
+
 		void renderEntities(RenderContext& context, Shader& shader) const {
 
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
 				mesh->renderArray().bind();
-
-				shader.uniform<Vec3>("uAlbedo", material->albedo());
-				shader.uniform<float>("uMetallic", material->metallic());
-				shader.uniform<float>("uRoughness", material->roughness());
-				shader.uniform<float>("uAO", material->ambientOcclusion());
-				shader.uniform<float>("uEmission", material->emission());
+				bindMaterial(shader, *material);
 
 				shader.uniform<Vec3>("uPosition", transform->position());
 				shader.uniform<Vec3>("uScale", transform->scale());
@@ -305,17 +341,13 @@ namespace Byte {
 		}
 
 		void renderInstances(RenderContext& context, Shader& shader) const {
+
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
 				mesh.renderArray().bind();
-
-				shader.uniform<Vec3>("uAlbedo", material.albedo());
-				shader.uniform<float>("uMetallic", material.metallic());
-				shader.uniform<float>("uRoughness", material.roughness());
-				shader.uniform<float>("uAO", material.ambientOcclusion());
-				shader.uniform<float>("uEmission", material.emission());
+				bindMaterial(shader, material);
 
 				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 

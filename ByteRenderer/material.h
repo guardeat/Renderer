@@ -1,17 +1,24 @@
 #pragma once
 
+#include <type_traits>
+
 #include "shader.h"
 #include "vec.h"
+#include "texture.h"
 
 namespace Byte {
 
 	struct MaterialData {
 		ShaderTag shaderTag;
 		Vec3 albedo;
+
 		float metallic{ 0.5f };
 		float roughness{ 0.5f };
 		float ambientOcclusion{ 0.1f };
 		float emission{ 0.0f };
+
+		Texture albedoTexture;
+		Texture materialTexture;
 	};
 
 	class Material {
@@ -19,6 +26,13 @@ namespace Byte {
 		MaterialData _data;
 
 	public:
+		Material() = default;
+
+		Material(MaterialData&& data)
+			:_data{ std::forward<MaterialData>(data) }
+		{
+		}
+
 		Vec3 albedo() const {
 			return _data.albedo;
 		}
@@ -74,6 +88,45 @@ namespace Byte {
 		void data(const MaterialData& materialData) {
 			_data = materialData;
 		}
+
+		const Texture& albedoTexture() const {
+			return _data.albedoTexture;
+		}
+
+		const Texture& materialTexture() const {
+			return _data.materialTexture;
+		}
+
+		void albedoTexture(Texture texture) {
+			_data.albedoTexture = texture;
+		}
+
+		void materialTexture(Texture texture) {
+			_data.materialTexture = texture;
+		}
+
+		TextureID albedoTextureID() const {
+			if (!_data.albedoTexture) {
+				return 0;
+			}
+			return _data.albedoTexture.id();
+		}
+
+		TextureID materialTextureID() const {
+			if (!_data.materialTexture) {
+				return 0;
+			}
+			return _data.materialTexture.id();
+		}
+
+		void albedoTextureID(TextureID id) {
+			_data.albedoTexture.id(id);
+		}
+
+		void materialTextureID(TextureID id) {
+			_data.materialTexture.id(id);
+		}
+
 	};
 
 }

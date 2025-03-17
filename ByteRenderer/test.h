@@ -1,6 +1,9 @@
 #pragma once
 
 #include <chrono>
+#include <exception>
+
+#include "stb_image.h"
 
 #include "renderer.h"
 #include "window.h"
@@ -77,6 +80,33 @@ namespace Byte {
 			}
 
 			glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	};
+
+	struct Loader {
+		static TextureData loadTexture(const Path& path) {
+			TextureData texture;
+			texture.path = path;
+
+			int width, height, channels;
+			std::string pathString{ path.string() };
+			uint8_t* imgData{ stbi_load(pathString.c_str(), &width, &height, &channels, 0) };
+
+			if (!imgData) {
+				throw std::exception{ "Failed to load texture" };
+			}
+
+			texture.width = static_cast<size_t>(width);
+			texture.height = static_cast<size_t>(height);
+			texture.channels = static_cast<size_t>(channels);
+
+			size_t dataSize{ static_cast<size_t>(width * height * channels) };
+			texture.data = std::make_unique<uint8_t[]>(dataSize);
+			std::memcpy(texture.data.get(), imgData, dataSize);
+
+			stbi_image_free(imgData);
+
+			return texture;
 		}
 	};
 

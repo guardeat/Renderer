@@ -5,6 +5,8 @@
 
 using namespace Byte;
 
+//TODO: Implement bloom stage.
+
 int main() {
 	glfwInit();
 
@@ -21,34 +23,15 @@ int main() {
 	const float sphereRadius{ 1.4f };
 	const float spacing{ 3.0f };
 
-	std::vector<Transform> sphereTransforms(gridSize * gridSize * gridSize);
-
-	Mesh sphere{ MeshBuilder::sphere(sphereRadius, 15) };
-	Material sphereMaterial{};
-	sphereMaterial.albedo(Vec3{ 1.0f,0.0f,0.0f });
-	sphereMaterial.roughness(1.0f);
-
-	renderer.context().createInstance("spheres_1",sphere,sphereMaterial);
-
-	for (int x = 0; x < gridSize; ++x) {
-		for (int y = 0; y < gridSize; ++y) {
-			for (int z = 0; z < gridSize; ++z) {
-				int index = x + y * gridSize + z * gridSize * gridSize;
-
-				Transform transform;
-				transform.position(Vec3(x * spacing, y * spacing + 1.0f, z * spacing));
-				sphereTransforms[index] = transform;
-
-				renderer.context().submit("spheres_1",transform);
-			}
-		}
-	}
-
 	std::vector<Transform> cubeTransforms(gridSize * gridSize * gridSize);
 
 	Mesh cube{ MeshBuilder::cube() };
 	Material cubeMaterial{};
-	cubeMaterial.albedo(Vec3{ 1.0f,0.0f,1.0f });
+	cubeMaterial.albedo(Vec3{ 1.0f,1.0f,1.0f });
+	TextureData albedoData{ Loader::loadTexture(Path{"Resources/Textures/wall.jpg"}) };
+	cubeMaterial.albedoTexture(Texture{ albedoData });
+	cubeMaterial.roughness(0.9f);
+	cubeMaterial.metallic(0.1f);
 
 	renderer.context().createInstance("cubes_1", cube, cubeMaterial);
 
@@ -59,7 +42,7 @@ int main() {
 
 				Transform transform;
 				transform.scale(Vec3{ 2.4f,2.4f,2.4f });
-				transform.position(Vec3{ x * spacing - 35, y * spacing + 1.0f, z * spacing - 35 });
+				transform.position(Vec3{ x * spacing, y * spacing + 1.2f, z * spacing });
 				cubeTransforms[index] = transform;
 
 				renderer.context().submit("cubes_1", transform);
@@ -99,7 +82,7 @@ int main() {
 
 	float lightAngle{ 0.0f };
 	const float lightSpeed{ 1.0f };
-	const float circleRadius{ 20.0f };
+	const float circleRadius{ 25.0f };
 
 	auto lastTime{ std::chrono::high_resolution_clock::now() };
 	int frameCount{ 0 };
@@ -123,7 +106,6 @@ int main() {
 		float x{ circleRadius * std::cos(lightAngle) };
 		float z{ circleRadius * std::sin(lightAngle) };
 		plTransform.position(Vec3(x + 13.5f, 1.0f, z + 13.5f));
-		//dLightTransform.rotate(Vec3(0.01f, 0.0f, 0.0f));
 
 		frameCount++;
 		fpsTimer += deltaTime;

@@ -58,10 +58,12 @@ namespace Byte {
 			for (auto& pair : _data.meshes) {
 				fillVertexArray(pair.second);
 			}
+
 		}
 
 		void render() {
-			prepareVertexArrays(_context);
+			prepareVertexArrays();
+			prepareTextures();
 
 			for (auto& pass : _pipeline) {
 				pass->render(_context, _data);
@@ -115,20 +117,20 @@ namespace Byte {
 			}
 		}
 
-		void prepareVertexArrays(RenderContext& context) {
-			for (auto& pair : context.renderEntities()) {
+		void prepareVertexArrays() {
+			for (auto& pair : _context.renderEntities()) {
 				Mesh& mesh{ *pair.second.mesh };
-				if (!mesh.readyRender() && !mesh.empty()) {
+				if (!mesh.drawable() && !mesh.empty()) {
 					fillVertexArray(mesh);
 				}
 			}
 
-			for (auto& pair : context.instances()) {
-				if (!pair.second.mesh().readyRender() && !pair.second.mesh().empty()) {
+			for (auto& pair : _context.instances()) {
+				if (!pair.second.mesh().drawable() && !pair.second.mesh().empty()) {
 					fillInstancedVertexArray(pair.second);
 					pair.second.resetInstanceBuffer();
 				}
-				else if (pair.second.change()) {
+				else if (pair.second.changed()) {
 					pair.second.resetInstanceBuffer();
 				}
 			}
@@ -153,6 +155,30 @@ namespace Byte {
 			auto& indices{ instance.mesh().indices() };
 			auto rArrayData{ OpenGLAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
 			instance.mesh().renderArray(std::move(rArrayData));
+		}
+
+		void prepareTextures() {
+			for (auto& pair : _context.renderEntities()) {
+				Material& material{ *pair.second.material };
+				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
+					material.albedoTextureID(OpenGLAPI::Texture::build(material.albedoTexture().data()));
+				}
+
+				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
+					material.materialTextureID(OpenGLAPI::Texture::build(material.materialTexture().data()));
+				}
+			}
+
+			for (auto& pair : _context.instances()) {
+				Material& material{ pair.second.material() };
+				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
+					material.albedoTextureID(OpenGLAPI::Texture::build(material.albedoTexture().data()));
+				}
+
+				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
+					material.materialTextureID(OpenGLAPI::Texture::build(material.materialTexture().data()));
+				}
+			}
 		}
 
 	};
