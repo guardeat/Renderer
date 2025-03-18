@@ -6,6 +6,7 @@
 using namespace Byte;
 
 //TODO: Implement bloom stage.
+//TODO: Implement order independet transparency.
 
 int main() {
 	glfwInit();
@@ -19,9 +20,9 @@ int main() {
 	transform.position(Vec3{ -10.0f,10.0f,5.0f });
 	FPSCamera fpsCamera;
 
-	const int gridSize{ 10 };
-	const float sphereRadius{ 1.4f };
-	const float spacing{ 3.0f };
+	constexpr int gridSize{ 10 };
+	constexpr float sphereRadius{ 1.4f };
+	constexpr float spacing{ 3.0f };
 
 	std::vector<Transform> cubeTransforms(gridSize * gridSize * gridSize);
 

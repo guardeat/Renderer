@@ -59,8 +59,8 @@ namespace Byte {
 			gBufferConfig.height = window.height();
 
 			gBufferConfig.attachments = {
-				{ "normal", AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGBA, DataType::FLOAT },
-				{ "albedo", AttachmentType::COLOR_1, ColorFormat::RGB, ColorFormat::RGB, DataType::UNSIGNED_BYTE },
+				{ "normal", AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT },
+				{ "albedo", AttachmentType::COLOR_1, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT },
 				{ "material", AttachmentType::COLOR_2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
 				{ "depth", AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT },
 			};
