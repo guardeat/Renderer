@@ -59,11 +59,16 @@ namespace Byte {
 				fillVertexArray(pair.second);
 			}
 
+			load();
+		}
+
+		void load() {
+			prepareVertexArrays();
+			prepareTextures();
 		}
 
 		void render() {
-			prepareVertexArrays();
-			prepareTextures();
+			load();
 
 			for (auto& pass : _pipeline) {
 				pass->render(_context, _data);

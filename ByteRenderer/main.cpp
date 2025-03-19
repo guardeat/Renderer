@@ -89,6 +89,8 @@ int main() {
 	int frameCount{ 0 };
 	float fpsTimer{ 0.0f };
 
+	renderer.load();
+
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
