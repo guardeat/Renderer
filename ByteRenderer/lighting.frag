@@ -79,7 +79,7 @@ float calculateShadow(vec3 fragWorldPos)
     return shadow;
 }
 
-vec3 WorldPosFromDepth(float depth) {
+vec3 worldPosFromDepth(float depth) {
     float z = depth * 2.0 - 1.0;
 
     vec4 clipSpacePosition = vec4(vTexCoord * 2.0 - 1.0, z, 1.0);
@@ -96,7 +96,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0) {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-float DistributionGGX(vec3 N, vec3 H, float roughness) {
+float distributionGGX(vec3 N, vec3 H, float roughness) {
     float a = roughness * roughness;
     float a2 = a * a;
     float NdotH = max(dot(N, H), 0.0);
@@ -109,7 +109,7 @@ float DistributionGGX(vec3 N, vec3 H, float roughness) {
     return nom / denom;
 }
 
-float GeometrySchlickGGX(float NdotV, float roughness) {
+float geometrySchlickGGX(float NdotV, float roughness) {
     float r = (roughness + 1.0);
     float k = (r * r) / 8.0;
 
@@ -119,12 +119,12 @@ float GeometrySchlickGGX(float NdotV, float roughness) {
     return nom / denom;
 }
 
-float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
     float NdotV = max(dot(N, V), 0.0);
     float NdotL = max(dot(N, L), 0.0);
 
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+    float ggx2 = geometrySchlickGGX(NdotV, roughness);
+    float ggx1 = geometrySchlickGGX(NdotL, roughness);
 
     return ggx1 * ggx2;
 }
@@ -141,7 +141,7 @@ void main()
         gColor = vec4(albedo, 1.0);
     }
     else {
-        vec3 fragPos = WorldPosFromDepth(texture(uDepth, vTexCoord).r);
+        vec3 fragPos = worldPosFromDepth(texture(uDepth, vTexCoord).r);
         vec3 normal = normalize(texture(uNormal, vTexCoord).rgb);
         float shadow = calculateShadow(fragPos);
 
@@ -152,8 +152,8 @@ void main()
         vec3 viewDir = normalize(uViewPos - fragPos);
         vec3 halfwayDir = normalize(lightDir + viewDir);
 
-        float NDF = DistributionGGX(normal, halfwayDir, roughness);
-        float G = GeometrySmith(normal, viewDir, lightDir, roughness);
+        float NDF = distributionGGX(normal, halfwayDir, roughness);
+        float G = geometrySmith(normal, viewDir, lightDir, roughness);
         vec3 F = fresnelSchlick(max(dot(halfwayDir, viewDir), 0.0), F0);
 
         vec3 kS = F;
