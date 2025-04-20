@@ -502,13 +502,6 @@ namespace Byte {
 
 	};
 
-	class BloomPass : public RenderPass {
-	public:
-		void render(RenderContext& context, RenderData& data) override {
-
-		}
-	};
-
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
