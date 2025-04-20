@@ -140,15 +140,17 @@ namespace Byte {
 			for (auto& pair: context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
-				mesh->renderArray().bind();
+				if (material->shadowMode() == ShadowMode::FULL) {
+					mesh->renderArray().bind();
 
-				shader.uniform<Vec3>("uPosition", transform->position());
-				shader.uniform<Vec3>("uScale", transform->scale());
-				shader.uniform<Quaternion>("uRotation", transform->rotation());
+					shader.uniform<Vec3>("uPosition", transform->position());
+					shader.uniform<Vec3>("uScale", transform->scale());
+					shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-				OpenGLAPI::Draw::elements(mesh->indices().size());
+					OpenGLAPI::Draw::elements(mesh->indices().size());
 
-				mesh->renderArray().unbind();
+					mesh->renderArray().unbind();
+				}
 			}
 		}
 
@@ -157,11 +159,13 @@ namespace Byte {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
-				mesh.renderArray().bind();
+				if (material.shadowMode() == ShadowMode::FULL) {
+					mesh.renderArray().bind();
 
-				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+					OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
-				mesh.renderArray().unbind();
+					mesh.renderArray().unbind();
+				}
 			}
 		}
 
@@ -496,6 +500,13 @@ namespace Byte {
 			shader.uniform<Vec3>("uViewPos", viewPos);
 		}
 
+	};
+
+	class BloomPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+
+		}
 	};
 
 	class DrawPass : public RenderPass {

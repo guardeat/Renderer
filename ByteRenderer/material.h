@@ -7,6 +7,11 @@
 #include "texture.h"
 
 namespace Byte {
+	
+	enum class ShadowMode : uint8_t {
+		DISABLED,
+		FULL,
+	};
 
 	struct MaterialData {
 		ShaderTag shaderTag;
@@ -19,6 +24,8 @@ namespace Byte {
 
 		Texture albedoTexture;
 		Texture materialTexture;
+
+		ShadowMode shadow{ ShadowMode::FULL };
 	};
 
 	class Material {
@@ -125,6 +132,14 @@ namespace Byte {
 
 		void materialTextureID(TextureID id) {
 			_data.materialTexture.id(id);
+		}
+
+		ShadowMode shadowMode() const {
+			return _data.shadow;
+		}
+
+		void shadowMode(ShadowMode mode) {
+			_data.shadow = mode;
 		}
 
 	};
