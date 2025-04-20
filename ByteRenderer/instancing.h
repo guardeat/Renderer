@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <numeric>
 
 #include "mesh.h"
 #include "material.h"
@@ -16,6 +17,9 @@ namespace Byte {
         Material* _material{};
 
         Buffer<float> _data{};
+        size_t _stride{};
+        Buffer<uint8_t> _layout{};
+
         bool _change{ false };
 
         size_t _size{ 0 };
@@ -26,8 +30,9 @@ namespace Byte {
     public:
         RenderInstance() = default;
 
-        RenderInstance(Mesh& mesh, Material& material)
-            : _mesh{ &mesh }, _material{&material} {
+        RenderInstance(Mesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
+            : _mesh{ &mesh }, _material{ &material }, _layout{ std::forward<Buffer<uint8_t>>(layout) } {
+            _stride = std::accumulate(layout.begin(), layout.end(), 0);
         }
 
         Mesh& mesh() {
@@ -54,26 +59,32 @@ namespace Byte {
             _material = &newMaterial;
         }
 
-        void add(Transform& transform, RenderID id) {
+        void add(const Transform& transform, RenderID id) {
+            Buffer<float> values;
+            values.reserve(10);
+
+            values.push_back(transform.position().x);
+            values.push_back(transform.position().y);
+            values.push_back(transform.position().z);
+
+            values.push_back(transform.scale().x);
+            values.push_back(transform.scale().y);
+            values.push_back(transform.scale().z);
+
+            values.push_back(transform.rotation().x);
+            values.push_back(transform.rotation().y);
+            values.push_back(transform.rotation().z);
+            values.push_back(transform.rotation().w);
+            
+            add(values, id);
+        }
+
+        void add(const Buffer<float>& values, RenderID id) {
             _change = true;
             ++_size;
 
-            constexpr size_t strideSize{ 10 };
-            _data.reserve(_data.size() + strideSize);
+            _data.insert(_data.end(), values.begin(), values.end());
 
-            _data.push_back(transform.position().x);
-            _data.push_back(transform.position().y);
-            _data.push_back(transform.position().z);
-
-            _data.push_back(transform.scale().x);
-            _data.push_back(transform.scale().y);
-            _data.push_back(transform.scale().z);
-
-            _data.push_back(transform.rotation().x);
-            _data.push_back(transform.rotation().y);
-            _data.push_back(transform.rotation().z);
-            _data.push_back(transform.rotation().w);
-            
             _renderIDs.push_back(id);
         }
 
@@ -85,11 +96,9 @@ namespace Byte {
 
             size_t index{ static_cast<size_t>(std::distance(_renderIDs.begin(), it)) };
 
-            constexpr size_t strideSize{ 10 };
+            size_t dataStart{ index * _stride };
 
-            size_t dataStart{ index * strideSize };
-
-            _data.erase(_data.begin() + dataStart, _data.begin() + dataStart + strideSize);
+            _data.erase(_data.begin() + dataStart, _data.begin() + dataStart + _stride);
 
             _renderIDs.erase(it);
 
@@ -105,6 +114,14 @@ namespace Byte {
 
         const Buffer<float>& data() const {
             return _data;
+        }
+
+        Buffer<uint8_t>& layout() {
+            return _layout;
+        }
+
+        const Buffer<uint8_t>& layout() const {
+            return _layout;
         }
 
         bool changed() const {

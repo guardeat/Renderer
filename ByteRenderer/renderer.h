@@ -154,7 +154,7 @@ namespace Byte {
 
 			auto atts{ OpenGLAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
 
-			auto iAtts{ OpenGLAPI::RenderArray::buildAttributes({3,3,4},3) };
+			auto iAtts{ OpenGLAPI::RenderArray::buildAttributes(instance.layout(),3)};
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
