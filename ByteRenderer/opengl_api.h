@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <fstream>
+#include <algorithm>
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -140,7 +141,11 @@ namespace Byte {
                         data.attachments.push_back(att.attachment);
                     }
                 }
-  
+
+                std::sort(data.attachments.begin(), data.attachments.end(), [](AttachmentType a, AttachmentType b) {
+                    return static_cast<uint8_t>(a) < static_cast<uint8_t>(b);
+                });
+
                 if (!hasDepth) {
                     unsigned int rboDepth;
                     glGenRenderbuffers(1, &rboDepth);

@@ -77,6 +77,26 @@ namespace Byte {
 
 		void update(Window& window) {
 			OpenGLAPI::update(window);
+
+			if (_data.width != window.width() || _data.height != window.height()) {
+				resize(window.width(), window.height());
+			}
+		}
+
+		void resize(size_t width, size_t height) {
+			for (auto& pair : _data.frameBuffers) {
+				if (pair.second.data().dynamicResize) {
+					auto textureMap = pair.second.data().textures;
+					pair.second.clear();
+					pair.second.data().textures = textureMap;
+					pair.second.data().width = width;
+					pair.second.data().height = height;
+					OpenGLAPI::Framebuffer::build(pair.second.data());
+				}
+			}
+
+			_data.width = width;
+			_data.height = height;
 		}
 
 		RenderContext& context() {

@@ -68,7 +68,6 @@ namespace Byte {
 		void clear() {
 			OpenGLAPI::Framebuffer::release(_data);
 
-			_data.id = 0;
 			_data.textures.clear();
 			_data.attachments.clear();
 		}
