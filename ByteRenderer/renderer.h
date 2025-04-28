@@ -13,8 +13,8 @@ namespace Byte {
 		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
 		ShaderPathMap shaderPaths;
 
-		using FramebufferConfigMap = std::unordered_map<FramebufferTag, FramebufferConfig>;
-		FramebufferConfigMap frameBufferConfigs;
+		using FramebufferMap = std::unordered_map<FramebufferTag, FramebufferData>;
+		FramebufferMap frameBuffers;
 
 		using ParameterMap = RenderData::ParameterMap;
 		ParameterMap parameters;
@@ -45,7 +45,7 @@ namespace Byte {
 			_data.width = window.width();
 			_data.height = window.height();
 			
-			for (auto& pair : config.frameBufferConfigs) {
+			for (auto& pair : config.frameBuffers) {
 				_data.frameBuffers[pair.first] = OpenGLAPI::Framebuffer::build(pair.second);
 			}
 
@@ -75,7 +75,7 @@ namespace Byte {
 			}
 		}
 
-		void update(Window& window) const {
+		void update(Window& window) {
 			OpenGLAPI::update(window);
 		}
 

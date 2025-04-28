@@ -21,7 +21,6 @@ int main() {
 	FPSCamera fpsCamera;
 
 	constexpr int gridSize{ 10 };
-	constexpr float sphereRadius{ 1.4f };
 	constexpr float spacing{ 3.0f };
 
 	std::vector<Transform> cubeTransforms(gridSize * gridSize * gridSize);

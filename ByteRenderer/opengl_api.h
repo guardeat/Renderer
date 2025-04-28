@@ -95,25 +95,20 @@ namespace Byte {
         }
 
         struct Framebuffer {
-            static FramebufferData build(const FramebufferConfig& config) {
-                FramebufferID frameBufferID;
-                glGenFramebuffers(1, &frameBufferID);
-                glBindFramebuffer(GL_FRAMEBUFFER, frameBufferID);
+            static FramebufferData build(FramebufferData& data) {
+                glGenFramebuffers(1, &data.id);
+                glBindFramebuffer(GL_FRAMEBUFFER, data.id);
 
-                GLint glWidth{ static_cast<GLint>(config.width) };
-                GLint glHeight{ static_cast<GLint>(config.height) };
-
-                FramebufferData::TextureMap textures;
-
-                Buffer<AttachmentType> attachments;
+                GLint glWidth{ static_cast<GLint>(data.width) };
+                GLint glHeight{ static_cast<GLint>(data.height) };
 
                 bool hasDepth{ false };
 
-                for (auto& att : config.attachments) {
+                for (auto& [tag,att] : data.textures) {
                     TextureID id;
 
-                    size_t width{ att.width ? att.width : config.width };
-                    size_t height{ att.height ? att.height : config.height };
+                    size_t width{ att.width ? att.width : data.width };
+                    size_t height{ att.height ? att.height : data.height };
 
                     if (att.type == TextureType::TEXTURE_2D) {
                         id = Texture::build(
@@ -131,12 +126,12 @@ namespace Byte {
                             GL_FRAMEBUFFER, TypeCast::convert(att.attachment),
                             id, 0);
                     }
-                    textures[att.tag] = TextureAttachmentData{ id,att.type,width,height,att.layerCount };
+                    att.id = id;
                     if (att.attachment == AttachmentType::DEPTH) {
                         hasDepth = true;
                     }
                     else {
-                        attachments.push_back(att.attachment);
+                        data.attachments.push_back(att.attachment);
                     }
                 }
   
@@ -148,16 +143,14 @@ namespace Byte {
                     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
                 }
 
-                FramebufferData out{ frameBufferID, textures, attachments, config.width,config.height };
-
                 if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-                    release(out);
+                    release(data);
                     throw std::exception("Framebuffer not complete");
                 }
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-                return out;
+                return data;
             }
 
             static void clear(FramebufferID id) {
@@ -191,9 +184,12 @@ namespace Byte {
             static void release(FramebufferData& data) {
                 glDeleteBuffers(1, &data.id);
 
+                data.id = 0;
+
                 for (auto& pair : data.textures) {
                     if (pair.second.id) {
                         Texture::release(pair.second.id);
+                        pair.second.id = 0;
                     }
                 }
             }
@@ -656,7 +652,7 @@ namespace Byte {
                 return static_cast<GLenum>(type);
             }
         };
-        
+
 	};
 
 }

@@ -49,6 +49,10 @@ namespace Byte {
 			OpenGLAPI::Framebuffer::unbind();
 		}
 
+		FramebufferData& data() {
+			return _data;
+		}
+
 		const FramebufferData& data() const {
 			return _data;
 		}
@@ -66,6 +70,7 @@ namespace Byte {
 
 			_data.id = 0;
 			_data.textures.clear();
+			_data.attachments.clear();
 		}
 
 		TextureID textureID(const std::string& name) const {

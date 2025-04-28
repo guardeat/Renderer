@@ -89,38 +89,20 @@ namespace Byte {
 		TextureID id{};
 	};
 
-	struct FramebufferConfig {
-		struct TextureAttachmentConfig {
-			std::string tag;
-
-			AttachmentType attachment;
-
-			ColorFormat internalFormat{ ColorFormat::RGBA };
-			ColorFormat format{ ColorFormat::RGBA };
-			DataType dataType{ DataType::BYTE };
-
-			TextureType type{ TextureType::TEXTURE_2D };
-
-			size_t width{};
-			size_t height{};
-			size_t layerCount{};
-		};
-
-		using AttachmentVector = std::vector<TextureAttachmentConfig>;
-		AttachmentVector attachments;
-
-		size_t width{};
-		size_t height{};
-	};
-
 	struct TextureAttachmentData {
-		TextureID id{};
+		AttachmentType attachment;
+
+		ColorFormat internalFormat{ ColorFormat::RGBA };
+		ColorFormat format{ ColorFormat::RGBA };
+		DataType dataType{ DataType::BYTE };
 
 		TextureType type{ TextureType::TEXTURE_2D };
-		
+
 		size_t width{};
 		size_t height{};
 		size_t layerCount{};
+
+		TextureID id{};
 	};
 
 	struct FramebufferData {
@@ -133,6 +115,8 @@ namespace Byte {
 
 		size_t width{};
 		size_t height{};
+
+		bool dynamicResize{ true };
 	};
 
 	struct VertexAttribute {

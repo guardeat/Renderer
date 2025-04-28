@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer.h"
+#include "render_type.h"
 
 namespace Byte {
 
@@ -54,41 +55,43 @@ namespace Byte {
 			config.meshes.emplace("sphere", MeshBuilder::sphere(1, 10));
 			config.meshes.emplace("low_poly_sphere", MeshBuilder::sphere(1, 4));
 
-			FramebufferConfig gBufferConfig;
-			gBufferConfig.width = window.width();
-			gBufferConfig.height = window.height();
+			FramebufferData gBufferData;
+			gBufferData.width = window.width();
+			gBufferData.height = window.height();
 
-			gBufferConfig.attachments = {
-				{ "normal", AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT },
-				{ "albedo", AttachmentType::COLOR_1, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT },
-				{ "material", AttachmentType::COLOR_2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE },
-				{ "depth", AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT },
+			gBufferData.textures = {
+				{ "normal", {AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT} },
+				{ "albedo", {AttachmentType::COLOR_1, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT} },
+				{ "material", {AttachmentType::COLOR_2, ColorFormat::RGBA, ColorFormat::RGBA, DataType::UNSIGNED_BYTE} },
+				{ "depth", {AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT} },
 			};
 
-			config.frameBufferConfigs["gBuffer"] = gBufferConfig;
+			config.frameBuffers["gBuffer"] = gBufferData;
 
-			FramebufferConfig colorBufferConfig;
-			colorBufferConfig.width = window.width();
-			colorBufferConfig.height = window.height();
+			FramebufferData colorBufferData;
+			colorBufferData.width = window.width();
+			colorBufferData.height = window.height();
 
-			colorBufferConfig.attachments = {
-				{ "albedo", AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT},
+			colorBufferData.textures = {
+				{ "albedo", {AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT}},
 			};
 
-			config.frameBufferConfigs["colorBuffer"] = colorBufferConfig;
+			config.frameBuffers["colorBuffer"] = colorBufferData;
 
-			FramebufferConfig depthBufferConfig;
-			depthBufferConfig.attachments = {
-				{ "depth", AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT },
+			FramebufferData depthBufferData;
+			depthBufferData.textures = {
+				{ "depth", {AttachmentType::DEPTH, ColorFormat::DEPTH, ColorFormat::DEPTH, DataType::FLOAT} },
 			};
 
-			depthBufferConfig.width = 1024;
-			depthBufferConfig.height = 1024;
+			depthBufferData.width = 1024;
+			depthBufferData.height = 1024;
+			
+			depthBufferData.dynamicResize = false;
 
-			config.frameBufferConfigs["depthBuffer1"] = depthBufferConfig;
-			config.frameBufferConfigs["depthBuffer2"] = depthBufferConfig;
-			config.frameBufferConfigs["depthBuffer3"] = depthBufferConfig;
-			config.frameBufferConfigs["depthBuffer4"] = depthBufferConfig;
+			config.frameBuffers["depthBuffer1"] = depthBufferData;
+			config.frameBuffers["depthBuffer2"] = depthBufferData;
+			config.frameBuffers["depthBuffer3"] = depthBufferData;
+			config.frameBuffers["depthBuffer4"] = depthBufferData;
 
 			renderer.initialize(window, config);
 
