@@ -168,7 +168,7 @@ void main()
 
         vec3 Lo = (kD * albedo / PI + specular) * NdotL * uDirectionalLight.color * uDirectionalLight.intensity * (1.0 - shadow);
 
-        vec3 ambient = ao * albedo * uDirectionalLight.color;
+        vec3 ambient = ao * albedo * uDirectionalLight.color * uDirectionalLight.intensity;
 
         vec3 finalColor = ambient + Lo + emission * albedo;
 

@@ -79,7 +79,7 @@ namespace Byte {
 				transform.position(transform.position() + offset.normalized() * speed * dt);
 			}
 
-			//glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 	};
 

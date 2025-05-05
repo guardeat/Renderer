@@ -7,6 +7,8 @@ using namespace Byte;
 
 //TODO: Implement bloom stage.
 //TODO: Implement order independet transparency.
+//TODO: Create a CMake and better file hierarchy.
+//TODO: Use circle instead of sphere when rendering point lights.
 
 int main() {
 	glfwInit();
@@ -89,6 +91,8 @@ int main() {
 	float fpsTimer{ 0.0f };
 
 	renderer.load();
+
+	dLight.intensity = 0.0f;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
