@@ -11,23 +11,23 @@ namespace Byte {
 			RenderConfig config;
 
 			config.shaderPaths["quad"] =
-			{ "quad.vert", "quad.frag" };
+			{ "resource/shader/quad.vert", "resource/shader/quad.frag" };
 			config.shaderPaths["quad_depth"] =
-			{ "quad.vert", "quad_depth.frag" };
+			{ "resource/shader/quad.vert", "resource/shader/quad_depth.frag" };
 			config.shaderPaths["lighting"] =
-			{ "quad.vert", "lighting.frag" };
+			{ "resource/shader/quad.vert", "resource/shader/lighting.frag" };
 			config.shaderPaths["point_light"] =
-			{ "point_light.vert", "point_light.frag" };
+			{ "resource/shader/point_light.vert", "resource/shader/point_light.frag" };
 			config.shaderPaths["depth"] =
-			{ "depth.vert", "depth.frag" };
+			{ "resource/shader/depth.vert", "resource/shader/depth.frag" };
 			config.shaderPaths["instanced_depth"] =
-			{ "instanced_depth.vert", "depth.frag" };
+			{ "resource/shader/instanced_depth.vert", "resource/shader/depth.frag" };
 			config.shaderPaths["procedural_skybox"] =
-			{ "procedural_skybox.vert", "procedural_skybox.frag" };
+			{ "resource/shader/procedural_skybox.vert", "resource/shader/procedural_skybox.frag" };
 			config.shaderPaths["deferred"] =
-			{ "default.vert", "deferred.frag" };
+			{ "resource/shader/default.vert", "resource/shader/deferred.frag" };
 			config.shaderPaths["instanced_deferred"] =
-			{ "instanced.vert", "deferred.frag" };
+			{ "resource/shader/instanced.vert", "resource/shader/deferred.frag" };
 
 			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);

@@ -30,7 +30,7 @@ int main() {
 	Mesh cube{ MeshBuilder::cube() };
 	Material cubeMaterial{};
 	cubeMaterial.albedo(Vec3{ 1.0f,1.0f,1.0f });
-	TextureData albedoData{ Loader::loadTexture(Path{"Resources/Textures/wall.jpg"}) };
+	TextureData albedoData{ Loader::loadTexture(Path{"Resource/Texture/wall.jpg"}) };
 	cubeMaterial.albedoTexture(Texture{ albedoData });
 	cubeMaterial.roughness(0.9f);
 	cubeMaterial.metallic(0.1f);
