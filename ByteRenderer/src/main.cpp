@@ -117,10 +117,10 @@ int main() {
 		fpsTimer += deltaTime;
 
 		if (fpsTimer >= 1.0f) {
-			std::cout << "FPS: " << frameCount << std::endl;
+			std::cout << "FPS: " << frameCount << "Test" << std::endl;
 			GLenum error{ glGetError() };
 			if (error) {
-				std::cout << "GRAPHIC ERROR: " << error << std::endl;
+				std::cout << "GRAPHIC ERROR: " << error << "std::endl;
 			}
 			frameCount = 0;
 			fpsTimer = 0.0f;

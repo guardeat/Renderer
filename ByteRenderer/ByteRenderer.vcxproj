@@ -18,6 +18,36 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\camera.h" />
+    <ClInclude Include="include\context.h" />
+    <ClInclude Include="include\framebuffer.h" />
+    <ClInclude Include="include\instancing.h" />
+    <ClInclude Include="include\light.h" />
+    <ClInclude Include="include\mat.h" />
+    <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\mesh.h" />
+    <ClInclude Include="include\opengl_api.h" />
+    <ClInclude Include="include\quaternion.h" />
+    <ClInclude Include="include\render.h" />
+    <ClInclude Include="include\renderer.h" />
+    <ClInclude Include="include\render_array.h" />
+    <ClInclude Include="include\render_pass.h" />
+    <ClInclude Include="include\render_type.h" />
+    <ClInclude Include="include\shader.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\test.h" />
+    <ClInclude Include="include\texture.h" />
+    <ClInclude Include="include\transform.h" />
+    <ClInclude Include="include\trigonometry.h" />
+    <ClInclude Include="include\vec.h" />
+    <ClInclude Include="include\window.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
