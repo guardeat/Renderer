@@ -82,7 +82,7 @@ namespace Byte {
 
 		ColorFormat internalFormat{ ColorFormat::RGBA };
 		ColorFormat format{ ColorFormat::RGBA };
-		DataType dataType{ DataType::BYTE };
+		DataType dataType{ DataType::UNSIGNED_BYTE };
 
 		size_t width{};
 		size_t height{};
