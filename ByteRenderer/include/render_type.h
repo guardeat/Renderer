@@ -96,10 +96,11 @@ namespace Byte {
 		ColorFormat format{ ColorFormat::RGBA };
 		DataType dataType{ DataType::BYTE };
 
-		TextureType type{ TextureType::TEXTURE_2D };
-
 		size_t width{};
 		size_t height{};
+
+		TextureType type{ TextureType::TEXTURE_2D };
+
 		size_t layerCount{};
 
 		TextureID id{};
@@ -116,7 +117,8 @@ namespace Byte {
 		size_t width{};
 		size_t height{};
 
-		bool dynamicResize{ true };
+		bool resize{ true };
+		float resizeFactor{ 1.0f };
 	};
 
 	struct VertexAttribute {

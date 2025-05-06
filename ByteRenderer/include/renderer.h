@@ -85,14 +85,7 @@ namespace Byte {
 
 		void resize(size_t width, size_t height) {
 			for (auto& pair : _data.frameBuffers) {
-				if (pair.second.data().dynamicResize) {
-					auto textureMap = pair.second.data().textures;
-					pair.second.clear();
-					pair.second.data().textures = textureMap;
-					pair.second.data().width = width;
-					pair.second.data().height = height;
-					OpenGLAPI::Framebuffer::build(pair.second.data());
-				}
+				pair.second.resize(width, height);
 			}
 
 			_data.width = width;

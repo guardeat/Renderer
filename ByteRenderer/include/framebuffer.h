@@ -49,6 +49,16 @@ namespace Byte {
 			OpenGLAPI::Framebuffer::unbind();
 		}
 
+		void resize(size_t width, size_t height) {
+			if (_data.resize) {
+				OpenGLAPI::Framebuffer::release(_data);
+				_data.attachments.clear();
+				_data.width = static_cast<size_t>(static_cast<float>(width) * _data.resizeFactor);
+				_data.height = static_cast<size_t>(static_cast<float>(height) * _data.resizeFactor);
+				OpenGLAPI::Framebuffer::build(_data);
+			}
+		}
+
 		FramebufferData& data() {
 			return _data;
 		}

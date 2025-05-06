@@ -10,6 +10,9 @@ namespace Byte {
 			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
 			RenderConfig config;
 
+			size_t width{ window.width() };
+			size_t height{ window.height() };
+
 			config.shaderPaths["quad"] =
 			{ "resource/shader/quad.vert", "resource/shader/quad.frag" };
 			config.shaderPaths["quad_depth"] =
@@ -56,8 +59,8 @@ namespace Byte {
 			config.meshes.emplace("low_poly_sphere", MeshBuilder::sphere(1, 4));
 
 			FramebufferData gBufferData;
-			gBufferData.width = window.width();
-			gBufferData.height = window.height();
+			gBufferData.width = width;
+			gBufferData.height = height;
 
 			gBufferData.textures = {
 				{ "normal", {AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT} },
@@ -69,8 +72,8 @@ namespace Byte {
 			config.frameBuffers["gBuffer"] = gBufferData;
 
 			FramebufferData colorBufferData;
-			colorBufferData.width = window.width();
-			colorBufferData.height = window.height();
+			colorBufferData.width = width;
+			colorBufferData.height = height;
 
 			colorBufferData.textures = {
 				{ "albedo", {AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT}},
@@ -86,12 +89,14 @@ namespace Byte {
 			depthBufferData.width = 1024;
 			depthBufferData.height = 1024;
 			
-			depthBufferData.dynamicResize = false;
+			depthBufferData.resize = false;
 
 			config.frameBuffers["depthBuffer1"] = depthBufferData;
 			config.frameBuffers["depthBuffer2"] = depthBufferData;
 			config.frameBuffers["depthBuffer3"] = depthBufferData;
 			config.frameBuffers["depthBuffer4"] = depthBufferData;
+
+
 
 			renderer.initialize(window, config);
 
