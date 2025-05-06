@@ -114,18 +114,17 @@ namespace Byte {
                     size_t width{ att.width ? att.width : data.width };
                     size_t height{ att.height ? att.height : data.height };
 
+                    att.width = width;
+                    att.height = height;
+
                     if (att.type == TextureType::TEXTURE_2D) {
-                        id = Texture::build(
-                            width,height,nullptr, 
-                            att.internalFormat,att.format,att.dataType);
+                        id = Texture::build(att);
                         glFramebufferTexture2D(
                             GL_FRAMEBUFFER, TypeCast::convert(att.attachment), 
                             GL_TEXTURE_2D, id, 0);
                     }
                     else {
-                        id = Texture::buildArray(
-                            width, height, att.layerCount, nullptr,
-                            att.internalFormat, att.format, att.dataType);
+                        id = Texture::buildArray(att);
                         glFramebufferTexture(
                             GL_FRAMEBUFFER, TypeCast::convert(att.attachment),
                             id, 0);
@@ -538,42 +537,28 @@ namespace Byte {
 
         struct Texture {
             static TextureID build(TextureData& data) {
-                return build(
-                    data.width, 
-                    data.height, 
-                    data.data.data(),
-                    data.internalFormat, 
-                    data.format, 
-                    data.dataType);
-            }
-
-            static TextureID build(
-                size_t width, 
-                size_t height, 
-                const uint8_t* data = nullptr, 
-                ColorFormat internalFormat = ColorFormat::RGBA,
-                ColorFormat format = ColorFormat::RGBA,
-                DataType type = DataType::UNSIGNED_BYTE) {
                 TextureID textureID;
 
-                GLint glWidth{ static_cast<GLint>(width) };
-                GLint glHeight{ static_cast<GLint>(height) };
+                GLint glWidth{ static_cast<GLint>(data.width) };
+                GLint glHeight{ static_cast<GLint>(data.height) };
 
                 glGenTextures(1, &textureID);
 
                 glBindTexture(GL_TEXTURE_2D, textureID);
- 
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);     
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);     
+
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, TypeCast::convert(data.wrapS));
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, TypeCast::convert(data.wrapT));
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TypeCast::convert(data.minFilter));
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TypeCast::convert(data.magFilter));
+
+                uint8_t* textureData{data.data.empty() ? nullptr : data.data.data()};
 
                 glTexImage2D(
-                    GL_TEXTURE_2D, 0, 
-                    TypeCast::convert(internalFormat), 
-                    glWidth, glHeight, 0, 
-                    TypeCast::convert(format), 
-                    TypeCast::convert(type), data);
+                    GL_TEXTURE_2D, 0,
+                    TypeCast::convert(data.internalFormat),
+                    glWidth, glHeight, 0,
+                    TypeCast::convert(data.format),
+                    TypeCast::convert(data.dataType), textureData);
 
                 glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -582,35 +567,30 @@ namespace Byte {
                 return textureID;
             }
 
-            static TextureID buildArray(
-                size_t width,
-                size_t height,
-                size_t layerCount,
-                const uint8_t* data = nullptr,
-                ColorFormat internalFormat = ColorFormat::RGBA,
-                ColorFormat format = ColorFormat::RGBA,
-                DataType type = DataType::UNSIGNED_BYTE) {
+            static TextureID buildArray(TextureData& data) {
                 TextureID textureID;
 
-                GLint glWidth{ static_cast<GLint>(width) };
-                GLint glHeight{ static_cast<GLint>(height) };
-                GLint glLayerCount{ static_cast<GLint>(layerCount) };
+                GLint glWidth{ static_cast<GLint>(data.width) };
+                GLint glHeight{ static_cast<GLint>(data.height) };
+                GLint glLayerCount{ static_cast<GLint>(data.layerCount) };
 
                 glGenTextures(1, &textureID);
 
                 glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
 
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, TypeCast::convert(data.wrapS));
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, TypeCast::convert(data.wrapT));
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, TypeCast::convert(data.minFilter));
+                glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, TypeCast::convert(data.magFilter));
+
+                uint8_t* textureData{ data.data.empty() ? nullptr : data.data.data() };
 
                 glTexImage3D(
                     GL_TEXTURE_2D_ARRAY, 0,
-                    TypeCast::convert(internalFormat),
+                    TypeCast::convert(data.internalFormat),
                     glWidth, glHeight, glLayerCount, 0,
-                    TypeCast::convert(format),
-                    TypeCast::convert(type), data);
+                    TypeCast::convert(data.format),
+                    TypeCast::convert(data.dataType), textureData);
 
                 glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
@@ -656,6 +636,14 @@ namespace Byte {
             }
 
             static GLenum convert(TextureType type) {
+                return static_cast<GLenum>(type);
+            }
+
+            static GLenum convert(TextureFilter type) {
+                return static_cast<GLenum>(type);
+            }
+
+            static GLenum convert(TextureWrap type) {
                 return static_cast<GLenum>(type);
             }
         };

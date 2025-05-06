@@ -77,6 +77,22 @@ namespace Byte {
 		DEPTH = 32,
 	};
 
+	enum class TextureFilter : uint32_t {
+		NEAREST = 0x2600,
+		LINEAR = 0x2601,
+		NEAREST_MIPMAP_NEAREST = 0x2700,
+		LINEAR_MIPMAP_NEAREST = 0x2701,
+		NEAREST_MIPMAP_LINEAR = 0x2702,
+		LINEAR_MIPMAP_LINEAR = 0x2703
+	};
+
+	enum class TextureWrap : uint32_t {
+		REPEAT = 0x2901,
+		MIRRORED_REPEAT = 0x8370,
+		CLAMP_TO_EDGE = 0x812F,
+		CLAMP_TO_BORDER = 0x812D
+	};
+
 	struct TextureData {
 		AttachmentType attachment;
 
@@ -94,6 +110,11 @@ namespace Byte {
 		Buffer<uint8_t> data{};
 
 		Path path{};
+
+		TextureWrap wrapS{ TextureWrap::CLAMP_TO_EDGE };
+		TextureWrap wrapT{ TextureWrap::CLAMP_TO_EDGE };
+		TextureFilter minFilter{ TextureFilter::LINEAR };
+		TextureFilter magFilter{ TextureFilter::LINEAR };
 
 		TextureID id{};
 	};
