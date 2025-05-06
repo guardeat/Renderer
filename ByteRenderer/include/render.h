@@ -61,6 +61,7 @@ namespace Byte {
 			FramebufferData gBufferData;
 			gBufferData.width = width;
 			gBufferData.height = height;
+			TextureData data = { AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT };
 
 			gBufferData.textures = {
 				{ "normal", {AttachmentType::COLOR_0,ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT} },

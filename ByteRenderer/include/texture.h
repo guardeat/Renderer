@@ -28,16 +28,16 @@ namespace Byte {
 			return *_data;
 		}
 
+		TextureData& data() {
+			return *_data;
+		}
+
 		size_t height() const {
 			return _data->height;
 		}
 
 		size_t width() const {
 			return _data->width;
-		}
-
-		size_t channels() const {
-			return _data->channels;
 		}
 
 		const Path& path() const {

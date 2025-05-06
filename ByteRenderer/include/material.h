@@ -104,6 +104,14 @@ namespace Byte {
 			return _data.materialTexture;
 		}
 
+		Texture& albedoTexture() {
+			return _data.albedoTexture;
+		}
+
+		Texture& materialTexture() {
+			return _data.materialTexture;
+		}
+
 		void albedoTexture(Texture texture) {
 			_data.albedoTexture = texture;
 		}

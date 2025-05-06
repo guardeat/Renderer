@@ -6,7 +6,6 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "stb_image.h"
 
 #include "window.h"
 #include "mat.h"
@@ -40,8 +39,6 @@ namespace Byte {
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-                stbi_set_flip_vertically_on_load(true);
 
                 initialized = true;
             }
@@ -540,15 +537,14 @@ namespace Byte {
         };
 
         struct Texture {
-            static TextureID build(const TextureData& data) {
-                ColorFormat format;
-                if (data.channels == 3) {
-                    format = ColorFormat::RGB;
-                }
-                else {
-                    format = ColorFormat::RGBA;
-                }
-                return build(data.width, data.width, data.data.get(), format, format);
+            static TextureID build(TextureData& data) {
+                return build(
+                    data.width, 
+                    data.height, 
+                    data.data.data(),
+                    data.internalFormat, 
+                    data.format, 
+                    data.dataType);
             }
 
             static TextureID build(

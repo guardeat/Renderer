@@ -79,12 +79,14 @@ namespace Byte {
 				transform.position(transform.position() + offset.normalized() * speed * dt);
 			}
 
-			//glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
 	};
 
 	struct Loader {
 		static TextureData loadTexture(const Path& path) {
+			stbi_set_flip_vertically_on_load(true);
+
 			TextureData texture;
 			texture.path = path;
 
@@ -98,11 +100,18 @@ namespace Byte {
 
 			texture.width = static_cast<size_t>(width);
 			texture.height = static_cast<size_t>(height);
-			texture.channels = static_cast<size_t>(channels);
+
+			if (channels == 3) {
+				texture.internalFormat = ColorFormat::RGB;
+				texture.format = ColorFormat::RGB;
+			}
+			else {
+				texture.internalFormat = ColorFormat::RGBA;
+				texture.format = ColorFormat::RGBA;
+			}
 
 			size_t dataSize{ static_cast<size_t>(width * height * channels) };
-			texture.data = std::make_unique<uint8_t[]>(dataSize);
-			std::memcpy(texture.data.get(), imgData, dataSize);
+			texture.data.assign(imgData, imgData + dataSize);
 
 			stbi_image_free(imgData);
 

@@ -92,7 +92,7 @@ int main() {
 
 	renderer.load();
 
-	dLight.intensity = 0.0f;
+	//dLight.intensity = 0.0f;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		auto currentTime{ std::chrono::high_resolution_clock::now() };

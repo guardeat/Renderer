@@ -78,18 +78,6 @@ namespace Byte {
 	};
 
 	struct TextureData {
-		size_t height;
-		size_t width;
-		size_t channels;
-
-		Path path;
-
-		std::unique_ptr<uint8_t[]> data;
-
-		TextureID id{};
-	};
-
-	struct TextureAttachmentData {
 		AttachmentType attachment;
 
 		ColorFormat internalFormat{ ColorFormat::RGBA };
@@ -103,13 +91,17 @@ namespace Byte {
 
 		size_t layerCount{};
 
+		Buffer<uint8_t> data{};
+
+		Path path{};
+
 		TextureID id{};
 	};
 
 	struct FramebufferData {
 		FramebufferID id{};
 
-		using TextureMap = std::unordered_map<std::string, TextureAttachmentData>;
+		using TextureMap = std::unordered_map<std::string, TextureData>;
 
 		TextureMap textures;
 		Buffer<AttachmentType> attachments;
