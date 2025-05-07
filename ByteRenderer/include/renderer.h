@@ -40,13 +40,13 @@ namespace Byte {
 		}
 
 		void initialize(Window& window, RenderConfig& config) {
-			OpenGLAPI::initialize(window);
+			RenderAPI::initialize(window);
 
 			_data.width = window.width();
 			_data.height = window.height();
 			
 			for (auto& pair : config.frameBuffers) {
-				_data.frameBuffers[pair.first] = OpenGLAPI::Framebuffer::build(pair.second);
+				_data.frameBuffers[pair.first] = RenderAPI::Framebuffer::build(pair.second);
 			}
 
 			compileShaders(config);
@@ -76,7 +76,7 @@ namespace Byte {
 		}
 
 		void update(Window& window) {
-			OpenGLAPI::update(window);
+			RenderAPI::update(window);
 
 			if (_data.width != window.width() || _data.height != window.height()) {
 				resize(window.width(), window.height());
@@ -157,21 +157,21 @@ namespace Byte {
 		void fillVertexArray(Mesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
-			auto atts{ OpenGLAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
+			auto atts{ RenderAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
 			 
-			mesh.renderArray(OpenGLAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
+			mesh.renderArray(RenderAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
 
 		void fillInstancedVertexArray(RenderInstance& instance) const {
 			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
-			auto atts{ OpenGLAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
+			auto atts{ RenderAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
 
-			auto iAtts{ OpenGLAPI::RenderArray::buildAttributes(instance.layout(),3)};
+			auto iAtts{ RenderAPI::RenderArray::buildAttributes(instance.layout(),3)};
 
 			auto& vertices{ instance.mesh().vertices() };
 			auto& indices{ instance.mesh().indices() };
-			auto rArrayData{ OpenGLAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
+			auto rArrayData{ RenderAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
 			instance.mesh().renderArray(std::move(rArrayData));
 		}
 
@@ -179,22 +179,22 @@ namespace Byte {
 			for (auto& pair : _context.renderEntities()) {
 				Material& material{ *pair.second.material };
 				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
-					material.albedoTextureID(OpenGLAPI::Texture::build(material.albedoTexture().data()));
+					material.albedoTextureID(RenderAPI::Texture::build(material.albedoTexture().data()));
 				}
 
 				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
-					material.materialTextureID(OpenGLAPI::Texture::build(material.materialTexture().data()));
+					material.materialTextureID(RenderAPI::Texture::build(material.materialTexture().data()));
 				}
 			}
 
 			for (auto& pair : _context.instances()) {
 				Material& material{ pair.second.material() };
 				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
-					material.albedoTextureID(OpenGLAPI::Texture::build(material.albedoTexture().data()));
+					material.albedoTextureID(RenderAPI::Texture::build(material.albedoTexture().data()));
 				}
 
 				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
-					material.materialTextureID(OpenGLAPI::Texture::build(material.materialTexture().data()));
+					material.materialTextureID(RenderAPI::Texture::build(material.materialTexture().data()));
 				}
 			}
 		}

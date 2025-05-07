@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "opengl_api.h"
+#include "render_api.h"
 #include "render_type.h"
 
 namespace Byte {
@@ -43,11 +43,11 @@ namespace Byte {
 		}
 
 		void bind() const {
-			OpenGLAPI::RenderArray::bind(_data.VAO);
+			RenderAPI::RenderArray::bind(_data.VAO);
 		}
 
 		void unbind() const {
-			OpenGLAPI::RenderArray::unbind();
+			RenderAPI::RenderArray::unbind();
 		}
 
 		const RenderArrayData& data() const {
@@ -55,7 +55,7 @@ namespace Byte {
 		}
 
 		void clear() {
-			OpenGLAPI::RenderArray::release(_data);
+			RenderAPI::RenderArray::release(_data);
 
 			_data.VAO = 0;
 			_data.VBuffers.clear();

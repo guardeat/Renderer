@@ -1,7 +1,7 @@
 #pragma once
 
 #include "context.h"
-#include "opengl_api.h"
+#include "render_api.h"
 #include "render_pass.h"
 
 namespace Byte {
@@ -33,7 +33,7 @@ namespace Byte {
 			auto [dl, dlTransform] = context.directionalLight();
 			skyboxShader.bind();
 
-			OpenGLAPI::disableDepth();
+			RenderAPI::disableDepth();
 
 			skyboxShader.uniform<Mat4>("uProjection", projection);
 			skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
@@ -43,12 +43,12 @@ namespace Byte {
 
 			data.meshes.at("sphere").renderArray().bind();
 
-			OpenGLAPI::Draw::elements(data.meshes.at("sphere").indices().size());
+			RenderAPI::Draw::elements(data.meshes.at("sphere").indices().size());
 
 			data.meshes.at("sphere").renderArray().unbind();
 			gBuffer.unbind();
 
-			OpenGLAPI::enableDepth();
+			RenderAPI::enableDepth();
 		}
 	};
 
@@ -79,8 +79,8 @@ namespace Byte {
 
 			updateLightMatrices(aspectRatio, data, context);
 
-			OpenGLAPI::enableCulling();
-			OpenGLAPI::cullFront();
+			RenderAPI::enableCulling();
+			RenderAPI::cullFront();
 
 			for (size_t i{}; i < depthBuffers.size(); ++i) {
 				Mat4 lightSpace{ data.parameter<Mat4>("cascade_light_" + std::to_string(i + 1)) };
@@ -100,8 +100,8 @@ namespace Byte {
 				depthBuffers[i]->unbind();
 			}
 
-			OpenGLAPI::cullBack();
-			OpenGLAPI::disableCulling();
+			RenderAPI::cullBack();
+			RenderAPI::disableCulling();
 		}
 
 	private:
@@ -116,7 +116,7 @@ namespace Byte {
 					shader.uniform<Vec3>("uScale", transform->scale());
 					shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-					OpenGLAPI::Draw::elements(mesh->indices().size());
+					RenderAPI::Draw::elements(mesh->indices().size());
 
 					mesh->renderArray().unbind();
 				}
@@ -131,7 +131,7 @@ namespace Byte {
 				if (material.shadowMode() == ShadowMode::FULL) {
 					mesh.renderArray().bind();
 
-					OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+					RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
 					mesh.renderArray().unbind();
 				}
@@ -307,7 +307,7 @@ namespace Byte {
 				shader.uniform<Vec3>("uScale", transform->scale());
 				shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-				OpenGLAPI::Draw::elements(mesh->indices().size());
+				RenderAPI::Draw::elements(mesh->indices().size());
 
 				mesh->renderArray().unbind();
 			}
@@ -322,7 +322,7 @@ namespace Byte {
 				mesh.renderArray().bind();
 				bindMaterial(shader, material);
 
-				OpenGLAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+				RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
 				mesh.renderArray().unbind();
 			}
@@ -355,10 +355,10 @@ namespace Byte {
 			Mat4 inverseProjection{ projection.inverse() };
 			Vec3 viewPos{ cTransform->position() };
 
-			OpenGLAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("albedo"), TextureUnit::T1);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("material"), TextureUnit::T2);
-			OpenGLAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T3);
+			RenderAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
+			RenderAPI::Texture::bind(gBuffer.textureID("albedo"), TextureUnit::T1);
+			RenderAPI::Texture::bind(gBuffer.textureID("material"), TextureUnit::T2);
+			RenderAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T3);
 
 			setupGBufferTextures(lightingShader);
 			setupCascades(data, lightingShader, *camera);
@@ -369,7 +369,7 @@ namespace Byte {
 			lightingShader.uniform<float>("uDirectionalLight.intensity", directionalLight->intensity);
 
 			data.meshes.at("quad").renderArray().bind();
-			OpenGLAPI::Draw::quad();
+			RenderAPI::Draw::quad();
 			data.meshes.at("quad").renderArray().unbind();
 
 			lightingShader.unbind();
@@ -378,11 +378,11 @@ namespace Byte {
 				Shader& plShader{ data.shaders["point_light"] };
 				plShader.bind();
 
-				OpenGLAPI::enableBlend();
-				OpenGLAPI::setBlend(1, 1);
-				OpenGLAPI::enableCulling();
-				OpenGLAPI::cullFront();
-				OpenGLAPI::disableDepth();
+				RenderAPI::enableBlend();
+				RenderAPI::setBlend(1, 1);
+				RenderAPI::enableCulling();
+				RenderAPI::cullFront();
+				RenderAPI::disableDepth();
 
 				plShader.uniform<Vec2>(
 					"uViewPortSize",
@@ -414,16 +414,16 @@ namespace Byte {
 					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
 					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
-					OpenGLAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
+					RenderAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
 				}
 
 				data.meshes.at("low_poly_sphere").renderArray().unbind();
 				plShader.unbind();
 
-				OpenGLAPI::enableDepth();
-				OpenGLAPI::disableBlend();
-				OpenGLAPI::cullBack();
-				OpenGLAPI::disableCulling();
+				RenderAPI::enableDepth();
+				RenderAPI::disableBlend();
+				RenderAPI::cullBack();
+				RenderAPI::disableCulling();
 			}
 
 			colorBuffer.unbind();
@@ -454,7 +454,7 @@ namespace Byte {
 			for (size_t i{}; i < dbTextures.size(); ++i) {
 				shader.uniform("uDepthMaps[" + std::to_string(i) + "]", static_cast<int>(i + 4));
 				TextureUnit unit{ static_cast<TextureUnit>(static_cast<uint32_t>(TextureUnit::T4) + i) };
-				OpenGLAPI::Texture::bind(dbTextures[i], unit);
+				RenderAPI::Texture::bind(dbTextures[i], unit);
 			}
 
 			shader.uniform<Mat4>("uLightSpaces", lightSpaces);
@@ -497,13 +497,13 @@ namespace Byte {
 				dest->clearContent();
 
 				downsampleShader.uniform("uSrcTexture", 0);
-				OpenGLAPI::Texture::bind(src->textureID("color"));
+				RenderAPI::Texture::bind(src->textureID("color"));
 
 				downsampleShader.uniform<Vec2>("uSrcResolution", Vec2{ srcWidth,srcHeight });
 
 				data.meshes.at("quad").renderArray().bind();
 
-				OpenGLAPI::Draw::quad();
+				RenderAPI::Draw::quad();
 
 				data.meshes.at("quad").renderArray().unbind();
 
@@ -512,15 +512,15 @@ namespace Byte {
 				downsampleShader.uniform<bool>(" uKarisAvarage", false);
 			}
 
-			OpenGLAPI::enableBlend();
-			OpenGLAPI::disableDepth();
+			RenderAPI::enableBlend();
+			RenderAPI::disableDepth();
 
 			Shader& upsampleShader{ data.shaders["bloom_upsample"] };
 
 			upsampleShader.bind();
 			upsampleShader.uniform<float>("uFilterRadius", 0.01f);
 			upsampleShader.uniform("uSrcTexture", 0);
-			OpenGLAPI::Texture::bind(src->textureID("color"));
+			RenderAPI::Texture::bind(src->textureID("color"));
 
 			src = &data.frameBuffers["bloomBuffer" + std::to_string(mipCount)];
 			for (size_t i{ mipCount }; i > 1; --i) {
@@ -530,7 +530,7 @@ namespace Byte {
 
 				data.meshes.at("quad").renderArray().bind();
 
-				OpenGLAPI::Draw::quad();
+				RenderAPI::Draw::quad();
 
 				data.meshes.at("quad").renderArray().unbind();
 
@@ -540,19 +540,19 @@ namespace Byte {
 			data.frameBuffers["colorBuffer"].bind();
 
 			data.meshes.at("quad").renderArray().bind();
-			OpenGLAPI::Draw::quad();
+			RenderAPI::Draw::quad();
 			data.meshes.at("quad").renderArray().unbind();
 
-			OpenGLAPI::disableBlend();
-			OpenGLAPI::enableDepth();
+			RenderAPI::disableBlend();
+			RenderAPI::enableDepth();
 		}
 	};
 
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			OpenGLAPI::viewPort(data.width, data.height);
-			OpenGLAPI::Framebuffer::clear(0);
+			RenderAPI::viewPort(data.width, data.height);
+			RenderAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad"] };
 			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
@@ -560,11 +560,11 @@ namespace Byte {
 			quadShader.bind();
 			quadShader.uniform("uAlbedo", 0);
 			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
-			OpenGLAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
+			RenderAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 
-			OpenGLAPI::Draw::quad();
+			RenderAPI::Draw::quad();
 
 			data.meshes.at("quad").renderArray().unbind();
 		}

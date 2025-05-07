@@ -1,7 +1,7 @@
 #pragma once
 
 #include "render_type.h"
-#include "opengl_api.h"
+#include "render_api.h"
 
 namespace Byte {
 
@@ -42,20 +42,20 @@ namespace Byte {
 		}
 
 		void bind() {
-			OpenGLAPI::Framebuffer::bind(_data);
+			RenderAPI::Framebuffer::bind(_data);
 		}
 
 		void unbind() {
-			OpenGLAPI::Framebuffer::unbind();
+			RenderAPI::Framebuffer::unbind();
 		}
 
 		void resize(size_t width, size_t height) {
 			if (_data.resize) {
-				OpenGLAPI::Framebuffer::release(_data);
+				RenderAPI::Framebuffer::release(_data);
 				_data.attachments.clear();
 				_data.width = static_cast<size_t>(static_cast<float>(width) * _data.resizeFactor);
 				_data.height = static_cast<size_t>(static_cast<float>(height) * _data.resizeFactor);
-				OpenGLAPI::Framebuffer::build(_data);
+				RenderAPI::Framebuffer::build(_data);
 			}
 		}
 
@@ -68,15 +68,15 @@ namespace Byte {
 		}
 
 		void clearContent() {
-			OpenGLAPI::Framebuffer::clear(_data.id);
+			RenderAPI::Framebuffer::clear(_data.id);
 		}
 
 		void clearDepth() {
-			OpenGLAPI::Framebuffer::clearDepth(_data.id);
+			RenderAPI::Framebuffer::clearDepth(_data.id);
 		}
 
 		void clear() {
-			OpenGLAPI::Framebuffer::release(_data);
+			RenderAPI::Framebuffer::release(_data);
 
 			_data.textures.clear();
 			_data.attachments.clear();

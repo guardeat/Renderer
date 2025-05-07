@@ -15,13 +15,13 @@
 
 namespace Byte {
 
-    class OpenGLAPI {
+    class RenderAPI {
     public:
         static void initialize(Window& window) {
             static bool initialized{ false };
 
             glfwMakeContextCurrent(window.glfwWindow);
-            glfwSetFramebufferSizeCallback(window.glfwWindow, OpenGLAPI::framebufferSizeCallback);
+            glfwSetFramebufferSizeCallback(window.glfwWindow, RenderAPI::framebufferSizeCallback);
 
             if (!initialized) {
                 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

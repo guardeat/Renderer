@@ -5,7 +5,7 @@
 #include <string>
 
 #include "render_type.h"
-#include "opengl_api.h"
+#include "render_api.h"
 
 namespace Byte {
 
@@ -53,7 +53,7 @@ namespace Byte {
 		}
 
 		void bind(TextureUnit unit = TextureUnit::T0) const {
-			OpenGLAPI::Texture::bind(_data->id, unit);
+			RenderAPI::Texture::bind(_data->id, unit);
 		}
 	};
 

@@ -50,7 +50,7 @@
     <ClInclude Include="include\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\opengl_api.h">
+    <ClInclude Include="include\render_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\quaternion.h">

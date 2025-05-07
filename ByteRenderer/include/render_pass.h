@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #include "context.h"
-#include "opengl_api.h"
+#include "render_api.h"
 
 namespace Byte {
 

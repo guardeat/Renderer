@@ -33,7 +33,7 @@
     <ClInclude Include="include\mat.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\mesh.h" />
-    <ClInclude Include="include\opengl_api.h" />
+    <ClInclude Include="include\render_api.h" />
     <ClInclude Include="include\quaternion.h" />
     <ClInclude Include="include\render.h" />
     <ClInclude Include="include\renderer.h" />
