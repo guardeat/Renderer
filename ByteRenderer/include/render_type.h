@@ -66,7 +66,8 @@ namespace Byte {
 		RGBA32F = 0x8814,
 		RGB32F = 0x8815,
 		RGBA16F = 0x881A,
-		RGB16F = 0x881B
+		RGB16F = 0x881B,
+		R11F_G11F_B10F = 0x8C3A,
 	};
 
 	enum class AttachmentType: uint8_t {

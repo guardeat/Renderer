@@ -7,7 +7,7 @@ namespace Byte {
 
 	struct RendererGenerator {
 		static Renderer deferred(Window& window) {
-			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,DrawPass>() };
+			Renderer renderer{ Renderer::build<SkyboxPass,ShadowPass,GeometryPass,LightingPass,BloomPass,DrawPass>() };
 			RenderConfig config;
 
 			size_t width{ window.width() };
@@ -57,7 +57,8 @@ namespace Byte {
 			config.parameters.emplace("current_shadow_draw_frame", 0U);
 			config.parameters.emplace("shadow_draw_frame", 4U);
 
-			config.parameters.emplace("bloom_mip_count", 4U);
+			config.parameters.emplace("render_bloom", true);
+			config.parameters.emplace("bloom_mip_count", 5U);
 
 			config.meshes.emplace("cube", MeshBuilder::cube());
 			config.meshes.emplace("quad", MeshBuilder::quad());
@@ -83,7 +84,7 @@ namespace Byte {
 			colorBufferData.height = height;
 
 			colorBufferData.textures = {
-				{ "color", {AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT}},
+				{ "color", {AttachmentType::COLOR_0, ColorFormat::R11F_G11F_B10F, ColorFormat::RGB, DataType::FLOAT}},
 			};
 
 			config.frameBuffers["colorBuffer"] = colorBufferData;
@@ -105,7 +106,7 @@ namespace Byte {
 
 			FramebufferData bloomBufferData;
 			bloomBufferData.textures = {
-				{ "color", {AttachmentType::COLOR_0,ColorFormat::RGB32F, ColorFormat::RGB, DataType::FLOAT} },
+				{ "color", {AttachmentType::COLOR_0,ColorFormat::R11F_G11F_B10F, ColorFormat::RGB, DataType::FLOAT} },
 			};
 
 			bloomBufferData.width = width;

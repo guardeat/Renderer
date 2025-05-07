@@ -502,6 +502,79 @@ namespace Byte {
 
 	};
 
+	class BloomPass : public RenderPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			if (!data.parameter<bool>("render_bloom")) {
+				return;
+			}
+
+			size_t mipCount{data.parameter<uint32_t>("bloom_mip_count")};
+
+			Shader& downsampleShader{ data.shaders["bloom_downsample"] };
+			downsampleShader.bind();
+
+			Framebuffer* src{ &data.frameBuffers["colorBuffer"] };
+
+			for (size_t i{ 1 }; i <= mipCount; ++i) {
+				Framebuffer* dest{ &data.frameBuffers["bloomBuffer" + std::to_string(i)] };
+
+				float srcWidth{ static_cast<float>(src->width()) };
+				float srcHeight{ static_cast<float>(src->height()) };
+
+				dest->bind();
+				dest->clearContent();
+
+				downsampleShader.uniform("uSrcTexture", 0);
+				OpenGLAPI::Texture::bind(src->textureID("color"));
+
+				downsampleShader.uniform<Vec2>("uSrcResolution", Vec2{ srcWidth,srcHeight });
+
+				data.meshes.at("quad").renderArray().bind();
+
+				OpenGLAPI::Draw::quad();
+
+				data.meshes.at("quad").renderArray().unbind();
+
+				src = dest;
+			}
+
+			OpenGLAPI::enableBlend();
+			OpenGLAPI::disableDepth();
+
+			Shader& upsampleShader{ data.shaders["bloom_upsample"] };
+
+			upsampleShader.bind();
+			upsampleShader.uniform<float>("uFilterRadius", 0.003f);
+			upsampleShader.uniform("uSrcTexture", 0);
+			OpenGLAPI::Texture::bind(src->textureID("color"));
+
+			src = &data.frameBuffers["bloomBuffer" + std::to_string(mipCount)];
+			for (size_t i{ mipCount }; i > 1; --i) {
+				Framebuffer* dest{ &data.frameBuffers["bloomBuffer" + std::to_string(i - 1)] };
+
+				dest->bind();
+
+				data.meshes.at("quad").renderArray().bind();
+
+				OpenGLAPI::Draw::quad();
+
+				data.meshes.at("quad").renderArray().unbind();
+
+				src = dest;
+			}
+			
+			data.frameBuffers["colorBuffer"].bind();
+
+			data.meshes.at("quad").renderArray().bind();
+			OpenGLAPI::Draw::quad();
+			data.meshes.at("quad").renderArray().unbind();
+
+			OpenGLAPI::disableBlend();
+			OpenGLAPI::enableDepth();
+		}
+	};
+
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {

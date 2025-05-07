@@ -5,9 +5,10 @@
 
 using namespace Byte;
 
-//TODO: Implement bloom stage.
+//TODO: Make bloom better.
+//TODO: Make shadows better.
 //TODO: Implement order independet transparency.
-//TODO: Create a CMake and better file hierarchy.
+//TODO: Create CMake.
 //TODO: Use circle instead of sphere when rendering point lights.
 
 int main() {
@@ -83,7 +84,7 @@ int main() {
 	renderer.context().submit(lightMesh,lmMaterial,plTransform);
 
 	float lightAngle{ 0.0f };
-	const float lightSpeed{ 1.0f };
+	const float lightSpeed{ 0.1f };
 	const float circleRadius{ 25.0f };
 
 	auto lastTime{ std::chrono::high_resolution_clock::now() };
@@ -95,6 +96,10 @@ int main() {
 	//dLight.intensity = 0.0f;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
+		if (glfwGetKey(window.glfwWindow, GLFW_KEY_B) == GLFW_PRESS) {
+			renderer.parameter<bool>("render_bloom") = !renderer.parameter<bool>("render_bloom");
+		}
+
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
 		lastTime = currentTime;
