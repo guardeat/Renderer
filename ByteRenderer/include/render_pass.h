@@ -502,16 +502,10 @@ namespace Byte {
 
 	};
 
-	class BloomPass : public RenderPass {
-	public:
-		void render(RenderContext& context, RenderData& data) override{
-
-		}
-	};
-
 	class DrawPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
+			OpenGLAPI::viewPort(data.width, data.height);
 			OpenGLAPI::Framebuffer::clear(0);
 
 			Shader& quadShader{ data.shaders["quad"] };
@@ -520,7 +514,7 @@ namespace Byte {
 			quadShader.bind();
 			quadShader.uniform("uAlbedo", 0);
 			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
-			OpenGLAPI::Texture::bind(colorBuffer.textureID("albedo"), TextureUnit::T0);
+			OpenGLAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
 

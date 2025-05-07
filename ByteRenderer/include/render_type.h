@@ -94,7 +94,7 @@ namespace Byte {
 	};
 
 	struct TextureData {
-		AttachmentType attachment;
+		AttachmentType attachment{AttachmentType::COLOR_0};
 
 		ColorFormat internalFormat{ ColorFormat::RGBA };
 		ColorFormat format{ ColorFormat::RGBA };

@@ -31,6 +31,10 @@ namespace Byte {
 			{ "resource/shader/default.vert", "resource/shader/deferred.frag" };
 			config.shaderPaths["instanced_deferred"] =
 			{ "resource/shader/instanced.vert", "resource/shader/deferred.frag" };
+			config.shaderPaths["bloom_upsample"] =
+			{ "resource/shader/quad.vert", "resource/shader/bloom_upsample.frag" };
+			config.shaderPaths["bloom_downsample"] =
+			{ "resource/shader/quad.vert", "resource/shader/bloom_downsample.frag" };
 
 			config.parameters.emplace("render_skybox", true);
 			config.parameters.emplace("render_shadow", true);
@@ -52,6 +56,8 @@ namespace Byte {
 
 			config.parameters.emplace("current_shadow_draw_frame", 0U);
 			config.parameters.emplace("shadow_draw_frame", 4U);
+
+			config.parameters.emplace("bloom_mip_count", 4U);
 
 			config.meshes.emplace("cube", MeshBuilder::cube());
 			config.meshes.emplace("quad", MeshBuilder::quad());
@@ -77,7 +83,7 @@ namespace Byte {
 			colorBufferData.height = height;
 
 			colorBufferData.textures = {
-				{ "albedo", {AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT}},
+				{ "color", {AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, DataType::FLOAT}},
 			};
 
 			config.frameBuffers["colorBuffer"] = colorBufferData;
@@ -97,7 +103,21 @@ namespace Byte {
 			config.frameBuffers["depthBuffer3"] = depthBufferData;
 			config.frameBuffers["depthBuffer4"] = depthBufferData;
 
+			FramebufferData bloomBufferData;
+			bloomBufferData.textures = {
+				{ "color", {AttachmentType::COLOR_0,ColorFormat::RGB32F, ColorFormat::RGB, DataType::FLOAT} },
+			};
 
+			bloomBufferData.width = width;
+			bloomBufferData.height = height;
+
+			for (size_t i{}; i < std::get<uint32_t>(config.parameters.at("bloom_mip_count")); ++i) {
+				bloomBufferData.width /= 2;
+				bloomBufferData.height /= 2;
+				bloomBufferData.resizeFactor /= 2.0f;
+
+				config.frameBuffers["bloomBuffer" + std::to_string(i + 1)] = bloomBufferData;
+			}
 
 			renderer.initialize(window, config);
 

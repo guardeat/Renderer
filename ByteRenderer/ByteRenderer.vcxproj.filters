@@ -96,4 +96,23 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="resource\shader\default.vert" />
+    <None Include="resource\shader\deferred.frag" />
+    <None Include="resource\shader\depth.frag" />
+    <None Include="resource\shader\depth.vert" />
+    <None Include="resource\shader\forward.frag" />
+    <None Include="resource\shader\instanced.vert" />
+    <None Include="resource\shader\instanced_depth.vert" />
+    <None Include="resource\shader\lighting.frag" />
+    <None Include="resource\shader\point_light.frag" />
+    <None Include="resource\shader\point_light.vert" />
+    <None Include="resource\shader\procedural_skybox.frag" />
+    <None Include="resource\shader\procedural_skybox.vert" />
+    <None Include="resource\shader\quad.frag" />
+    <None Include="resource\shader\quad.vert" />
+    <None Include="resource\shader\quad_depth.frag" />
+    <None Include="resource\shader\bloom_downsample.frag" />
+    <None Include="resource\shader\bloom_upsample.frag" />
+  </ItemGroup>
 </Project>
