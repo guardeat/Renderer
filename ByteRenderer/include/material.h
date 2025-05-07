@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <unordered_map>
 
 #include "shader.h"
 #include "vec.h"
@@ -14,7 +15,9 @@ namespace Byte {
 	};
 
 	struct MaterialData {
-		ShaderTag shaderTag;
+		using ShaderMap = std::unordered_map<std::string, ShaderTag>;
+		ShaderMap shaderMap;
+
 		Vec3 albedo;
 
 		float metallic{ 0.5f };
@@ -48,12 +51,12 @@ namespace Byte {
 			_data.albedo = value;
 		}
 
-		const ShaderTag& shaderTag() const {
-			return _data.shaderTag;
+		const MaterialData::ShaderMap& shaderMap() const {
+			return _data.shaderMap;
 		}
 
-		void shaderTag(const ShaderTag& tag) {
-			_data.shaderTag = tag;
+		MaterialData::ShaderMap& shaderMap() {
+			return _data.shaderMap;
 		}
 
 		float metallic() const {

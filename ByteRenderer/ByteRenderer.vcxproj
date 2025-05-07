@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\external\glad.c" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="test\main.cpp" />
     <ClCompile Include="src\external\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -42,7 +42,7 @@
     <ClInclude Include="include\render_type.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\test.h" />
+    <ClInclude Include="test\test.h" />
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\trigonometry.h" />
@@ -67,6 +67,7 @@
     <None Include="resource\shader\quad.frag" />
     <None Include="resource\shader\quad.vert" />
     <None Include="resource\shader\quad_depth.frag" />
+    <None Include="test\shader\grass_geometry.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

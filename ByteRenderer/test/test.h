@@ -170,6 +170,25 @@ namespace Byte {
 		}
 	};
 
+	inline Mesh buildGrass() {
+		std::vector<float> vertices{
+				-0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+				 0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+				 0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+				-0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+				 0.0f, 0.75f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+		};
+
+		std::vector<uint32_t> indices{
+			0, 1, 2,
+			0, 2, 3,
+			3, 4, 2,
+		};
+
+		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
+		return Mesh{ std::move(data) };
+	}
+
 	inline Scene buildCustomScene() {
 		Scene scene;
 
@@ -188,25 +207,59 @@ namespace Byte {
 		scene.pointLightTransforms.back()->position(Vec3{ 0.0f, 1.0f, 0.0f });
 
 		InstancedEntity grass;
-		grass.mesh = MeshBuilder::plane(1.0f, 1.0f, 1);
+		grass.mesh = buildGrass();
 		grass.material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
 		grass.material.shadowMode(ShadowMode::DISABLED);
 
 		size_t xCount{ 400 };
 		size_t yCount{ 400 };
 
+		auto roadZ = [](float x) {
+			float a{ 0.001f };
+			float b{ -0.01f };
+			float c{ 0.3f };
+			float d{ 0.0f };
+			return a * x * x * x + b * x * x + c * x + d;
+			};
+
 		for (float i{}; i < xCount; ++i) {
 			for (float j{}; j < yCount; ++j) {
+				float offsetX{ ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100 };
+				float offsetZ{ ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100 };
+
+				float x{ static_cast<float>(i) / 2 + offsetX };
+				float z{ static_cast<float>(j) / 2 + offsetZ };
+
+				float closestDist{ 1000.0f };
+				for (float sampleX{ x - 2.0f }; sampleX <= x + 2.0f; sampleX += 0.2f) {
+					float sampleZ{ roadZ(sampleX) };
+					float dx{ sampleX - x };
+					float dz{ sampleZ - z };
+					float dist{ std::sqrt(dx * dx + dz * dz) };
+					if (dist < closestDist) {
+						closestDist = dist;
+					}
+				}
+
+				if (closestDist < 1.0f) {
+					continue;
+				}
+				else if (closestDist < 3.0f) {
+					float chance{ (closestDist - 1.0f) / 2.0f };
+					float r{ (rand() % 1000) / 1000.0f };
+					if (r > chance) {
+						continue;
+					}
+				}
+
 				Transform transform;
 
-				float offsetX = ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100;
-				float offsetZ = ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100;
-				transform.position(Vec3{ static_cast<float>(i) / 2 + offsetX, 0.5f, static_cast<float>(j) / 2 + offsetZ });
+				transform.position(Vec3{ x, 0.5f, z });
 
 				float rotationY{ static_cast<float>(rand() % 360) };
 				transform.rotation(Vec3{ 0.0f, rotationY, 0.0f });
 
-				float scaleValue = 2.2f + ((rand() % 1000) / 1000.0f) * 1.4f;
+				float scaleValue{ 2.2f + ((rand() % 1000) / 1000.0f) * 1.4f };
 				transform.scale(Vec3{ 0.2f, scaleValue, 1.0f });
 
 				grass.transforms.push_back(transform);
