@@ -93,7 +93,7 @@ namespace Byte {
 
         RenderID submit(PointLight& light, Transform& lightTransform) {
             RenderID id{ RenderIDGenerator::generate() };
-            _pointLights.emplace(id, RenderItem<PointLight>{ &light, & lightTransform });
+            _pointLights.emplace(id, RenderItem<PointLight>{ &light, &lightTransform });
             return id;
         }
 

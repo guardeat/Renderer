@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <exception>
+#include <cstdlib>
 
 #include "stb_image.h"
 
@@ -118,5 +119,102 @@ namespace Byte {
 			return texture;
 		}
 	};
+
+	struct Entity {
+		Mesh mesh;
+		Material material;
+		Transform transform;
+	};
+
+	struct InstancedEntity {
+		Mesh mesh;
+		Material material;
+		std::vector<Transform> transforms;
+	};
+
+	struct Scene {
+		Camera camera;
+		Transform cameraTransform;
+
+		DirectionalLight directionalLight;
+		Transform directionalLightTransform;
+
+		std::unordered_map<std::string, Entity> entities;
+
+		std::unordered_map<std::string, InstancedEntity> instancedEntities;
+
+		std::vector<std::unique_ptr<PointLight>> pointLights;
+		std::vector<std::unique_ptr<Transform>> pointLightTransforms;
+
+		void setContext(Renderer& renderer) {
+			renderer.context().clear();
+
+			renderer.context().submit(camera, cameraTransform);
+			renderer.context().submit(directionalLight, directionalLightTransform);
+
+			for (auto& pair : entities) {
+				renderer.context().submit(pair.second.mesh, pair.second.material, pair.second.transform);
+			}
+
+			for (size_t i{}; i < pointLights.size(); ++i) {
+				renderer.context().submit(*pointLights[i], *pointLightTransforms[i]);
+			}
+
+			for (auto& pair : instancedEntities) {
+				renderer.context().createInstance(pair.first,pair.second.mesh,pair.second.material);
+
+				for (auto& transform : pair.second.transforms) {
+					renderer.context().submit(pair.first, transform);
+				}
+			}
+		}
+	};
+
+	inline Scene buildCustomScene() {
+		Scene scene;
+
+		scene.directionalLightTransform.rotation(Vec3{ -45.0f, 0.0f, 0.0f });
+
+		Entity plane;
+		plane.mesh = MeshBuilder::plane(200, 200, 1);
+		plane.material.albedo(Vec3{ 0.47f, 0.85f, 0.15f });
+		plane.transform.rotation(Vec3(270.0f, 0.0f, 0.0f));
+
+		scene.entities["plane"] = std::move(plane);
+
+		scene.pointLights.push_back(std::make_unique<PointLight>());
+		scene.pointLightTransforms.push_back(std::make_unique<Transform>());
+		scene.pointLights.back()->color = Vec3{ 10.0f, 10.f, 10.0f };
+		scene.pointLightTransforms.back()->position(Vec3{ 0.0f, 1.0f, 0.0f });
+
+		InstancedEntity grass;
+		grass.mesh = MeshBuilder::plane(1.0f, 1.0f, 1);
+		grass.material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
+		grass.material.shadowMode(ShadowMode::DISABLED);
+
+		size_t xCount{ 400 };
+		size_t yCount{ 400 };
+
+		for (float i{}; i < xCount; ++i) {
+			for (float j{}; j < yCount; ++j) {
+				Transform transform;
+
+				float offsetX = ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100;
+				float offsetZ = ((rand() % 1000) / 1000.0f - 0.5f) * 0.5f - 100;
+				transform.position(Vec3{ static_cast<float>(i) / 2 + offsetX, 0.5f, static_cast<float>(j) / 2 + offsetZ });
+
+				float rotationY{ static_cast<float>(rand() % 360) };
+				transform.rotation(Vec3{ 0.0f, rotationY, 0.0f });
+
+				float scaleValue = 2.2f + ((rand() % 1000) / 1000.0f) * 1.4f;
+				transform.scale(Vec3{ 0.2f, scaleValue, 1.0f });
+
+				grass.transforms.push_back(transform);
+			}
+		}
+
+		scene.instancedEntities["grass"] = std::move(grass);
+		return scene;
+	}
 
 }

@@ -379,7 +379,7 @@ namespace Byte {
 				plShader.bind();
 
 				RenderAPI::enableBlend();
-				RenderAPI::setBlend(1, 1);
+				RenderAPI::setBlend();
 				RenderAPI::enableCulling();
 				RenderAPI::cullFront();
 				RenderAPI::disableDepth();
@@ -536,6 +536,8 @@ namespace Byte {
 
 				src = dest;
 			}
+
+			RenderAPI::setBlend(0.2f, 0.8f);
 
 			data.frameBuffers["colorBuffer"].bind();
 

@@ -69,8 +69,23 @@ namespace Byte {
             glDisable(GL_BLEND);
         }
 
-        static void setBlend(int sFactor, int dFactor) {
-            glBlendFunc(sFactor, dFactor);
+        static void setBlend(float sFactor, float dFactor) {
+            float total = sFactor + dFactor;
+            if (total == 0.0f) {
+                total = 1.0f;
+            }
+
+            float sNorm{ sFactor / total };
+            float dNorm{ dFactor / total };
+
+            glBlendColor(sNorm, sNorm, sNorm, dNorm);
+            glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
+        }
+
+        static void setBlend() {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
         }
 
         static void cullFront() {
