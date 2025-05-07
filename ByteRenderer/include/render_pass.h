@@ -513,6 +513,8 @@ namespace Byte {
 
 			Shader& downsampleShader{ data.shaders["bloom_downsample"] };
 			downsampleShader.bind();
+			downsampleShader.uniform<float>("uInvGamma", 1.0f / data.parameter<float>("gamma"));
+			downsampleShader.uniform<bool>(" uKarisAvarage", true);
 
 			Framebuffer* src{ &data.frameBuffers["colorBuffer"] };
 
@@ -537,6 +539,8 @@ namespace Byte {
 				data.meshes.at("quad").renderArray().unbind();
 
 				src = dest;
+
+				downsampleShader.uniform<bool>(" uKarisAvarage", false);
 			}
 
 			OpenGLAPI::enableBlend();
