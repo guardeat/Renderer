@@ -2,6 +2,7 @@
 
 #include "renderer.h"
 #include "render_type.h"
+#include "default_pass.h"
 
 namespace Byte {
 
