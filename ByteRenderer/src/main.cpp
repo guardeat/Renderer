@@ -5,12 +5,6 @@
 
 using namespace Byte;
 
-//TODO: Make bloom better.
-//TODO: Make shadows better.
-//TODO: Implement order independet transparency.
-//TODO: Create CMake.
-//TODO: Use circle instead of sphere when rendering point lights.
-
 int main() {
 	glfwInit();
 
