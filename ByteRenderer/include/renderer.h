@@ -9,20 +9,6 @@
 
 namespace Byte {
 
-	struct RenderConfig {
-		using ShaderPathMap = std::unordered_map<ShaderTag, ShaderPath>;
-		ShaderPathMap shaderPaths;
-
-		using FramebufferMap = std::unordered_map<FramebufferTag, FramebufferData>;
-		FramebufferMap frameBuffers;
-
-		using ParameterMap = RenderData::ParameterMap;
-		ParameterMap parameters;
-
-		using MeshMap = RenderData::MeshMap;
-		MeshMap meshes;
-	};
-
 	class Renderer {
 	private:
 		using URenderPass = std::unique_ptr<RenderPass>;
@@ -35,25 +21,21 @@ namespace Byte {
 	public:
 		Renderer() = default;
 
-		Renderer(Window& window, RenderConfig& config) {
-			initialize(window, config);
+		Renderer(Window& window) {
+			initialize(window);
 		}
 
-		void initialize(Window& window, RenderConfig& config) {
+		void initialize(Window& window) {
 			RenderAPI::initialize(window);
 
 			_data.width = window.width();
 			_data.height = window.height();
-			
-			for (auto& pair : config.frameBuffers) {
-				_data.frameBuffers[pair.first] = RenderAPI::Framebuffer::build(pair.second);
+
+			for (auto& pair : _data.frameBuffers) {
+				pair.second.build();
 			}
 
-			compileShaders(config);
-
-			_data.parameters = config.parameters;
-
-			_data.meshes = std::move(config.meshes);
+			compileShaders();
 
 			for (auto& pair : _data.meshes) {
 				fillVertexArray(pair.second);
@@ -110,12 +92,28 @@ namespace Byte {
 			return std::get<Type>(_data.parameters.at(parameter));
 		}
 
+		RenderData& data() {
+			return _data;
+		}
+
+		const RenderData& data() const {
+			return _data;
+		}
+
 		Pipeline& pipeline() {
 			return _pipeline;
 		}
 
 		const Pipeline& pipeline() const {
 			return _pipeline;
+		}
+
+		void compileShaders() {
+			for (auto& pair : _data.shaders) {
+				if (!pair.second.id()) {
+					ShaderCompiler::compile(pair.second);
+				}
+			}
 		}
 
 		template<typename... Passes>
@@ -127,14 +125,6 @@ namespace Byte {
 		}
 
 	private:
-		void compileShaders(RenderConfig& config) {
-			for (const auto& [shaderTag, shaderPath] : config.shaderPaths) {
-				Shader shader(shaderPath.vertex, shaderPath.fragment, shaderPath.geometry);
-				ShaderCompiler::compile(shader);
-				_data.shaders[shaderTag] = std::move(shader);
-			}
-		}
-
 		void prepareVertexArrays() {
 			for (auto& pair : _context.renderEntities()) {
 				Mesh& mesh{ *pair.second.mesh };

@@ -75,6 +75,10 @@ namespace Byte {
 			RenderAPI::Framebuffer::clearDepth(_data.id);
 		}
 
+		void build() {
+			_data = RenderAPI::Framebuffer::build(_data);
+		}
+
 		void clear() {
 			RenderAPI::Framebuffer::release(_data);
 
