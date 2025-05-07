@@ -93,7 +93,7 @@ int main() {
 
 	renderer.load();
 
-	//dLight.intensity = 0.0f;
+	dLight.intensity = 0.0f;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		if (glfwGetKey(window.glfwWindow, GLFW_KEY_B) == GLFW_PRESS) {

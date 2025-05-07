@@ -26,6 +26,7 @@
   <ItemGroup>
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\context.h" />
+    <ClInclude Include="include\default_pass.h" />
     <ClInclude Include="include\framebuffer.h" />
     <ClInclude Include="include\instancing.h" />
     <ClInclude Include="include\light.h" />
