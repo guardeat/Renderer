@@ -26,7 +26,7 @@ int main() {
 
 	renderer.load();
 
-	//scene.directionalLight.intensity = 0.0f;
+	scene.directionalLight.intensity = 0.2f;
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
@@ -54,3 +54,7 @@ int main() {
 
 	return 0;
 }
+
+
+//TODO: Need shader parser and better shader system. 
+//Use this parser to automaticaly input uniforms from predefined sources (Context).

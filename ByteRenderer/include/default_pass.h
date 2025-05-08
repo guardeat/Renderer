@@ -558,7 +558,9 @@ namespace Byte {
 				src = dest;
 			}
 
-			RenderAPI::setBlend(0.2f, 0.8f);
+			float strength{ data.parameter<float>("bloom_strength") };
+
+			RenderAPI::setBlend(strength, 1.0f - strength);
 
 			data.frameBuffers["colorBuffer"].bind();
 
