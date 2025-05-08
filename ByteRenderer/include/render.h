@@ -41,7 +41,7 @@ namespace Byte {
 			renderer.data().parameters.emplace("shadow_draw_frame", 4U);
 			renderer.data().parameters.emplace("render_bloom", true);
 			renderer.data().parameters.emplace("bloom_mip_count", 5U);
-			renderer.data().parameters.emplace("bloom_strength", 0.4f);
+			renderer.data().parameters.emplace("bloom_strength", 0.3f);
 
 			renderer.data().meshes.emplace("cube", MeshBuilder::cube());
 			renderer.data().meshes.emplace("quad", MeshBuilder::quad());

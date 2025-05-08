@@ -26,8 +26,6 @@ int main() {
 
 	renderer.load();
 
-	scene.directionalLight.intensity = 0.2f;
-
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
