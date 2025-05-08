@@ -233,20 +233,9 @@ namespace Byte {
 				gBuffer.clearContent();
 			}
 
-			Shader& shader{ data.shaders["deferred"] };
-			shader.bind();
+			renderEntities(context, data, projection, view);
 
-			shader.uniform<Mat4>("uProjection", projection);
-			shader.uniform<Mat4>("uView", view);
-
-			renderEntities(context, shader);
-
-			Shader& instancedShader{ data.shaders["instanced_deferred"] };
-			instancedShader.bind();
-
-			instancedShader.uniform<Mat4>("uProjection", projection);
-			instancedShader.uniform<Mat4>("uView", view);
-			renderInstances(context, instancedShader);
+			renderInstances(context, data, projection, view);
 
 			gBuffer.unbind();
 
@@ -295,17 +284,33 @@ namespace Byte {
 			shader.uniform<Vec3>("uAlbedo", material.albedo());
 		}
 
-		void renderEntities(RenderContext& context, Shader& shader) const {
+		void renderEntities(
+			RenderContext& context, RenderData& data, const Mat4& proj, const Mat4& view) const {
 
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
-				mesh->renderArray().bind();
-				bindMaterial(shader, *material);
+				Shader* shader;
 
-				shader.uniform<Vec3>("uPosition", transform->position());
-				shader.uniform<Vec3>("uScale", transform->scale());
-				shader.uniform<Quaternion>("uRotation", transform->rotation());
+				auto result{ material->shaderMap().find("geometry") };
+				if (result != material->shaderMap().end()) {
+					shader = &data.shaders.at(result->second);
+				}
+				else {
+					shader = &data.shaders.at("deferred");
+				}
+
+				shader->bind();
+
+				shader->uniform<Mat4>("uProjection", proj);
+				shader->uniform<Mat4>("uView", view);
+
+				mesh->renderArray().bind();
+				bindMaterial(*shader, *material);
+
+				shader->uniform<Vec3>("uPosition", transform->position());
+				shader->uniform<Vec3>("uScale", transform->scale());
+				shader->uniform<Quaternion>("uRotation", transform->rotation());
 
 				RenderAPI::Draw::elements(mesh->indices().size());
 
@@ -313,14 +318,30 @@ namespace Byte {
 			}
 		}
 
-		void renderInstances(RenderContext& context, Shader& shader) const {
+		void renderInstances(
+			RenderContext& context, RenderData& data, const Mat4& proj, const Mat4& view) const {
 
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
+				Shader* shader;
+
+				auto result{ material.shaderMap().find("geometry") };
+				if (result != material.shaderMap().end()) {
+					shader = &data.shaders.at(result->second);
+				}
+				else {
+					shader = &data.shaders.at("instanced_deferred");
+				}
+
+				shader->bind();
+
+				shader->uniform<Mat4>("uProjection", proj);
+				shader->uniform<Mat4>("uView", view);
+
 				mesh.renderArray().bind();
-				bindMaterial(shader, material);
+				bindMaterial(*shader, material);
 
 				RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 

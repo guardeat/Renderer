@@ -67,7 +67,7 @@
     <None Include="resource\shader\quad.frag" />
     <None Include="resource\shader\quad.vert" />
     <None Include="resource\shader\quad_depth.frag" />
-    <None Include="test\shader\grass_geometry.vert" />
+    <None Include="test\shader\grass.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

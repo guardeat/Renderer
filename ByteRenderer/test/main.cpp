@@ -15,11 +15,10 @@ int main() {
 	FPSCamera fpsCamera;
 
 	Scene scene{ buildCustomScene() };
+	renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
+	renderer.compileShaders();
+	scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
 	scene.setContext(renderer);
-
-	float lightAngle{ 0.0f };
-	const float lightSpeed{ 0.1f };
-	const float circleRadius{ 25.0f };
 
 	auto lastTime{ std::chrono::high_resolution_clock::now() };
 	int frameCount{ 0 };
