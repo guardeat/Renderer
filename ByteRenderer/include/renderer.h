@@ -127,7 +127,7 @@ namespace Byte {
 	private:
 		void prepareVertexArrays() {
 			for (auto& pair : _context.renderEntities()) {
-				Mesh& mesh{ *pair.second.mesh };
+				RenderMesh& mesh{ *pair.second.mesh };
 				if (!mesh.drawable() && !mesh.empty()) {
 					fillVertexArray(mesh);
 				}
@@ -144,7 +144,7 @@ namespace Byte {
 			}
 		}
 
-		void fillVertexArray(Mesh& mesh) const {
+		void fillVertexArray(RenderMesh& mesh) const {
 			bool isStatic{ mesh.mode() == MeshMode::STATIC };
 
 			auto atts{ RenderAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };

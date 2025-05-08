@@ -121,13 +121,13 @@ namespace Byte {
 	};
 
 	struct Entity {
-		Mesh mesh;
+		RenderMesh mesh;
 		Material material;
 		Transform transform;
 	};
 
 	struct InstancedEntity {
-		Mesh mesh;
+		RenderMesh mesh;
 		Material material;
 		std::vector<Transform> transforms;
 	};
@@ -170,7 +170,7 @@ namespace Byte {
 		}
 	};
 
-	inline Mesh buildGrass() {
+	inline RenderMesh buildGrass() {
 		std::vector<float> vertices{
 				-0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
 				 0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
@@ -186,7 +186,7 @@ namespace Byte {
 		};
 
 		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
-		return Mesh{ std::move(data) };
+		return RenderMesh{ std::move(data) };
 	}
 
 	inline Scene buildCustomScene() {

@@ -22,17 +22,17 @@ namespace Byte {
         MeshMode mode{ MeshMode::STATIC };
 
         Buffer<uint8_t> vertexLayout{ 3,3,2 };
-        RenderArray renderArray;
 	};
 
-	class Mesh {
+	class RenderMesh {
 	private:
         MeshData _data;
+        RenderArray _renderArray;
 
 	public:
-		Mesh() = default;
+		RenderMesh() = default;
 
-		Mesh(MeshData&& data)
+		RenderMesh(MeshData&& data)
 			: _data{ std::move(data) }
 		{}
 
@@ -49,11 +49,11 @@ namespace Byte {
 		}
 
 		const RenderArray& renderArray() const {
-			return _data.renderArray;
+			return _renderArray;
 		}
 
 		void renderArray(RenderArray&& renderArray) {
-			_data.renderArray = std::move(renderArray);
+			_renderArray = std::move(renderArray);
 		}
 
 		const MeshData& data() const {
@@ -61,7 +61,7 @@ namespace Byte {
 		}
 
         bool drawable() const {
-            return _data.renderArray.data().VAO != 0;
+            return _renderArray.data().VAO != 0;
         }
 
         bool empty() const {
@@ -70,7 +70,7 @@ namespace Byte {
 	};
 
     struct MeshBuilder {
-        static Mesh sphere(float radius, size_t numSegments) {
+        static RenderMesh sphere(float radius, size_t numSegments) {
             size_t numVertices = (numSegments + 1) * (numSegments + 1);
             size_t numTriangles = numSegments * numSegments * 2;
 
@@ -119,10 +119,10 @@ namespace Byte {
             }
 
             MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC};
-            return Mesh{ std::move(data) };
+            return RenderMesh{ std::move(data) };
         }
 
-        static Mesh plane(float width, float height, size_t numSegments) {
+        static RenderMesh plane(float width, float height, size_t numSegments) {
             size_t numVertices = (numSegments + 1) * (numSegments + 1);
             size_t numTriangles = numSegments * numSegments * 2;
 
@@ -169,10 +169,10 @@ namespace Byte {
             }
 
             MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC };
-            return Mesh{ std::move(data) };
+            return RenderMesh{ std::move(data) };
         }
 
-        static Mesh quad() {
+        static RenderMesh quad() {
             const Buffer<float> vertexData{
                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -185,10 +185,10 @@ namespace Byte {
             };
 
             MeshData data{ vertexData, indices, MeshMode::STATIC, {3,2} };
-            return Mesh{ std::move(data) };
+            return RenderMesh{ std::move(data) };
         }
 
-        static Mesh cube() {
+        static RenderMesh cube() {
             std::vector<float> vertices{
                 -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
                  0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
@@ -243,7 +243,7 @@ namespace Byte {
 
 
             MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
-            return Mesh{ std::move(data) };
+            return RenderMesh{ std::move(data) };
         }
     };
 

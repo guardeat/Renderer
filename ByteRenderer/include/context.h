@@ -30,7 +30,7 @@ namespace Byte {
     class RenderContext {
     public:
         struct RenderEntity {
-            Mesh* mesh;
+            RenderMesh* mesh;
             Material* material;
             Transform* transform;
         };
@@ -58,13 +58,13 @@ namespace Byte {
         InstanceMap _instances;
 
     public:
-        RenderID submit(Mesh& mesh, Material& material, Transform& transform) {
+        RenderID submit(RenderMesh& mesh, Material& material, Transform& transform) {
             RenderID id{ RenderIDGenerator::generate() };
             _renderEntities.emplace(id, RenderEntity{ &mesh, &material, &transform });
             return id;
         }
 
-        RenderID submit(const InstanceTag& tag, Mesh& mesh, Material& material, Transform& transform) {
+        RenderID submit(const InstanceTag& tag, RenderMesh& mesh, Material& material, Transform& transform) {
             _instances.emplace(tag, RenderInstance{ mesh,material });
             RenderID id{ RenderIDGenerator::generate() };
             _instances.at(tag).add(transform,id);
@@ -113,7 +113,7 @@ namespace Byte {
             _pointLights.erase(id);
         }
 
-        void createInstance(const InstanceTag& tag, Mesh& mesh, Material& material) {
+        void createInstance(const InstanceTag& tag, RenderMesh& mesh, Material& material) {
             _instances.emplace(tag, RenderInstance{ mesh,material });
         }
 
