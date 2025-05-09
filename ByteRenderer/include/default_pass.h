@@ -295,6 +295,7 @@ namespace Byte {
 				auto result{ material->shaderMap().find("geometry") };
 				if (result != material->shaderMap().end()) {
 					shader = &data.shaders.at(result->second);
+					shader->uniform(context.shaderInputMap());
 				}
 				else {
 					shader = &data.shaders.at("deferred");
@@ -330,6 +331,7 @@ namespace Byte {
 				auto result{ material.shaderMap().find("geometry") };
 				if (result != material.shaderMap().end()) {
 					shader = &data.shaders.at(result->second);
+					shader->uniform(context.shaderInputMap());
 				}
 				else {
 					shader = &data.shaders.at("instanced_deferred");
