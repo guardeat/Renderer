@@ -102,7 +102,7 @@ namespace Byte {
                     vertexData[offset + 7] = static_cast<float>(i) / numSegments;
                 }
             }
-
+    
             for (size_t i = 0; i < numSegments; ++i) {
                 for (size_t j = 0; j < numSegments; ++j) {
                     uint32_t first = static_cast<uint32_t>(i * (numSegments + 1) + j);
@@ -137,12 +137,12 @@ namespace Byte {
                     size_t offset = index * (3 + 3 + 2); 
 
                     vertexData[offset] = x;
-                    vertexData[offset + 1] = y;
-                    vertexData[offset + 2] = 0.0f;
+                    vertexData[offset + 1] = 0.0f;
+                    vertexData[offset + 2] = y;
 
                     vertexData[offset + 3] = 0.0f;
-                    vertexData[offset + 4] = 0.0f;
-                    vertexData[offset + 5] = 1.0f;
+                    vertexData[offset + 4] = 1.0f;
+                    vertexData[offset + 5] = 0.0f;
 
                     vertexData[offset + 6] = static_cast<float>(j) / numSegments;
                     vertexData[offset + 7] = static_cast<float>(i) / numSegments;
@@ -240,7 +240,6 @@ namespace Byte {
                 20, 21, 22,
                 20, 22, 23
             };
-
 
             MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
             return RenderMesh{ std::move(data) };

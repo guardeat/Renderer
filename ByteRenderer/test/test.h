@@ -172,11 +172,11 @@ namespace Byte {
 
 	inline RenderMesh buildGrass() {
 		std::vector<float> vertices{
-				-0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-				 0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-				 0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-				-0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
-				 0.0f, 0.75f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+		   -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+			0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+			0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+		   -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			0.0f, 0.75f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 		};
 
 		std::vector<uint32_t> indices{
@@ -197,7 +197,6 @@ namespace Byte {
 		Entity plane;
 		plane.mesh = MeshBuilder::plane(200, 200, 1);
 		plane.material.albedo(Vec3{ 0.47f, 0.85f, 0.15f });
-		plane.transform.rotation(Vec3(270.0f, 0.0f, 0.0f));
 
 		scene.entities["plane"] = std::move(plane);
 
