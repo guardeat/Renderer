@@ -56,3 +56,5 @@ int main() {
 
 //TODO: Need shader parser and better shader system. 
 //Use this parser to automaticaly input uniforms from predefined sources (Context).
+//Create shaderInputMap = std::unordered_map<Tag, struct{Variant<Input Types>, Type enum}>
+//Shaders will have struct{Tag, Type enum}

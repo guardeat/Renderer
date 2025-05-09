@@ -1,9 +1,39 @@
 #pragma once
 
+#include <string>
+#include <type_traits>
+
 #include "render_type.h"
 #include "render_api.h"
 
 namespace Byte {
+
+    enum class UniformType {
+        BOOL,
+        INT,
+        UINT32_T,
+        FLOAT,
+        VEC2,
+        VEC3,
+        VEC4,
+        QUATERNION,
+        MAT2,
+        MAT3,
+        MAT4
+    };
+    
+    using UniformTag = std::string;
+
+    struct Uniform {
+        UniformTag tag;
+        UniformType type;
+    };
+
+    template<typename Type>
+    struct ShaderInput {
+        Type value;
+        UniformType type;
+    };
 
     struct ShaderPath {
         Path vertex;
@@ -11,11 +41,27 @@ namespace Byte {
         Path geometry;
     };
 
+    using ShaderInputMap = std::unordered_map<UniformTag, std::variant<
+        ShaderInput<bool>,
+        ShaderInput<int>,
+        ShaderInput<size_t>,
+        ShaderInput<float>,
+        ShaderInput<Vec2>,
+        ShaderInput<Vec3>,
+        ShaderInput<Vec4>,
+        ShaderInput<Quaternion>,
+        ShaderInput<Mat2>,
+        ShaderInput<Mat3>,
+        ShaderInput<Mat4>>>;
+
     struct Shader {
     private:
         uint32_t _id{ 0 };
 
         ShaderPath _path;
+
+        using UniformVector = std::vector<Uniform>;
+        UniformVector _uniforms;
 
         friend struct ShaderCompiler;
 
@@ -48,8 +94,28 @@ namespace Byte {
             }
         }
 
+        void uniform(const ShaderInputMap& inputs) {
+            for (const auto& [tag, input] : inputs) {
+                std::visit([this, &tag](const auto& inputValue) {
+                    RenderAPI::Shader::uniform(_id, tag, inputValue.value);
+                }, input); 
+            }
+        }
+
         uint32_t id() const {
             return _id;
+        }
+
+        void addUniform(Uniform&& input) {
+            _uniforms.emplace_back(std::forward<Uniform>(input));
+        }
+
+        UniformVector& uniformVector() {
+            return _uniforms;
+        }
+
+        const UniformVector& uniformVector() const {
+            return _uniforms;
         }
 
         bool compiled() const {

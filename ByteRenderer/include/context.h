@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <random>
 #include <limits>
+#include <variant>
 
 #include "render_type.h"
 #include "mesh.h"
@@ -14,6 +15,7 @@
 #include "light.h"
 #include "camera.h"
 #include "instancing.h"
+#include "shader.h"
 
 namespace Byte {
 
@@ -57,6 +59,8 @@ namespace Byte {
         using InstanceMap = std::unordered_map<InstanceTag, RenderInstance>;
         InstanceMap _instances;
 
+        ShaderInputMap _inputMap;
+
     public:
         RenderID submit(RenderMesh& mesh, Material& material, Transform& transform) {
             RenderID id{ RenderIDGenerator::generate() };
@@ -95,6 +99,20 @@ namespace Byte {
             RenderID id{ RenderIDGenerator::generate() };
             _pointLights.emplace(id, RenderItem<PointLight>{ &light, &lightTransform });
             return id;
+        }
+
+        template<typename Type>
+        Type& input(const UniformTag& tag) {
+            return std::get<Type>(_inputMap.at(tag));
+        }
+
+        template<typename Type>
+        const Type& input(const UniformTag& tag) const {
+            return std::get<Type>(_inputMap.at(tag));
+        }
+
+        const ShaderInputMap& shaderInputMap() const {
+            return _inputMap;
         }
 
         void eraseEntity(RenderID id) {
