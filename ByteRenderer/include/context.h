@@ -147,15 +147,19 @@ namespace Byte {
             return _renderEntities.at(id);
         }
 
-        RenderItem<Camera> camera() const {
+        RenderItem<Camera>& camera() {
             return _camera;
         }
 
-        RenderItem<DirectionalLight> directionalLight() const {
+        const RenderItem<Camera>& camera() const {
+            return _camera;
+        }
+
+        RenderItem<DirectionalLight>& directionalLight() {
             return _directionalLight;
         }
 
-        RenderItem<PointLight> pointLight(RenderID id) const {
+        const RenderItem<PointLight>& pointLight(RenderID id) const {
             return _pointLights.at(id);
         }
 
