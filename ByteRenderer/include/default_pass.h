@@ -295,13 +295,14 @@ namespace Byte {
 				auto result{ material->shaderMap().find("geometry") };
 				if (result != material->shaderMap().end()) {
 					shader = &data.shaders.at(result->second);
-					shader->uniform(context.shaderInputMap());
 				}
 				else {
 					shader = &data.shaders.at("deferred");
 				}
 
 				shader->bind();
+
+				shader->uniform(context.shaderInputMap());
 
 				shader->uniform<Mat4>("uProjection", proj);
 				shader->uniform<Mat4>("uView", view);
@@ -331,13 +332,13 @@ namespace Byte {
 				auto result{ material.shaderMap().find("geometry") };
 				if (result != material.shaderMap().end()) {
 					shader = &data.shaders.at(result->second);
-					shader->uniform(context.shaderInputMap());
 				}
 				else {
 					shader = &data.shaders.at("instanced_deferred");
 				}
 
 				shader->bind();
+				shader->uniform(context.shaderInputMap());
 
 				shader->uniform<Mat4>("uProjection", proj);
 				shader->uniform<Mat4>("uView", view);

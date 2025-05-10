@@ -103,12 +103,16 @@ namespace Byte {
 
         template<typename Type>
         Type& input(const UniformTag& tag) {
-            return std::get<Type>(_inputMap.at(tag));
+            return std::get<ShaderInput<Type>>(_inputMap.at(tag)).value;
         }
 
         template<typename Type>
         const Type& input(const UniformTag& tag) const {
-            return std::get<Type>(_inputMap.at(tag));
+            return std::get<ShaderInput<Type>>(_inputMap.at(tag)).value;
+        }
+
+        ShaderInputMap& shaderInputMap() {
+            return _inputMap;
         }
 
         const ShaderInputMap& shaderInputMap() const {

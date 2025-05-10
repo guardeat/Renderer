@@ -16,6 +16,10 @@ int main() {
 
 	Scene scene{ buildCustomScene() };
 	renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
+	renderer.data().shaders.at("grass").addUniform(Uniform{ "uTime",UniformType::FLOAT });
+	renderer.context().shaderInputMap().emplace("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
+	renderer.data().shaders.at("grass").addUniform(Uniform{ "uWind",UniformType::VEC3 });
+	renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f,0.0,0.0f), UniformType::VEC3});
 	renderer.compileShaders();
 	scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
 	scene.setContext(renderer);
@@ -31,6 +35,8 @@ int main() {
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
 		lastTime = currentTime;
 
+		renderer.context().input<float>("uTime") += deltaTime;
+
 		renderer.render();
 		renderer.update(window);
 		fpsCamera.update(window, scene.cameraTransform, deltaTime);
@@ -43,7 +49,7 @@ int main() {
 			std::cout << "FPS: " << frameCount << std::endl;
 			GLenum error{ glGetError() };
 			if (error) {
-				std::cout << "GRAPHIC ERROR: " << error << "std::endl";
+				std::cout << "GRAPHIC ERROR: " << error << std::endl;
 			}
 			frameCount = 0;
 			fpsTimer = 0.0f;

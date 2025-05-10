@@ -2,6 +2,7 @@
 
 #include <string>
 #include <type_traits>
+#include <variant>
 
 #include "render_type.h"
 #include "render_api.h"
@@ -44,7 +45,7 @@ namespace Byte {
     using ShaderInputMap = std::unordered_map<UniformTag, std::variant<
         ShaderInput<bool>,
         ShaderInput<int>,
-        ShaderInput<size_t>,
+        ShaderInput<uint32_t>,
         ShaderInput<float>,
         ShaderInput<Vec2>,
         ShaderInput<Vec3>,
