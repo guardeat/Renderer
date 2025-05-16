@@ -13,18 +13,20 @@ namespace Byte {
 		Framebuffer() = default;
 
 		Framebuffer(FramebufferData&& _data)
-			:_data{ _data } {
+			:_data{ std::move(_data) } {
 		}
 
 		Framebuffer(Framebuffer&& right) noexcept
 			: _data{ std::move(right._data) } {
 			right._data.id = 0;
+			right._data.attachments.clear();
 		}
 
 		Framebuffer& operator=(Framebuffer&& right) noexcept {
 			clear();
 			_data = std::move(right._data);
 			right._data.id = 0;
+			right._data.attachments.clear();
 
 			return *this;
 		}
