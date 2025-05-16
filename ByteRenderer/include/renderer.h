@@ -168,23 +168,23 @@ namespace Byte {
 		void prepareTextures() {
 			for (auto& pair : _context.renderEntities()) {
 				Material& material{ *pair.second.material };
-				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
-					material.albedoTextureID(RenderAPI::Texture::build(material.albedoTexture().data()));
+				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
+					material.albedoTexture().id(RenderAPI::Texture::build(material.albedoTexture().data()));
 				}
 
-				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
-					material.materialTextureID(RenderAPI::Texture::build(material.materialTexture().data()));
+				if (material.hasMaterialTexture() && !material.materialTextureID()) {
+					material.materialTexture().id(RenderAPI::Texture::build(material.materialTexture().data()));
 				}
 			}
 
 			for (auto& pair : _context.instances()) {
 				Material& material{ pair.second.material() };
-				if (static_cast<bool>(material.albedoTexture()) && !material.albedoTextureID()) {
-					material.albedoTextureID(RenderAPI::Texture::build(material.albedoTexture().data()));
+				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
+					material.albedoTexture().id(RenderAPI::Texture::build(material.albedoTexture().data()));
 				}
 
-				if (static_cast<bool>(material.materialTexture()) && !material.materialTextureID()) {
-					material.materialTextureID(RenderAPI::Texture::build(material.materialTexture().data()));
+				if (material.hasMaterialTexture() && !material.materialTextureID()) {
+					material.materialTexture().id(RenderAPI::Texture::build(material.materialTexture().data()));
 				}
 			}
 		}

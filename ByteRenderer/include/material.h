@@ -25,8 +25,8 @@ namespace Byte {
 		float ambientOcclusion{ 0.1f };
 		float emission{ 0.0f };
 
-		Texture albedoTexture;
-		Texture materialTexture;
+		Texture* albedoTexture{ nullptr };
+		Texture* materialTexture{ nullptr };
 
 		ShadowMode shadow{ ShadowMode::FULL };
 	};
@@ -100,49 +100,49 @@ namespace Byte {
 		}
 
 		const Texture& albedoTexture() const {
-			return _data.albedoTexture;
+			return *_data.albedoTexture;
 		}
 
 		const Texture& materialTexture() const {
-			return _data.materialTexture;
+			return *_data.materialTexture;
 		}
 
 		Texture& albedoTexture() {
-			return _data.albedoTexture;
+			return *_data.albedoTexture;
 		}
 
 		Texture& materialTexture() {
-			return _data.materialTexture;
+			return *_data.materialTexture;
 		}
 
-		void albedoTexture(Texture texture) {
-			_data.albedoTexture = texture;
+		bool hasAlbedoTexture() const {
+			return static_cast<bool>(_data.albedoTexture);
 		}
 
-		void materialTexture(Texture texture) {
-			_data.materialTexture = texture;
+		bool hasMaterialTexture() const {
+			return static_cast<bool>(_data.materialTexture);
+		}
+
+		void albedoTexture(Texture& texture) {
+			_data.albedoTexture = &texture;
+		}
+
+		void materialTexture(Texture& texture) {
+			_data.materialTexture = &texture;
 		}
 
 		TextureID albedoTextureID() const {
 			if (!_data.albedoTexture) {
 				return 0;
 			}
-			return _data.albedoTexture.id();
+			return _data.albedoTexture->id();
 		}
 
 		TextureID materialTextureID() const {
 			if (!_data.materialTexture) {
 				return 0;
 			}
-			return _data.materialTexture.id();
-		}
-
-		void albedoTextureID(TextureID id) {
-			_data.albedoTexture.id(id);
-		}
-
-		void materialTextureID(TextureID id) {
-			_data.materialTexture.id(id);
+			return _data.materialTexture->id();
 		}
 
 		ShadowMode shadowMode() const {
