@@ -189,7 +189,7 @@ namespace Byte {
 		return RenderMesh{ std::move(data) };
 	}
 
-	inline Scene buildCustomScene() {
+	inline Scene buildCustomScene(Renderer& renderer) {
 		Scene scene;
 
 		scene.directionalLightTransform.rotation(Vec3{ -45.0f, 0.0f, 0.0f });
@@ -266,6 +266,16 @@ namespace Byte {
 		}
 
 		scene.instancedEntities["grass"] = std::move(grass);
+
+		renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
+		renderer.data().shaders.at("grass").addUniform(Uniform{ "uTime",UniformType::FLOAT });
+		renderer.context().shaderInputMap().emplace("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
+		renderer.data().shaders.at("grass").addUniform(Uniform{ "uWind",UniformType::VEC3 });
+		renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
+		renderer.compileShaders();
+		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
+		scene.setContext(renderer);
+
 		return scene;
 	}
 
