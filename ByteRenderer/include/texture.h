@@ -22,16 +22,18 @@ namespace Byte {
 
 		Texture(const Texture& left) = delete;
 
-		Texture(Texture&& right) 
+		Texture(Texture&& right) noexcept
 			:_data{std::move(right._data)} {
 			right._data.id = 0;
 		}
 
 		Texture& operator=(const Texture& left) = delete;
 
-		Texture& operator=(Texture&& right) {
+		Texture& operator=(Texture&& right) noexcept {
 			_data = std::move(right._data);
 			right._data.id = 0;
+
+			return *this;
 		}
 
 		~Texture() {

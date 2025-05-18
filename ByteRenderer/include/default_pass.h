@@ -109,7 +109,7 @@ namespace Byte {
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
-				if (material->shadowMode() == ShadowMode::FULL) {
+				if (material->shadowMode() == ShadowMode::ENABLED) {
 					mesh->renderArray().bind();
 
 					shader.uniform<Vec3>("uPosition", transform->position());
@@ -128,7 +128,7 @@ namespace Byte {
 				RenderMesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
-				if (material.shadowMode() == ShadowMode::FULL) {
+				if (material.shadowMode() == ShadowMode::ENABLED) {
 					mesh.renderArray().bind();
 
 					RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
@@ -281,7 +281,7 @@ namespace Byte {
 				material.materialTexture().bind(TextureUnit::T1);
 			}
 
-			shader.uniform<Vec3>("uAlbedo", material.albedo());
+			shader.uniform<Vec4>("uAlbedo", material.albedo());
 		}
 
 		void renderEntities(

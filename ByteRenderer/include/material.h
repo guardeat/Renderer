@@ -11,14 +11,19 @@ namespace Byte {
 	
 	enum class ShadowMode : uint8_t {
 		DISABLED,
-		FULL,
+		ENABLED,
+	};
+
+	enum class TransparencyMode : uint8_t {
+		BINARY,
+		GRADUAL,
 	};
 
 	struct MaterialData {
 		using ShaderMap = std::unordered_map<std::string, ShaderTag>;
 		ShaderMap shaderMap;
 
-		Vec3 albedo;
+		Vec4 albedo;
 
 		float metallic{ 0.5f };
 		float roughness{ 0.5f };
@@ -28,7 +33,8 @@ namespace Byte {
 		Texture* albedoTexture{ nullptr };
 		Texture* materialTexture{ nullptr };
 
-		ShadowMode shadow{ ShadowMode::FULL };
+		ShadowMode shadow{ ShadowMode::ENABLED };
+		TransparencyMode transparency{ TransparencyMode::BINARY };
 	};
 
 	class Material {
@@ -43,12 +49,16 @@ namespace Byte {
 		{
 		}
 
-		Vec3 albedo() const {
+		Vec4 albedo() const {
 			return _data.albedo;
 		}
 
-		void albedo(Vec3 value) {
+		void albedo(Vec4 value) {
 			_data.albedo = value;
+		}
+
+		void albedo(Vec3 value) {
+			_data.albedo = Vec4(value.x,value.y,value.z,1.0f);
 		}
 
 		const MaterialData::ShaderMap& shaderMap() const {
@@ -151,6 +161,14 @@ namespace Byte {
 
 		void shadowMode(ShadowMode mode) {
 			_data.shadow = mode;
+		}
+
+		TransparencyMode transparencyMode() const {
+			return _data.transparency;
+		}
+
+		void transparencyMode(TransparencyMode mode) {
+			_data.transparency = mode;
 		}
 
 	};

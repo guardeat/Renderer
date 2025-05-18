@@ -8,7 +8,7 @@ in vec3 vNormal;
 in vec2 vTexCoord;
 in vec3 vFragPos;
 
-uniform vec3 uAlbedo;
+uniform vec4 uAlbedo;
 uniform float uMetallic;
 uniform float uRoughness;
 uniform float uAO;
@@ -23,25 +23,36 @@ void main()
 {    
     gNormal = normalize(vNormal);
 
-    switch(uDataMode) {
-        case 0: 
-            gAlbedo = uAlbedo;
-            gMaterial = vec4(uMetallic,uRoughness,uAO,uEmission);
-            break;
-        case 1:
-            gAlbedo = texture(uAlbedoTexture,vTexCoord).rgb * uAlbedo;
-            gMaterial = vec4(uMetallic,uRoughness,uAO,uEmission);
-            break;
-        case 2:
-             gAlbedo = uAlbedo;
-             gMaterial = texture(uMaterialTexture,vTexCoord);
-             break;
-        case 3:
-            gAlbedo = texture(uAlbedoTexture,vTexCoord).rgb * uAlbedo;
-            gMaterial = texture(uMaterialTexture,vTexCoord);
-            break;
-        default:
-            gAlbedo = vec3(1.0f);
-            gMaterial = vec4(1.0f);
+    vec4 sampledAlbedo = vec4(1.0);
+    vec4 sampledMaterial = vec4(1.0);
+
+    bool useAlbedoTexture = (uDataMode == 1 || uDataMode == 3);
+
+    if (useAlbedoTexture) {
+        sampledAlbedo = texture(uAlbedoTexture, vTexCoord);
+        if (sampledAlbedo.a == 0.0) {
+            discard;
+        }
+    } else {
+        if (uAlbedo.a == 0.0) {
+            discard;
+        }
+    }
+
+    if (uDataMode == 0) {
+        gAlbedo = uAlbedo.rgb;
+        gMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
+    } else if (uDataMode == 1) {
+        gAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
+        gMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
+    } else if (uDataMode == 2) {
+        gAlbedo = uAlbedo.rgb;
+        gMaterial = sampledMaterial;
+    } else if (uDataMode == 3) {
+        gAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
+        gMaterial = sampledMaterial;
+    } else {
+        gAlbedo = vec3(1.0);
+        gMaterial = vec4(1.0);
     }
 }
