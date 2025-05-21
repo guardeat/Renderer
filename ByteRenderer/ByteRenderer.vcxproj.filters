@@ -119,4 +119,12 @@
     <None Include="resource\shader\bloom_upsample.frag" />
     <None Include="test\shader\grass.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\texture\height_map.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="test\texture\grass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

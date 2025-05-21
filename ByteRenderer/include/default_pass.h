@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 #include "context.h"
 #include "render_api.h"
 #include "render_pass.h"
@@ -352,6 +354,39 @@ namespace Byte {
 			}
 		}
 
+	};
+
+	class SSAOPass : public RenderPass {
+	private:
+		std::vector<Vec3> kernel;
+		std::vector<Vec3> noise;
+
+	public:
+		SSAOPass() {
+			std::uniform_real_distribution<GLfloat> urd(0.0, 1.0);
+			std::default_random_engine generator;
+			for (size_t i{ 0 }; i < 64; ++i)
+			{
+				Vec3 sample{ urd(generator) * 2.0f - 1.0f, urd(generator) * 2.0f - 1.0f, urd(generator) };
+				sample.normalize();
+				sample *= urd(generator);
+				float scale{ static_cast<float>(i) / 64.0f };
+
+				scale = 0.1f + scale * scale * 0.9f;
+				sample *= scale;
+				kernel.push_back(sample);
+			}
+
+			for (size_t i{ 0 }; i < 16; i++)
+			{
+				Vec3 sample(urd(generator) * 2.0f - 1.0f, urd(generator) * 2.0f - 1.0f, 0.0f);
+				noise.push_back(sample);
+			}
+		}
+
+		void render(RenderContext& context, RenderData& data) override {
+
+		}
 	};
 
 	class LightingPass : public RenderPass {

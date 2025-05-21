@@ -28,4 +28,7 @@ void main()
     upsample += (b + d + f + h) * 2.0;
     upsample += (a + c + g + i);
     upsample *= 1.0 / 16.0;
+     if(upsample != upsample) {
+        upsample = vec3(0);
+     }
 }

@@ -5,6 +5,11 @@
 
 using namespace Byte;
 
+extern "C" {
+	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+
 int main() {
 	glfwInit();
 
@@ -15,6 +20,10 @@ int main() {
 	FPSCamera fpsCamera;
 
 	Scene scene{ buildCustomScene(renderer) };
+
+	std::cout << "Renderer: " << glGetString(GL_RENDERER) << "\n";
+	std::cout << "Vendor: " << glGetString(GL_VENDOR) << "\n";
+	std::cout << "Version: " << glGetString(GL_VERSION) << "\n";
 
 	auto lastTime{ std::chrono::high_resolution_clock::now() };
 	int frameCount{ 0 };
