@@ -9,52 +9,6 @@
 
 namespace Byte {
 
-    enum class UniformType {
-        BOOL,
-        INT,
-        UINT32_T,
-        FLOAT,
-        VEC2,
-        VEC3,
-        VEC4,
-        QUATERNION,
-        MAT2,
-        MAT3,
-        MAT4
-    };
-    
-    using UniformTag = std::string;
-
-    struct Uniform {
-        UniformTag tag;
-        UniformType type;
-    };
-
-    template<typename Type>
-    struct ShaderInput {
-        Type value;
-        UniformType type;
-    };
-
-    struct ShaderPath {
-        Path vertex;
-        Path fragment;
-        Path geometry;
-    };
-
-    using ShaderInputMap = std::unordered_map<UniformTag, std::variant<
-        ShaderInput<bool>,
-        ShaderInput<int>,
-        ShaderInput<uint32_t>,
-        ShaderInput<float>,
-        ShaderInput<Vec2>,
-        ShaderInput<Vec3>,
-        ShaderInput<Vec4>,
-        ShaderInput<Quaternion>,
-        ShaderInput<Mat2>,
-        ShaderInput<Mat3>,
-        ShaderInput<Mat4>>>;
-
     struct Shader {
     private:
         uint32_t _id{ 0 };

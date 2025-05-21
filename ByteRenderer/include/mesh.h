@@ -10,20 +10,6 @@
 
 namespace Byte {
 
-    enum class MeshMode : uint8_t {
-        STATIC,
-        DYNAMIC,
-    };
-
-	struct MeshData {
-        Buffer<float> vertices;
-		Buffer<uint32_t> indices;
-
-        MeshMode mode{ MeshMode::STATIC };
-
-        Buffer<uint8_t> vertexLayout{ 3,3,2 };
-	};
-
 	class RenderMesh {
 	private:
         MeshData _data;

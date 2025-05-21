@@ -114,7 +114,7 @@ namespace Byte {
         }
 
         struct Framebuffer {
-            static FramebufferData build(FramebufferData& data) {
+            static void build(FramebufferData& data) {
                 glGenFramebuffers(1, &data.id);
                 glBindFramebuffer(GL_FRAMEBUFFER, data.id);
 
@@ -124,8 +124,6 @@ namespace Byte {
                 bool hasDepth{ false };
 
                 for (auto& [tag,att] : data.textures) {
-                    TextureID id;
-
                     size_t width{ att.width ? att.width : data.width };
                     size_t height{ att.height ? att.height : data.height };
 
@@ -133,18 +131,18 @@ namespace Byte {
                     att.height = height;
 
                     if (att.type == TextureType::TEXTURE_2D) {
-                        id = Texture::build(att);
+                        Texture::build(att);
                         glFramebufferTexture2D(
                             GL_FRAMEBUFFER, TypeCast::convert(att.attachment), 
-                            GL_TEXTURE_2D, id, 0);
+                            GL_TEXTURE_2D, att.id, 0);
                     }
                     else {
-                        id = Texture::buildArray(att);
+                        Texture::buildArray(att);
                         glFramebufferTexture(
                             GL_FRAMEBUFFER, TypeCast::convert(att.attachment),
-                            id, 0);
+                            att.id, 0);
                     }
-                    att.id = id;
+ 
                     if (att.attachment == AttachmentType::DEPTH) {
                         hasDepth = true;
                     }
@@ -171,8 +169,6 @@ namespace Byte {
                 }
 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-                return data;
             }
 
             static void clear(FramebufferID id) {
@@ -551,7 +547,7 @@ namespace Byte {
         };
 
         struct Texture {
-            static TextureID build(TextureData& data) {
+            static void build(TextureData& data) {
                 TextureID textureID;
 
                 GLint glWidth{ static_cast<GLint>(data.width) };
@@ -579,7 +575,7 @@ namespace Byte {
 
                 glBindTexture(GL_TEXTURE_2D, 0);
 
-                return textureID;
+                data.id = textureID;
             }
 
             static TextureID buildArray(TextureData& data) {

@@ -6,10 +6,26 @@
 #include <unordered_map>
 #include <string>
 #include <exception>
+#include <variant>
+#include <random>
+
+#include "vec.h"
+#include "mat.h"
+#include "quaternion.h"
 
 namespace Byte {
 
 	using RenderID = uint64_t;
+
+	struct RenderIDGenerator {
+		static RenderID generate() {
+			static std::random_device rd;
+			static std::mt19937_64 gen(rd());
+			static std::uniform_int_distribution<RenderID> dist(1, std::numeric_limits<uint64_t>::max());
+
+			return dist(gen);
+		}
+	};
 
 	using Path = std::filesystem::path;
 
@@ -19,6 +35,9 @@ namespace Byte {
 	using ShaderTag = std::string;
 	using FramebufferTag = std::string;
 	using MeshTag = std::string;
+	using TextureTag = std::string;
+	using UniformTag = std::string;
+	using ParameterTag = std::string;
 
 	using TextureID = uint32_t;
 	using FramebufferID = uint32_t;
@@ -104,6 +123,11 @@ namespace Byte {
 		size_t width{};
 		size_t height{};
 
+		TextureWrap wrapS{ TextureWrap::CLAMP_TO_EDGE };
+		TextureWrap wrapT{ TextureWrap::CLAMP_TO_EDGE };
+		TextureFilter minFilter{ TextureFilter::LINEAR };
+		TextureFilter magFilter{ TextureFilter::LINEAR };
+
 		TextureType type{ TextureType::TEXTURE_2D };
 
 		size_t layerCount{};
@@ -111,11 +135,6 @@ namespace Byte {
 		Buffer<uint8_t> data{};
 
 		Path path{};
-
-		TextureWrap wrapS{ TextureWrap::CLAMP_TO_EDGE };
-		TextureWrap wrapT{ TextureWrap::CLAMP_TO_EDGE };
-		TextureFilter minFilter{ TextureFilter::LINEAR };
-		TextureFilter magFilter{ TextureFilter::LINEAR };
 
 		TextureID id{};
 	};
@@ -160,6 +179,74 @@ namespace Byte {
 
 		RenderBufferID EBO{ 0 };
 		size_t elementCount{ 0 };
+	};
+
+	enum class UniformType {
+		BOOL,
+		INT,
+		UINT32_T,
+		FLOAT,
+		VEC2,
+		VEC3,
+		VEC4,
+		QUATERNION,
+		MAT2,
+		MAT3,
+		MAT4
+	};
+
+	struct Uniform {
+		UniformTag tag;
+		UniformType type;
+	};
+
+	template<typename Type>
+	struct ShaderInput {
+		Type value;
+		UniformType type;
+	};
+
+	struct ShaderPath {
+		Path vertex;
+		Path fragment;
+		Path geometry;
+	};
+
+	using ShaderInputMap = std::unordered_map<UniformTag, std::variant<
+		ShaderInput<bool>,
+		ShaderInput<int>,
+		ShaderInput<uint32_t>,
+		ShaderInput<float>,
+		ShaderInput<Vec2>,
+		ShaderInput<Vec3>,
+		ShaderInput<Vec4>,
+		ShaderInput<Quaternion>,
+		ShaderInput<Mat2>,
+		ShaderInput<Mat3>,
+		ShaderInput<Mat4>>>;
+
+	enum class ShadowMode : uint8_t {
+		DISABLED,
+		ENABLED,
+	};
+
+	enum class TransparencyMode : uint8_t {
+		BINARY,
+		GRADUAL,
+	};
+
+	enum class MeshMode : uint8_t {
+		STATIC,
+		DYNAMIC,
+	};
+
+	struct MeshData {
+		Buffer<float> vertices;
+		Buffer<uint32_t> indices;
+
+		MeshMode mode{ MeshMode::STATIC };
+
+		Buffer<uint8_t> vertexLayout{ 3,3,2 };
 	};
 
 }

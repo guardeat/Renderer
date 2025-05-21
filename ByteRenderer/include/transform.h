@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vec.h"
+#include "mat.h"
 #include "quaternion.h"
 
 namespace Byte {
@@ -16,9 +17,6 @@ namespace Byte {
 		Vec3 _globalPos;
 		Vec3 _globalScale{ 1, 1, 1 };
 		Quaternion _globalRot;
-
-		Vec3 _oldParentScale{ 1,1,1 };
-		Quaternion _oldParentRot;
 
 	public:
 		Transform() = default;

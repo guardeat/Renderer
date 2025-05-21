@@ -169,22 +169,22 @@ namespace Byte {
 			for (auto& pair : _context.renderEntities()) {
 				Material& material{ *pair.second.material };
 				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
-					material.albedoTexture().id(RenderAPI::Texture::build(material.albedoTexture().data()));
+					RenderAPI::Texture::build(material.albedoTexture().data());
 				}
 
 				if (material.hasMaterialTexture() && !material.materialTextureID()) {
-					material.materialTexture().id(RenderAPI::Texture::build(material.materialTexture().data()));
+					RenderAPI::Texture::build(material.materialTexture().data());
 				}
 			}
 
 			for (auto& pair : _context.instances()) {
 				Material& material{ pair.second.material() };
 				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
-					material.albedoTexture().id(RenderAPI::Texture::build(material.albedoTexture().data()));
+					RenderAPI::Texture::build(material.albedoTexture().data());
 				}
 
 				if (material.hasMaterialTexture() && !material.materialTextureID()) {
-					material.materialTexture().id(RenderAPI::Texture::build(material.materialTexture().data()));
+					RenderAPI::Texture::build(material.materialTexture().data());
 				}
 			}
 		}

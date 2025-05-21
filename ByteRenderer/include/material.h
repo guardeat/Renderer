@@ -8,16 +8,6 @@
 #include "texture.h"
 
 namespace Byte {
-	
-	enum class ShadowMode : uint8_t {
-		DISABLED,
-		ENABLED,
-	};
-
-	enum class TransparencyMode : uint8_t {
-		BINARY,
-		GRADUAL,
-	};
 
 	struct MaterialData {
 		using ShaderMap = std::unordered_map<std::string, ShaderTag>;

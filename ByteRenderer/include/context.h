@@ -2,7 +2,6 @@
 
 #include <tuple>
 #include <unordered_map>
-#include <random>
 #include <limits>
 #include <variant>
 
@@ -18,16 +17,6 @@
 #include "shader.h"
 
 namespace Byte {
-
-    struct RenderIDGenerator {
-        static RenderID generate() {
-            static std::random_device rd;
-            static std::mt19937_64 gen(rd());
-            static std::uniform_int_distribution<RenderID> dist(1, std::numeric_limits<uint64_t>::max());
-
-            return dist(gen);
-        }
-    };
 
     class RenderContext {
     public:

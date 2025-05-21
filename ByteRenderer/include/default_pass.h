@@ -358,8 +358,14 @@ namespace Byte {
 
 	class SSAOPass : public RenderPass {
 	private:
-		std::vector<Vec3> kernel;
-		std::vector<Vec3> noise;
+		std::vector<Vec3> _kernel;
+		std::vector<Vec3> _noise;
+		Texture _noiseTexture{ 
+			TextureData{
+				AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, 
+				DataType::FLOAT, 4U, 4U,
+				TextureWrap::REPEAT, TextureWrap::REPEAT,
+				} };
 
 	public:
 		SSAOPass() {
@@ -374,17 +380,23 @@ namespace Byte {
 
 				scale = 0.1f + scale * scale * 0.9f;
 				sample *= scale;
-				kernel.push_back(sample);
+				_kernel.push_back(sample);
 			}
 
 			for (size_t i{ 0 }; i < 16; i++)
 			{
 				Vec3 sample(urd(generator) * 2.0f - 1.0f, urd(generator) * 2.0f - 1.0f, 0.0f);
-				noise.push_back(sample);
+
+				const uint8_t* bytes{ reinterpret_cast<const uint8_t*>(&sample) };
+				_noiseTexture.data().data.insert(_noiseTexture.data().data.end(), bytes, bytes + sizeof(Vec3));
 			}
 		}
 
 		void render(RenderContext& context, RenderData& data) override {
+			if (!_noiseTexture.data().id) {
+				RenderAPI::Texture::build(_noiseTexture.data());
+			}
+
 
 		}
 	};

@@ -78,7 +78,7 @@ namespace Byte {
 		}
 
 		void build() {
-			_data = RenderAPI::Framebuffer::build(_data);
+			RenderAPI::Framebuffer::build(_data);
 		}
 
 		void clear() {
@@ -88,8 +88,8 @@ namespace Byte {
 			_data.attachments.clear();
 		}
 
-		TextureID textureID(const std::string& name) const {
-			return _data.textures.at(name).id;
+		TextureID textureID(const TextureTag& tag) const {
+			return _data.textures.at(tag).id;
 		}
 
 		FramebufferID id() const {

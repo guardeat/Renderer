@@ -19,16 +19,15 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		using Variant = std::variant<std::string, uint32_t, int32_t, bool, float, Mat4>;
-		using ParameterTag = std::string;
-		using ParameterMap = std::unordered_map<ParameterTag, Variant>;
+		using Parameter = std::variant<std::string, uint32_t, int32_t, bool, float, Mat4>;
+		using ParameterMap = std::unordered_map<ParameterTag, Parameter>;
 		ParameterMap parameters;
 
 		using MeshMap = std::unordered_map<MeshTag, RenderMesh>;
 		MeshMap meshes;
 
 		template<typename Type>
-		Type& parameter(const ParameterTag& tag) {
+		Type& parameter(const std::string& tag) {
 			return std::get<Type>(parameters.at(tag));
 		}
 	};

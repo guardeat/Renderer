@@ -66,10 +66,6 @@ namespace Byte {
 			return _data.id;
 		}
 
-		void id(TextureID id) {
-			_data.id = id;
-		}
-
 		void bind(TextureUnit unit = TextureUnit::T0) const {
 			RenderAPI::Texture::bind(_data.id, unit);
 		}

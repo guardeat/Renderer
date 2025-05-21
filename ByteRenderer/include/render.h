@@ -94,6 +94,21 @@ namespace Byte {
 				renderer.data().frameBuffers.emplace("bloomBuffer" + std::to_string(i + 1), FramebufferData{ bloomBufferData });
 			}
 
+			FramebufferData ssaoBufferData;
+			ssaoBufferData.width = width;
+			ssaoBufferData.height = height;
+			ssaoBufferData.textures = {
+				{ "color", { AttachmentType::COLOR_0, ColorFormat::RED, ColorFormat::RED, DataType::FLOAT } }
+			};
+
+			FramebufferData ssaoBlurBufferData;
+			ssaoBlurBufferData.width = width;
+			ssaoBlurBufferData.height = height;
+			ssaoBlurBufferData.textures = {
+				{ "color", { AttachmentType::COLOR_0, ColorFormat::RED, ColorFormat::RED, DataType::FLOAT } }
+			};
+
+
 			renderer.initialize(window);
 			return renderer;
 		}
