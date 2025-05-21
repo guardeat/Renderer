@@ -28,7 +28,7 @@ int main() {
 	auto lastTime{ std::chrono::high_resolution_clock::now() };
 	int frameCount{ 0 };
 	float fpsTimer{ 0.0f };
-
+	glClearColor(0.0f, 0.1f, 0.8f,1.0f);
 	renderer.load();
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {

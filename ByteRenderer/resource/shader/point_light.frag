@@ -93,5 +93,9 @@ void main() {
     float NdotL = max(dot(normal, L), 0.0);
     vec3 resultColor = (kD * albedo / PI + specular) * radiance * NdotL;
 
+    if(isnan(resultColor.x) || isnan(resultColor.y) || isnan(resultColor.z)){
+        resultColor = vec3(0.0f);
+    }
+
     gColor = vec4(resultColor, 1.0);
 }

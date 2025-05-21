@@ -12,5 +12,7 @@ void main() {
 
     vec3 mapped = albedo / (albedo + vec3(1.0));
 
-    FragColor = vec4(pow(mapped.rgb, vec3(1.0/uGamma)), 1.0);
+    vec3 gammaCorrected = pow(mapped, vec3(1.0 / uGamma));
+
+    FragColor = vec4(gammaCorrected, 1.0);
 }
