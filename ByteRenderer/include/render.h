@@ -108,7 +108,6 @@ namespace Byte {
 				{ "color", { AttachmentType::COLOR_0, ColorFormat::RED, ColorFormat::RED, DataType::FLOAT } }
 			};
 
-
 			renderer.initialize(window);
 			return renderer;
 		}

@@ -65,11 +65,7 @@ void main()
 	    groups[3] *= karisAverage(groups[3]);
 	    groups[4] *= karisAverage(groups[4]);
 	    downsample = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
-	    downsample = max(downsample, 0.0001f);
-        if(downsample != downsample) {
-            downsample = vec3(0.0);
-        }
-
+        downsample = max(downsample, 0.0001f);
     }
 
     else{
@@ -77,8 +73,6 @@ void main()
         downsample += (a + c + g + i) * 0.03125;
         downsample += (b + d + f + h) * 0.0625;
         downsample += (j + k + l + m) * 0.125;
-         if(downsample != downsample) {
-            downsample = vec3(0.0);
-        }
+        downsample = max(downsample, 0.0001f);
     }
 }
