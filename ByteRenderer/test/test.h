@@ -202,7 +202,7 @@ namespace Byte {
 
 		scene.pointLights.push_back(std::make_unique<PointLight>());
 		scene.pointLightTransforms.push_back(std::make_unique<Transform>());
-		scene.pointLights.back()->color = Vec3{ 10.0f, 10.f, 10.0f };
+		scene.pointLights.back()->color = Vec3{ 10.0f, 10.0f, 10.0f };
 		scene.pointLightTransforms.back()->position(Vec3{ 0.0f, 1.0f, 0.0f });
 
 		InstancedEntity grass;
