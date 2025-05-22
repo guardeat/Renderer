@@ -113,6 +113,14 @@ namespace Byte {
             glViewport(glX, glY, glWidth, glHeight);
         }
 
+        static void clearColor(Vec3 color) {
+            clearColor(Vec4{ color.x,color.y,color.z, 1.0f });
+        }
+
+        static void clearColor(Vec4 color) {
+            glClearColor(color.x, color.y, color.z, color.w);
+        }
+
         struct Framebuffer {
             static void build(FramebufferData& data) {
                 glGenFramebuffers(1, &data.id);

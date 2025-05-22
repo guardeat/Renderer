@@ -52,6 +52,7 @@
   <ItemGroup>
     <None Include="resource\shader\bloom_downsample.frag" />
     <None Include="resource\shader\bloom_upsample.frag" />
+    <None Include="resource\shader\blur.frag" />
     <None Include="resource\shader\default.vert" />
     <None Include="resource\shader\deferred.frag" />
     <None Include="resource\shader\depth.frag" />
@@ -67,6 +68,7 @@
     <None Include="resource\shader\quad.frag" />
     <None Include="resource\shader\quad.vert" />
     <None Include="resource\shader\quad_depth.frag" />
+    <None Include="resource\shader\ssao.frag" />
     <None Include="test\shader\grass.vert" />
   </ItemGroup>
   <ItemGroup>

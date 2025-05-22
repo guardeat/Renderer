@@ -360,6 +360,7 @@ namespace Byte {
 	private:
 		std::vector<Vec3> _kernel;
 		std::vector<Vec3> _noise;
+
 		Texture _noiseTexture{ 
 			TextureData{
 				AttachmentType::COLOR_0, ColorFormat::RGB16F, ColorFormat::RGB, 
@@ -397,18 +398,79 @@ namespace Byte {
 				RenderAPI::Texture::build(_noiseTexture.data());
 			}
 
+			if (!data.parameter<bool>("render_ssao")) {
+				return;
+			}
 
+			Shader& ssaoShader{ data.shaders.at("ssao") };
+
+			Framebuffer& gBuffer{ data.frameBuffers.at("gBuffer") };
+
+			Framebuffer& ssaoBuffer{ data.frameBuffers.at("ssaoBuffer") };
+			ssaoBuffer.bind();
+			ssaoBuffer.clearContent();
+
+			ssaoShader.bind();
+
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			
+			auto [camera, cTransform] = context.camera();
+			auto [directionalLight, dlTransform] = context.directionalLight();
+
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ cTransform->view() };
+			Mat4 inverseView{ view.inverse() };
+			Mat4 inverseProjection{ projection.inverse() };
+			
+			Vec2 screenSize{ static_cast<float>(data.width), static_cast<float>(data.height) };
+
+			ssaoShader.uniform<Mat4>("uProjection", projection);
+			ssaoShader.uniform<Mat4>("uInverseView", inverseView);
+			ssaoShader.uniform<Mat4>("uInverseProjection", inverseProjection);
+			ssaoShader.uniform<Vec2>("uScreenSize", screenSize);
+			ssaoShader.uniform<Vec3>("uSamples", _kernel);
+
+			RenderAPI::Texture::bind(gBuffer.textureID("normal"), TextureUnit::T0);
+			RenderAPI::Texture::bind(_noiseTexture.id(), TextureUnit::T1);
+			RenderAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T2);
+
+			ssaoShader.uniform("uNormal", 0);
+			ssaoShader.uniform("uNoise", 1);
+			ssaoShader.uniform("uDepth", 2);
+
+			data.meshes.at("quad").renderArray().bind();
+
+			RenderAPI::Draw::quad();
+
+			data.meshes.at("quad").renderArray().unbind();
+
+			Framebuffer& blurBuffer{ data.frameBuffers.at("blurBuffer") };
+			blurBuffer.bind();
+			blurBuffer.clearContent();
+			Shader& blurShader{ data.shaders.at("blur") };
+			blurShader.bind();
+
+			RenderAPI::Texture::bind(ssaoBuffer.textureID("color"), TextureUnit::T0);
+			RenderAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T1);
+
+			blurShader.uniform("uSrcTexture", 0);
+			blurShader.uniform("uDepth", 1);
+
+			data.meshes.at("quad").renderArray().bind();
+
+			RenderAPI::Draw::quad();
+
+			data.meshes.at("quad").renderArray().unbind();
 		}
 	};
 
 	class LightingPass : public RenderPass {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
-			Shader& lightingShader{ data.shaders["lighting"] };
-			Shader& plShader{ data.shaders["point_light"] };
+			Shader& lightingShader{ data.shaders.at("lighting") };
 
-			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
-			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
+			Framebuffer& gBuffer{ data.frameBuffers.at("gBuffer") };
+			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
 
 			colorBuffer.bind();
 			colorBuffer.clearContent();
@@ -431,6 +493,17 @@ namespace Byte {
 			RenderAPI::Texture::bind(gBuffer.textureID("material"), TextureUnit::T2);
 			RenderAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T3);
 
+			if (data.parameter<bool>("render_ssao")) {
+				size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
+				TextureUnit ssaoUnit{ static_cast<TextureUnit>(
+					static_cast<uint32_t>(TextureUnit::T4) + cascadeCount
+				) };
+
+				Framebuffer& blurBuffer{ data.frameBuffers.at("blurBuffer") };
+				RenderAPI::Texture::bind(blurBuffer.textureID("color"), ssaoUnit);
+				lightingShader.uniform("uSSAO", static_cast<int>(ssaoUnit));
+			}
+
 			setupGBufferTextures(lightingShader);
 			setupCascades(data, lightingShader, *camera);
 			bindCommon(lightingShader, view, inverseView, inverseProjection, viewPos);
@@ -439,6 +512,8 @@ namespace Byte {
 			lightingShader.uniform<Vec3>("uDirectionalLight.color", directionalLight->color);
 			lightingShader.uniform<float>("uDirectionalLight.intensity", directionalLight->intensity);
 
+			lightingShader.uniform<bool>("uUseSSAO", data.parameter<bool>("render_ssao"));
+
 			data.meshes.at("quad").renderArray().bind();
 			RenderAPI::Draw::quad();
 			data.meshes.at("quad").renderArray().unbind();
@@ -446,7 +521,7 @@ namespace Byte {
 			lightingShader.unbind();
 
 			if (!context.pointLights().empty()) {
-				Shader& plShader{ data.shaders["point_light"] };
+				Shader& plShader{ data.shaders.at("point_light") };
 				plShader.bind();
 
 				RenderAPI::enableBlend();
@@ -551,15 +626,15 @@ namespace Byte {
 
 			size_t mipCount{ data.parameter<uint32_t>("bloom_mip_count") };
 
-			Shader& downsampleShader{ data.shaders["bloom_downsample"] };
+			Shader& downsampleShader{ data.shaders.at("bloom_downsample") };
 			downsampleShader.bind();
 			downsampleShader.uniform<float>("uInvGamma", 1.0f / data.parameter<float>("gamma"));
 			downsampleShader.uniform<bool>(" uKarisAvarage", true);
 
-			Framebuffer* src{ &data.frameBuffers["colorBuffer"] };
+			Framebuffer* src{ &data.frameBuffers.at("colorBuffer") };
 
 			for (size_t i{ 1 }; i <= mipCount; ++i) {
-				Framebuffer* dest{ &data.frameBuffers["bloomBuffer" + std::to_string(i)] };
+				Framebuffer* dest{ &data.frameBuffers.at("bloomBuffer" + std::to_string(i)) };
 
 				float srcWidth{ static_cast<float>(src->width()) };
 				float srcHeight{ static_cast<float>(src->height()) };
@@ -586,7 +661,7 @@ namespace Byte {
 			RenderAPI::enableBlend();
 			RenderAPI::disableDepth();
 
-			Shader& upsampleShader{ data.shaders["bloom_upsample"] };
+			Shader& upsampleShader{ data.shaders.at("bloom_upsample") };
 
 			upsampleShader.bind();
 			upsampleShader.uniform<float>("uFilterRadius", 0.01f);
@@ -595,7 +670,7 @@ namespace Byte {
 
 			src = &data.frameBuffers["bloomBuffer" + std::to_string(mipCount)];
 			for (size_t i{ mipCount }; i > 1; --i) {
-				Framebuffer* dest{ &data.frameBuffers["bloomBuffer" + std::to_string(i - 1)] };
+				Framebuffer* dest{ &data.frameBuffers.at("bloomBuffer" + std::to_string(i - 1)) };
 
 				dest->bind();
 
@@ -612,7 +687,7 @@ namespace Byte {
 
 			RenderAPI::setBlend(strength, 1.0f - strength);
 
-			data.frameBuffers["colorBuffer"].bind();
+			data.frameBuffers.at("colorBuffer").bind();
 
 			data.meshes.at("quad").renderArray().bind();
 			RenderAPI::Draw::quad();
@@ -629,8 +704,8 @@ namespace Byte {
 			RenderAPI::viewPort(data.width, data.height);
 			RenderAPI::Framebuffer::clear(0);
 
-			Shader& quadShader{ data.shaders["quad"] };
-			Framebuffer& colorBuffer{ data.frameBuffers["colorBuffer"] };
+			Shader& quadShader{ data.shaders.at("quad") };
+			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
 
 			quadShader.bind();
 			quadShader.uniform("uAlbedo", 0);

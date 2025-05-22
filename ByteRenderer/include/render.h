@@ -8,7 +8,7 @@ namespace Byte {
 
 	struct RendererGenerator {
 		static Renderer deferred(Window& window) {
-			Renderer renderer{ Renderer::build<SkyboxPass, ShadowPass, GeometryPass, LightingPass, BloomPass, DrawPass>() };
+			Renderer renderer{ Renderer::build<SkyboxPass, ShadowPass, GeometryPass, SSAOPass, LightingPass, BloomPass, DrawPass>() };
 			size_t width{ window.width() };
 			size_t height{ window.height() };
 
@@ -23,6 +23,8 @@ namespace Byte {
 			renderer.data().shaders["instanced_deferred"] = { "resource/shader/instanced.vert", "resource/shader/deferred.frag" };
 			renderer.data().shaders["bloom_upsample"] = { "resource/shader/quad.vert", "resource/shader/bloom_upsample.frag" };
 			renderer.data().shaders["bloom_downsample"] = { "resource/shader/quad.vert", "resource/shader/bloom_downsample.frag" };
+			renderer.data().shaders["ssao"] = { "resource/shader/quad.vert", "resource/shader/ssao.frag" };
+			renderer.data().shaders["blur"] = { "resource/shader/quad.vert", "resource/shader/blur.frag" };
 
 			renderer.data().parameters.emplace("render_skybox", true);
 			renderer.data().parameters.emplace("render_shadow", true);
@@ -42,6 +44,7 @@ namespace Byte {
 			renderer.data().parameters.emplace("render_bloom", true);
 			renderer.data().parameters.emplace("bloom_mip_count", 5U);
 			renderer.data().parameters.emplace("bloom_strength", 0.3f);
+			renderer.data().parameters.emplace("render_ssao", true);
 
 			renderer.data().meshes.emplace("cube", MeshBuilder::cube());
 			renderer.data().meshes.emplace("quad", MeshBuilder::quad());
@@ -101,12 +104,16 @@ namespace Byte {
 				{ "color", { AttachmentType::COLOR_0, ColorFormat::RED, ColorFormat::RED, DataType::FLOAT } }
 			};
 
-			FramebufferData ssaoBlurBufferData;
-			ssaoBlurBufferData.width = width;
-			ssaoBlurBufferData.height = height;
-			ssaoBlurBufferData.textures = {
+			renderer.data().frameBuffers.emplace("ssaoBuffer", std::move(ssaoBufferData));
+
+			FramebufferData blurBufferData;
+			blurBufferData.width = width;
+			blurBufferData.height = height;
+			blurBufferData.textures = {
 				{ "color", { AttachmentType::COLOR_0, ColorFormat::RED, ColorFormat::RED, DataType::FLOAT } }
 			};
+
+			renderer.data().frameBuffers.emplace("blurBuffer", std::move(blurBufferData));
 
 			renderer.initialize(window);
 			return renderer;
