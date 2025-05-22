@@ -708,8 +708,8 @@ namespace Byte {
 			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
 
 			quadShader.bind();
-			quadShader.uniform("uAlbedo", 0);
 			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
+			quadShader.uniform("uAlbedo", 0);
 			RenderAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();
