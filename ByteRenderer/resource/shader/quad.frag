@@ -2,7 +2,7 @@
 
 in vec2 vTexCoord;
 
-out vec4 FragColor;
+out vec4 oFragColor;
 
 uniform sampler2D uAlbedo;
 uniform float uGamma;
@@ -14,5 +14,5 @@ void main() {
 
     vec3 gammaCorrected = pow(mapped, vec3(1.0 / uGamma));
 
-    FragColor = vec4(gammaCorrected, 1.0);
+    oFragColor = vec4(gammaCorrected, 1.0);
 }

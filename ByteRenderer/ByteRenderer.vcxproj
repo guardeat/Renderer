@@ -58,6 +58,7 @@
     <None Include="resource\shader\depth.frag" />
     <None Include="resource\shader\depth.vert" />
     <None Include="resource\shader\forward.frag" />
+    <None Include="resource\shader\fxaa.frag" />
     <None Include="resource\shader\instanced.vert" />
     <None Include="resource\shader\instanced_depth.vert" />
     <None Include="resource\shader\lighting.frag" />

@@ -1,8 +1,8 @@
 #version 410 core
 
-layout (location = 0) out vec3 gNormal;
-layout (location = 1) out vec3 gAlbedo;
-layout (location = 2) out vec4 gMaterial;
+layout (location = 0) out vec3 oNormal;
+layout (location = 1) out vec3 oAlbedo;
+layout (location = 2) out vec4 oMaterial;
 
 in vec3 vNormal;
 in vec2 vTexCoord;
@@ -21,7 +21,7 @@ uniform int uDataMode;
 
 void main()
 {    
-    gNormal = normalize(vNormal);
+    oNormal = normalize(vNormal);
 
     vec4 sampledAlbedo = vec4(1.0);
     vec4 sampledMaterial = vec4(1.0);
@@ -40,19 +40,19 @@ void main()
     }
 
     if (uDataMode == 0) {
-        gAlbedo = uAlbedo.rgb;
-        gMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
+        oAlbedo = uAlbedo.rgb;
+        oMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
     } else if (uDataMode == 1) {
-        gAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
-        gMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
+        oAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
+        oMaterial = vec4(uMetallic, uRoughness, uAO, uEmission);
     } else if (uDataMode == 2) {
-        gAlbedo = uAlbedo.rgb;
-        gMaterial = sampledMaterial;
+        oAlbedo = uAlbedo.rgb;
+        oMaterial = sampledMaterial;
     } else if (uDataMode == 3) {
-        gAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
-        gMaterial = sampledMaterial;
+        oAlbedo = sampledAlbedo.rgb * uAlbedo.rgb;
+        oMaterial = sampledMaterial;
     } else {
-        gAlbedo = vec3(1.0);
-        gMaterial = vec4(1.0);
+        oAlbedo = vec3(1.0);
+        oMaterial = vec4(1.0);
     }
 }

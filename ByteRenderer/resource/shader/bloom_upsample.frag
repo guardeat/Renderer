@@ -1,6 +1,6 @@
 #version 410 core
 
-layout (location = 0) out vec3 upsample;
+layout (location = 0) out vec3 oUpsample;
 
 uniform sampler2D uSrcTexture;
 uniform float uFilterRadius;
@@ -24,8 +24,8 @@ void main()
     vec3 h = texture(uSrcTexture, vec2(vTexCoord.x,     vTexCoord.y - y)).rgb;
     vec3 i = texture(uSrcTexture, vec2(vTexCoord.x + x, vTexCoord.y - y)).rgb;
 
-    upsample = e * 4.0;
-    upsample += (b + d + f + h) * 2.0;
-    upsample += (a + c + g + i);
-    upsample *= 1.0 / 16.0;
+    oUpsample = e * 4.0;
+    oUpsample += (b + d + f + h) * 2.0;
+    oUpsample += (a + c + g + i);
+    oUpsample *= 1.0 / 16.0;
 }

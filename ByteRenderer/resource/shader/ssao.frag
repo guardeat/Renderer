@@ -1,7 +1,8 @@
 #version 330 core
 
+out float oFragColor;
+
 in vec2 vTexCoord;
-out float FragColor;
 
 uniform sampler2D uNormal;
 uniform sampler2D uDepth;
@@ -30,7 +31,7 @@ void main() {
 
     float depth = texture(uDepth, vTexCoord).r;
     if (depth >= 1.0) {
-        FragColor = 1.0;
+        oFragColor = 1.0;
         return;
     }
 
@@ -67,5 +68,5 @@ void main() {
     }
 
     occlusion = 1.0 - (occlusion / 64.0);
-    FragColor = occlusion;
+    oFragColor = occlusion;
 }

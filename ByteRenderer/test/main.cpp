@@ -32,10 +32,10 @@ int main() {
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
 		if (glfwGetKey(window.glfwWindow, GLFW_KEY_Q) == GLFW_PRESS) {
-			renderer.parameter<bool>("render_ssao") = false;
+			renderer.parameter<bool>("render_fxaa") = false;
 		}
 		else if (glfwGetKey(window.glfwWindow, GLFW_KEY_E) == GLFW_PRESS) {
-			renderer.parameter<bool>("render_ssao") = true;
+			renderer.parameter<bool>("render_fxaa") = true;
 		}
 
 		auto currentTime{ std::chrono::high_resolution_clock::now() };

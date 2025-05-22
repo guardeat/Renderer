@@ -1,6 +1,6 @@
 #version 410 core
 
-out float FragColor;
+out float oFragColor;
 
 in vec2 vTexCoord;
 
@@ -32,5 +32,5 @@ void main() {
         }
     }
 
-    FragColor = result / totalWeight;
+    oFragColor = result / totalWeight;
 }

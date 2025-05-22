@@ -1,6 +1,6 @@
 #version 410 core
 
-layout (location = 0) out vec3 downsample;
+layout (location = 0) out vec3 oDownsample;
 
 uniform sampler2D uSrcTexture;
 uniform vec2 uSrcResolution;
@@ -64,15 +64,15 @@ void main()
 	    groups[2] *= karisAverage(groups[2]);
 	    groups[3] *= karisAverage(groups[3]);
 	    groups[4] *= karisAverage(groups[4]);
-	    downsample = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
+	    oDownsample = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
     }
 
     else{
-        downsample = e * 0.125;
-        downsample += (a + c + g + i) * 0.03125;
-        downsample += (b + d + f + h) * 0.0625;
-        downsample += (j + k + l + m) * 0.125;
+        oDownsample = e * 0.125;
+        oDownsample += (a + c + g + i) * 0.03125;
+        oDownsample += (b + d + f + h) * 0.0625;
+        oDownsample += (j + k + l + m) * 0.125;
     }
 
-    downsample = max(downsample, 0.0001f);
+    oDownsample = max(oDownsample, 0.0001f);
 }

@@ -120,6 +120,7 @@
     <None Include="test\shader\grass.vert" />
     <None Include="resource\shader\ssao.frag" />
     <None Include="resource\shader\blur.frag" />
+    <None Include="resource\shader\fxaa.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="test\texture\height_map.png">

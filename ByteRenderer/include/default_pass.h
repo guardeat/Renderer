@@ -704,12 +704,23 @@ namespace Byte {
 			RenderAPI::viewPort(data.width, data.height);
 			RenderAPI::Framebuffer::clear(0);
 
-			Shader& quadShader{ data.shaders.at("quad") };
+			Shader* shader;
+
+			if (data.parameter<bool>("render_fxaa")) {
+				shader = &data.shaders.at("fxaa");
+				shader->bind();
+				Vec2 screenSize{ static_cast<float>(data.width), static_cast<float>(data.height) };
+				shader->uniform("uScreenSize", screenSize);
+			}
+			else {
+				shader = &data.shaders.at("quad");
+				shader->bind();
+			}
+
 			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
 
-			quadShader.bind();
-			quadShader.uniform("uGamma", data.parameter<float>("gamma"));
-			quadShader.uniform("uAlbedo", 0);
+			shader->uniform("uGamma", data.parameter<float>("gamma"));
+			shader->uniform("uAlbedo", 0);
 			RenderAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
 
 			data.meshes.at("quad").renderArray().bind();

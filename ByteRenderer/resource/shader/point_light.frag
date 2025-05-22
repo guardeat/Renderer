@@ -1,6 +1,6 @@
 #version 410 core
 
-layout (location = 0) out vec4 gColor;
+layout (location = 0) out vec4 oColor;
 
 uniform sampler2D uNormal;    
 uniform sampler2D uAlbedo; 
@@ -97,5 +97,5 @@ void main() {
         resultColor = vec3(0.0f);
     }
 
-    gColor = vec4(resultColor, 1.0);
+    oColor = vec4(resultColor, 1.0);
 }

@@ -25,6 +25,7 @@ namespace Byte {
 			renderer.data().shaders["bloom_downsample"] = { "resource/shader/quad.vert", "resource/shader/bloom_downsample.frag" };
 			renderer.data().shaders["ssao"] = { "resource/shader/quad.vert", "resource/shader/ssao.frag" };
 			renderer.data().shaders["blur"] = { "resource/shader/quad.vert", "resource/shader/blur.frag" };
+			renderer.data().shaders["fxaa"] = { "resource/shader/quad.vert", "resource/shader/fxaa.frag" };
 
 			renderer.data().parameters.emplace("render_skybox", true);
 			renderer.data().parameters.emplace("render_shadow", true);
@@ -45,6 +46,7 @@ namespace Byte {
 			renderer.data().parameters.emplace("bloom_mip_count", 5U);
 			renderer.data().parameters.emplace("bloom_strength", 0.3f);
 			renderer.data().parameters.emplace("render_ssao", true);
+			renderer.data().parameters.emplace("render_fxaa", true);
 
 			renderer.data().meshes.emplace("cube", MeshBuilder::cube());
 			renderer.data().meshes.emplace("quad", MeshBuilder::quad());

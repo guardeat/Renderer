@@ -1,6 +1,6 @@
 #version 410 core
 
-layout(location = 0) out vec3 gColor;
+layout(location = 0) out vec3 oColor;
 
 in vec2 vTexCoord;
 
@@ -134,7 +134,7 @@ void main()
     float emission = texture(uMaterial, vTexCoord).a;
 
     if(texture(uDepth, vTexCoord).r >= 1.0) {
-        gColor = albedo;
+        oColor = albedo;
     }
     else {
         vec3 fragPos = worldPosFromDepth(texture(uDepth, vTexCoord).r);
@@ -165,6 +165,6 @@ void main()
         vec3 Lo = (kD * albedo / PI + specular) * NdotL * uDirectionalLight.color * uDirectionalLight.intensity * (1.0 - shadow);
         vec3 ambient = materialAO * albedo * uDirectionalLight.color * uDirectionalLight.intensity * ssaoFactor;
         vec3 finalColor = ambient + Lo + emission * albedo;
-        gColor = finalColor;
+        oColor = finalColor;
     }
 }
