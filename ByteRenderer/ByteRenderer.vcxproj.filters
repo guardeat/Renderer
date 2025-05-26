@@ -98,6 +98,9 @@
     <ClInclude Include="include\default_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="test\particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shader\default.vert" />

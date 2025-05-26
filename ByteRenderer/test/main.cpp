@@ -17,8 +17,6 @@ int main() {
 
 	Renderer renderer{ RendererGenerator::deferred(window) };
 
-	FPSCamera fpsCamera;
-
 	Scene scene{ buildCustomScene(renderer) };
 
 	std::cout << "Renderer: " << glGetString(GL_RENDERER) << "\n";
@@ -31,23 +29,11 @@ int main() {
 	renderer.load();
 
 	while (!glfwWindowShouldClose(window.glfwWindow)) {
-		if (glfwGetKey(window.glfwWindow, GLFW_KEY_Q) == GLFW_PRESS) {
-			renderer.parameter<bool>("render_fxaa") = false;
-		}
-		else if (glfwGetKey(window.glfwWindow, GLFW_KEY_E) == GLFW_PRESS) {
-			renderer.parameter<bool>("render_fxaa") = true;
-		}
-
 		auto currentTime{ std::chrono::high_resolution_clock::now() };
 		float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
 		lastTime = currentTime;
 
-		renderer.context().input<float>("uTime") += deltaTime;
-
-		renderer.render();
-		renderer.update(window);
-		fpsCamera.update(window, scene.cameraTransform, deltaTime);
-		glfwPollEvents();
+		scene.update(deltaTime, renderer, window);
 
 		frameCount++;
 		fpsTimer += deltaTime;

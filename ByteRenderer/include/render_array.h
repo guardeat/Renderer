@@ -14,12 +14,12 @@ namespace Byte {
 	public:
 		RenderArray() = default;
 
-		RenderArray(RenderArrayData rArrayData)
-			:_data{rArrayData} {
+		RenderArray(RenderArrayData&& rArrayData)
+			:_data{std::move(rArrayData)} {
 		}
 
 		RenderArray(RenderArray&& right) noexcept
-			: _data{right._data} {
+			: _data{std::move(right._data)} {
 
 			right._data.VAO = 0;
 			right._data.VBuffers.clear();

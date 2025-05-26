@@ -8,6 +8,7 @@
 
 #include "renderer.h"
 #include "window.h"
+#include "particle.h"
 
 namespace Byte {
 
@@ -146,6 +147,9 @@ namespace Byte {
 		std::vector<std::unique_ptr<PointLight>> pointLights;
 		std::vector<std::unique_ptr<Transform>> pointLightTransforms;
 
+		ParticleSystem particleSystem;
+		FPSCamera fpsCamera;
+
 		void setContext(Renderer& renderer) {
 			renderer.context().clear();
 
@@ -167,6 +171,24 @@ namespace Byte {
 					renderer.context().submit(pair.first, transform);
 				}
 			}
+		}
+
+		void update(float dt, Renderer& renderer, Window& window) {
+			particleSystem.update(dt, renderer);
+			fpsCamera.update(window, cameraTransform, dt);
+
+			renderer.context().input<float>("uTime") += dt;
+
+			renderer.render();
+			renderer.update(window);
+			glfwPollEvents();
+
+			//APP specific:
+			auto& group{ particleSystem.groups().at("grass_particle") };
+			Particle particle;
+			particle.velocity = renderer.context().input<Vec3>("uWind") + Vec3{ 0.0f,1.0f,0.0f };
+			particle.transform.position(Vec3{ 0.0f,2.0f,0.0f });
+			group.particles.push_back(particle);
 		}
 	};
 
@@ -274,6 +296,7 @@ namespace Byte {
 		renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
 		renderer.compileShaders();
 		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
+		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(0.01f,0.01f,1), Material{} });
 		scene.setContext(renderer);
 
 		return scene;

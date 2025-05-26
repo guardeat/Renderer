@@ -116,6 +116,14 @@ namespace Byte {
             return _data;
         }
 
+        Buffer<RenderID>& renderIDs() {
+            return _renderIDs;
+        }
+
+        const Buffer<RenderID>& renderIDs() const {
+            return _renderIDs;
+        }
+
         Buffer<uint8_t>& layout() {
             return _layout;
         }

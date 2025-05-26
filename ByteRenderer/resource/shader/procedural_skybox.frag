@@ -18,8 +18,8 @@ void main() {
     float middleBlend = smoothstep(0.0, 0.3, vFragPos.y);  
 
     vec3 colorBelow = vec3(0.0, 0.0, 0.2);     
-    vec3 colorMiddle = vec3(0.7, 0.8, 0.9);   
-    vec3 colorAbove = vec3(0.2, 0.5, 0.8);   
+    vec3 colorMiddle = vec3(0.3, 0.4, 0.6);   
+    vec3 colorAbove = vec3(0.1, 0.4, 0.9);   
 
     vec3 blendedBelowMiddle = mix(colorBelow, colorMiddle, bottomBlend);
     vec3 finalColor = mix(blendedBelowMiddle, colorAbove, middleBlend);
