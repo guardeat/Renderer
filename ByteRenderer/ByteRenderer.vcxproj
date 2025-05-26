@@ -72,6 +72,7 @@
     <None Include="resource\shader\quad_depth.frag" />
     <None Include="resource\shader\ssao.frag" />
     <None Include="test\shader\grass.vert" />
+    <None Include="test\shader\particle.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="test\texture\grass.png" />

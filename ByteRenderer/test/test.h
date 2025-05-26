@@ -174,7 +174,7 @@ namespace Byte {
 		}
 
 		void update(float dt, Renderer& renderer, Window& window) {
-			//particleSystem.update(dt, renderer);
+			particleSystem.update(dt, renderer);
 			fpsCamera.update(window, cameraTransform, dt);
 
 			renderer.context().input<float>("uTime") += dt;
@@ -186,9 +186,14 @@ namespace Byte {
 			//APP specific:
 			auto& group{ particleSystem.groups().at("grass_particle") };
 			Particle particle;
-			particle.velocity = renderer.context().input<Vec3>("uWind") + Vec3{ 0.0f,1.0f,0.0f };
-			particle.transform.position(Vec3{ 0.0f,2.0f,0.0f });
-			group.particles.push_back(particle);
+			particle.lifeTime = 5.0f;
+			particle.velocity = renderer.context().input<Vec3>("uWind") * 3 + Vec3{ 0.0f,1.0f,0.0f };
+			for (size_t i{}; i < 100 * dt; i++) {
+				float x{ static_cast<float>(std::rand()) / RAND_MAX * 200.0f - 100 };
+				float z{ static_cast<float>(std::rand()) / RAND_MAX * 200.0f - 100 };
+				particle.transform.position(Vec3{ x,0.5f,z });
+				group.particles.push_back(particle);
+			}
 		}
 	};
 
@@ -290,14 +295,17 @@ namespace Byte {
 		scene.instancedEntities["grass"] = std::move(grass);
 
 		renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
+		renderer.data().shaders.emplace("particle", Shader{ "test/shader/particle.vert","resource/shader/deferred.frag" });
 		renderer.data().shaders.at("grass").addUniform(Uniform{ "uTime",UniformType::FLOAT });
 		renderer.context().shaderInputMap().emplace("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
 		renderer.data().shaders.at("grass").addUniform(Uniform{ "uWind",UniformType::VEC3 });
 		renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
 		renderer.compileShaders();
 		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
-		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(10.0f,10.0f,1), Material{} });
-		scene.particleSystem.groups().at("grass_particle").material.albedo(Vec3{ 1.0f,0.0f,0.0f });
+		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(0.2f,0.2f,1), Material{} });
+		scene.particleSystem.groups().at("grass_particle").material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
+		scene.particleSystem.groups().at("grass_particle").material.ambientOcclusion(0.2f);
+		scene.particleSystem.groups().at("grass_particle").material.shaderMap().emplace("geometry", "particle");
 		scene.setContext(renderer);
 
 		return scene;
