@@ -14,8 +14,8 @@ namespace Byte {
 	using TimePoint = std::chrono::steady_clock::time_point;
 
 	struct Particle {
-		TimePoint start;
-		float lifeTime = 100.0f;
+		TimePoint start{ std::chrono::steady_clock::now() };
+		float lifeTime = 1.0f;
 		Transform transform;
 		Vec3 velocity;
 	};
@@ -44,8 +44,7 @@ namespace Byte {
 					renderer.context().createInstance(tag, group.mesh, group.material);
 					instance = renderer.context().instances().find(tag);
 				}
-				instance->second.data().clear();
-				instance->second.renderIDs().clear();
+				instance->second.clearInstances();
 			
 				group.particles.erase(std::remove_if(group.particles.begin(), group.particles.end(),
 					[currentTime = std::chrono::steady_clock::now()](const Particle& p) {

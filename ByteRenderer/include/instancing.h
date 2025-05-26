@@ -32,7 +32,7 @@ namespace Byte {
 
         RenderInstance(RenderMesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
             : _mesh{ &mesh }, _material{ &material }, _layout{ std::forward<Buffer<uint8_t>>(layout) } {
-            _stride = std::accumulate(layout.begin(), layout.end(), 0);
+            _stride = std::accumulate(_layout.begin(), _layout.end(), 0);
         }
 
         RenderMesh& mesh() {
@@ -116,12 +116,13 @@ namespace Byte {
             return _data;
         }
 
-        Buffer<RenderID>& renderIDs() {
-            return _renderIDs;
-        }
+        void clearInstances() {
+            _data.clear();
+            _renderIDs.clear();
 
-        const Buffer<RenderID>& renderIDs() const {
-            return _renderIDs;
+            _size = 0;
+
+            _change = true;
         }
 
         Buffer<uint8_t>& layout() {
@@ -141,7 +142,7 @@ namespace Byte {
 
             if (_size > _bufferCapacity) {
                 _data.reserve(_size * 2);
-                RenderAPI::RenderArray::bufferData(bufferID, _data, _size * 10, true);
+                RenderAPI::RenderArray::bufferData(bufferID, _data, _size * _stride, true);
                 _bufferCapacity = 2 * _size;
             }
             else {
