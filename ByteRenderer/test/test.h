@@ -174,7 +174,7 @@ namespace Byte {
 		}
 
 		void update(float dt, Renderer& renderer, Window& window) {
-			particleSystem.update(dt, renderer);
+			//particleSystem.update(dt, renderer);
 			fpsCamera.update(window, cameraTransform, dt);
 
 			renderer.context().input<float>("uTime") += dt;
@@ -296,7 +296,8 @@ namespace Byte {
 		renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
 		renderer.compileShaders();
 		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
-		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(0.01f,0.01f,1), Material{} });
+		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(10.0f,10.0f,1), Material{} });
+		scene.particleSystem.groups().at("grass_particle").material.albedo(Vec3{ 1.0f,0.0f,0.0f });
 		scene.setContext(renderer);
 
 		return scene;

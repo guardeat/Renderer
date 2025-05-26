@@ -15,7 +15,7 @@ namespace Byte {
 
 	struct Particle {
 		TimePoint start{ std::chrono::steady_clock::now() };
-		float lifeTime = 1.0f;
+		float lifeTime = 10.0f;
 		Transform transform;
 		Vec3 velocity;
 	};

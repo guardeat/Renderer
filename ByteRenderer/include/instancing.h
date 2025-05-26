@@ -118,6 +118,7 @@ namespace Byte {
 
         void clearInstances() {
             _data.clear();
+            _data.shrink_to_fit();
             _renderIDs.clear();
 
             _size = 0;
@@ -141,8 +142,8 @@ namespace Byte {
             RenderBufferID bufferID{ _mesh->renderArray().data().VBuffers[1].id };
 
             if (_size > _bufferCapacity) {
-                _data.reserve(_size * 2);
-                RenderAPI::RenderArray::bufferData(bufferID, _data, _size * _stride, true);
+                _data.reserve(_size * _stride * 2);
+                RenderAPI::RenderArray::bufferData(bufferID, _data, _size * _stride * 2, false);
                 _bufferCapacity = 2 * _size;
             }
             else {
