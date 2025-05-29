@@ -57,7 +57,7 @@ void main() {
     float swaySpeed = 2.0 + length(uWind) * 3.0;
     vec2 windDir = normalize(uWind.xz + vec2(0.001));
     float phaseOffset = dot(windDir, aPosition.xz);
-    float sway = sin(uTime * swaySpeed + phaseOffset + posRandomFactor * 2.0) * swayStrength;
+    float sway = sin(uTime * swaySpeed + phaseOffset + posRandomFactor * 5.0) * swayStrength;
 
     scaledPos.x += sway * aPos.y;
 

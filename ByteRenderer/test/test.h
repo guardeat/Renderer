@@ -201,8 +201,8 @@ namespace Byte {
 		std::vector<float> vertices{
 		   -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
 			0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-			0.5f,  0.2f,  0.5f, 0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-		   -0.5f,  0.2f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+			0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+		   -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 			0.0f, 0.75f,  0.5f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 		};
 
@@ -286,7 +286,7 @@ namespace Byte {
 				transform.rotation(Vec3{ 0.0f, rotationY, 0.0f });
 
 				float scaleValue{ 2.2f + ((rand() % 1000) / 1000.0f) * 1.4f };
-				transform.scale(Vec3{ 0.2f, scaleValue, 1.0f });
+				transform.scale(Vec3{ 0.25f, scaleValue, 1.0f });
 
 				grass.transforms.push_back(transform);
 			}

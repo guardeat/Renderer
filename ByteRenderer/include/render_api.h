@@ -228,9 +228,11 @@ namespace Byte {
             }
 
             static void instancedElements(size_t size, size_t instanceCount) {
-                GLint glSize{ static_cast<GLint>(size) };
-                GLsizei glCount{ static_cast<GLsizei>(instanceCount) };
-                glDrawElementsInstanced(GL_TRIANGLES, glSize, GL_UNSIGNED_INT, 0, glCount);
+                if (instanceCount) {
+                    GLint glSize{ static_cast<GLint>(size) };
+                    GLsizei glCount{ static_cast<GLsizei>(instanceCount) };
+                    glDrawElementsInstanced(GL_TRIANGLES, glSize, GL_UNSIGNED_INT, 0, glCount);
+                }
             }
 
             static void quad() {
