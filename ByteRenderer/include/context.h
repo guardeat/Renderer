@@ -100,6 +100,11 @@ namespace Byte {
             return std::get<ShaderInput<Type>>(_inputMap.at(tag)).value;
         }
 
+        template<typename Type>
+        void input(const UniformTag& tag, ShaderInput<Type>&& shaderInput) {
+            _inputMap.emplace(tag, std::forward<ShaderInput<Type>>(shaderInput));
+        }
+
         ShaderInputMap& shaderInputMap() {
             return _inputMap;
         }

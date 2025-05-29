@@ -61,7 +61,7 @@ namespace Byte {
             return _id;
         }
 
-        void addUniform(Uniform&& input) {
+        void include(Uniform&& input) {
             _uniforms.emplace_back(std::forward<Uniform>(input));
         }
 

@@ -296,10 +296,10 @@ namespace Byte {
 
 		renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
 		renderer.data().shaders.emplace("particle", Shader{ "test/shader/particle.vert","resource/shader/deferred.frag" });
-		renderer.data().shaders.at("grass").addUniform(Uniform{ "uTime",UniformType::FLOAT });
-		renderer.context().shaderInputMap().emplace("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
-		renderer.data().shaders.at("grass").addUniform(Uniform{ "uWind",UniformType::VEC3 });
-		renderer.context().shaderInputMap().emplace("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
+		renderer.data().shaders.at("grass").include(Uniform{ "uTime",UniformType::FLOAT });
+		renderer.context().input("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
+		renderer.data().shaders.at("grass").include(Uniform{ "uWind",UniformType::VEC3 });
+		renderer.context().input("uWind", ShaderInput<Vec3>{Vec3(1.0f, 0.0, 0.0f), UniformType::VEC3});
 		renderer.compileShaders();
 		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
 		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(0.2f,0.2f,1), Material{} });

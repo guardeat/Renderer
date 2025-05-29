@@ -104,6 +104,10 @@ namespace Byte {
             glDisable(GL_CULL_FACE);
         }
 
+        static void patchParameter(size_t value) {
+            glPatchParameteri(GL_PATCH_VERTICES, static_cast<GLint>(value));
+        }
+
         static void viewPort(size_t width, size_t height, size_t x = 0, size_t y = 0) {
             GLint glWidth{ static_cast<GLint>(width) };
             GLint glHeight{ static_cast<GLint>(height) };
