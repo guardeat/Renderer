@@ -35,7 +35,7 @@
     <ClInclude Include="include\framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\instancing.h">
+    <ClInclude Include="include\instance_group.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\light.h">
@@ -99,6 +99,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test\particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\frustum_culling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

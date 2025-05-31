@@ -13,7 +13,7 @@
 #include "framebuffer.h"
 #include "light.h"
 #include "camera.h"
-#include "instancing.h"
+#include "instance_group.h"
 #include "shader.h"
 
 namespace Byte {
@@ -47,7 +47,7 @@ namespace Byte {
         using PointLightMap = std::unordered_map<RenderID, RenderItem<PointLight>>;
         PointLightMap _pointLights;
 
-        using InstanceMap = std::unordered_map<InstanceTag, RenderInstance>;
+        using InstanceMap = std::unordered_map<InstanceTag, InstanceGroup>;
         InstanceMap _instances;
 
         ShaderInputMap _inputMap;
@@ -60,7 +60,7 @@ namespace Byte {
         }
 
         RenderID submit(const InstanceTag& tag, Mesh& mesh, Material& material, Transform& transform) {
-            _instances.emplace(tag, RenderInstance{ mesh,material });
+            _instances.emplace(tag, InstanceGroup{ mesh,material });
             RenderID id{ RenderIDGenerator::generate() };
             _instances.at(tag).add(transform,id);
             return id;
@@ -132,7 +132,7 @@ namespace Byte {
         }
 
         void createInstance(const InstanceTag& tag, Mesh& mesh, Material& material) {
-            _instances.emplace(tag, RenderInstance{ mesh,material });
+            _instances.emplace(tag, InstanceGroup{ mesh,material });
         }
 
         RenderEntity& entity(RenderID id) {
@@ -175,11 +175,11 @@ namespace Byte {
             return _pointLights;
         }
 
-        RenderInstance& instance(const InstanceTag& tag) {
+        InstanceGroup& instance(const InstanceTag& tag) {
             return _instances.at(tag);
         }
 
-        const RenderInstance& instance(const InstanceTag& tag) const {
+        const InstanceGroup& instance(const InstanceTag& tag) const {
             return _instances.at(tag);
         }
 

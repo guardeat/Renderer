@@ -28,7 +28,8 @@
     <ClInclude Include="include\context.h" />
     <ClInclude Include="include\default_pass.h" />
     <ClInclude Include="include\framebuffer.h" />
-    <ClInclude Include="include\instancing.h" />
+    <ClInclude Include="include\frustum_culling.h" />
+    <ClInclude Include="include\instance_group.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\mat.h" />
     <ClInclude Include="include\material.h" />

@@ -104,7 +104,7 @@ namespace Byte {
                 }
             }
 
-            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC};
+            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC, radius};
             return Mesh{ std::move(data) };
         }
 
@@ -154,7 +154,9 @@ namespace Byte {
                 }
             }
 
-            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC };
+            float radius{ Vec2{ width / 2, height / 2 }.length() };
+
+            MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC, radius };
             return Mesh{ std::move(data) };
         }
 
@@ -170,41 +172,41 @@ namespace Byte {
                 1, 3, 2
             };
 
-            MeshData data{ vertexData, indices, MeshMode::STATIC, {3,2} };
+            MeshData data{ vertexData, indices, MeshMode::STATIC, 1.0f, {3,2} };
             return Mesh{ std::move(data) };
         }
 
         static Mesh cube() {
             std::vector<float> vertices{
-                -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-                 0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-                 0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-                -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+                -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+                -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 
-                -0.5f, -0.5f, -0.5f,    0.0f, 0.0f, -1.0f,  0.0f, 0.0f,
-                 0.5f, -0.5f, -0.5f,    0.0f, 0.0f, -1.0f,  1.0f, 0.0f,
-                 0.5f,  0.5f, -0.5f,    0.0f, 0.0f, -1.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f, -0.5f,    0.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+                 0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
 
-                -0.5f, -0.5f, -0.5f,    -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                -0.5f, -0.5f,  0.5f,    -1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-                -0.5f,  0.5f,  0.5f,    -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-                -0.5f,  0.5f, -0.5f,    -1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+                -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+                -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-                 0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-                 0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-                 0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-                 0.5f,  0.5f, -0.5f,     1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+                 0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                 0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                 0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+                 0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-                 -0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f,  0.0f, 1.0f,
-                  0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f,  1.0f, 1.0f,
-                  0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f,  1.0f, 0.0f,
-                 -0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f,  0.0f, 0.0f,
+                 -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+                  0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+                  0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+                 -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
 
-                 -0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
-                  0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-                  0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-                 -0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f,   0.0f, 1.0f
+                 -0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                  0.5f,  0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+                  0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+                 -0.5f,  0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
             };
 
             std::vector<uint32_t> indices{
@@ -227,7 +229,7 @@ namespace Byte {
                 20, 22, 23
             };
 
-            MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
+            MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC, 0.71f };
             return Mesh{ std::move(data) };
         }
     };

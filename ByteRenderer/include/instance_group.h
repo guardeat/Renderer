@@ -10,7 +10,7 @@
 
 namespace Byte {
 
-    class RenderInstance {
+    class InstanceGroup {
     private:
         Mesh* _mesh{};
         Material* _material{};
@@ -28,9 +28,9 @@ namespace Byte {
         Buffer<RenderID> _renderIDs;
 
     public:
-        RenderInstance() = default;
+        InstanceGroup() = default;
 
-        RenderInstance(Mesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
+        InstanceGroup(Mesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
             : _mesh{ &mesh }, _material{ &material }, _layout{ std::forward<Buffer<uint8_t>>(layout) } {
             _stride = std::accumulate(_layout.begin(), _layout.end(), 0);
         }

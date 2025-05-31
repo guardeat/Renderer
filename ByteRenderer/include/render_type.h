@@ -240,14 +240,14 @@ namespace Byte {
 		ORDER_INDEPENDENT,
 	};
 
+	enum class RenderMode : uint8_t {
+		ENABLED,
+		DISABLED,
+	};
+
 	enum class MeshMode : uint8_t {
 		STATIC,
 		DYNAMIC,
-	};
-
-	enum class RenderMode : uint8_t{
-		ENABLED,
-		DISABLED,
 	};
 
 	struct MeshData {
@@ -255,6 +255,8 @@ namespace Byte {
 		Buffer<uint32_t> indices;
 
 		MeshMode mode{ MeshMode::STATIC };
+
+		float boundingRadius{ 1.0f };
 
 		Buffer<uint8_t> vertexLayout{ 3,3,2 };
 	};

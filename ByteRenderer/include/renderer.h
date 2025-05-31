@@ -152,7 +152,7 @@ namespace Byte {
 			mesh.renderArray(RenderAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
 		}
 
-		void fillInstancedVertexArray(RenderInstance& instance) const {
+		void fillInstancedVertexArray(InstanceGroup& instance) const {
 			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
 
 			auto atts{ RenderAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
