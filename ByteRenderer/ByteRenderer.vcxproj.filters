@@ -101,9 +101,6 @@
     <ClInclude Include="test\particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\frustum_culling.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shader\default.vert" />

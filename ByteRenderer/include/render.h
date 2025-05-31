@@ -10,6 +10,7 @@ namespace Byte {
 		static Renderer deferred(Window& window) {
 			Renderer renderer{ 
 				Renderer::build<
+				FrustumCullingPass,
 				SkyboxPass, 
 				ShadowPass, 
 				OpaquePass, 

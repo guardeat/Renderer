@@ -2,11 +2,116 @@
 
 #include <random>
 
+#include "quaternion.h"
+#include "vec.h"
+#include "trigonometry.h"
+#include "mat.h"
 #include "context.h"
 #include "render_api.h"
 #include "render_pass.h"
 
 namespace Byte {
+
+	class FrustumCullingPass : public RenderPass {
+	private:
+		struct Plane {
+			Vec3 normal;
+			float distance{ 0 };
+		};
+
+		struct Frustum {
+			Plane planes[6];
+		};
+
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			auto [camera, cameraTransform] = context.camera();
+
+			Frustum frustum{ createFrustum(*camera, *cameraTransform, aspectRatio) };
+
+			for (auto& pair : context.renderEntities()) {
+				auto [mesh, material, transform, mode] = pair.second;
+
+				if (!inside(frustum, *transform, mesh->data().boundingRadius)) {
+					pair.second.mode = RenderMode::DISABLED;
+					std::cout << "disabled" << std::endl;
+				}
+				else {
+					pair.second.mode = RenderMode::ENABLED;
+					std::cout << "enabled" << std::endl;
+				}
+			}
+		}
+
+	private:
+	private:
+		Frustum createFrustum(const Camera& camera, const Transform& transform, float aspectRatio) {
+			Frustum frustum{};
+
+			float fov{ camera.fov() };
+			float nearDist{ camera.nearPlane() };
+			float farDist{ camera.farPlane() };
+
+			float tanFov{ tan(radians(fov) * 0.5f) };
+
+			float nearHeight{ 2.0f * tanFov * nearDist };
+			float nearWidth{ nearHeight * aspectRatio };
+			float farHeight{ 2.0f * tanFov * farDist };
+			float farWidth{ farHeight * aspectRatio };
+
+			Vec3 position{ transform.position() };
+			Vec3 front{ transform.front().normalized() };
+			Vec3 right{ transform.right().normalized() };
+			Vec3 up{ transform.up().normalized() };
+
+			Vec3 nearCenter{ position + front * nearDist };
+			Vec3 farCenter{ position + front * farDist };
+
+			Vec3 nearTopLeft{ nearCenter + (up * (nearHeight * 0.5f)) - (right * (nearWidth * 0.5f)) };
+			Vec3 nearTopRight{ nearCenter + (up * (nearHeight * 0.5f)) + (right * (nearWidth * 0.5f)) };
+			Vec3 nearBottomLeft{ nearCenter - (up * (nearHeight * 0.5f)) - (right * (nearWidth * 0.5f)) };
+			Vec3 nearBottomRight{ nearCenter - (up * (nearHeight * 0.5f)) + (right * (nearWidth * 0.5f)) };
+
+			Vec3 farTopLeft{ farCenter + (up * (farHeight * 0.5f)) - (right * (farWidth * 0.5f)) };
+			Vec3 farTopRight{ farCenter + (up * (farHeight * 0.5f)) + (right * (farWidth * 0.5f)) };
+			Vec3 farBottomLeft{ farCenter - (up * (farHeight * 0.5f)) - (right * (farWidth * 0.5f)) };
+			Vec3 farBottomRight{ farCenter - (up * (farHeight * 0.5f)) + (right * (farWidth * 0.5f)) };
+
+			auto computePlane = [](const Vec3& p1, const Vec3& p2, const Vec3& p3) -> Plane {
+				Vec3 normal{ -(p2 - p1).cross(p3 - p1).normalized() };
+				float distance{ -normal.dot(p1) };
+				return Plane{ normal, distance };
+				};
+
+			frustum.planes[0] = computePlane(nearTopRight, nearTopLeft, nearBottomLeft);
+			frustum.planes[1] = computePlane(farTopLeft, farTopRight, farBottomRight);
+			frustum.planes[2] = computePlane(nearTopLeft, farTopLeft, farBottomLeft);
+			frustum.planes[3] = computePlane(farTopRight, nearTopRight, nearBottomRight);
+			frustum.planes[4] = computePlane(nearTopLeft, nearTopRight, farTopRight);
+			frustum.planes[5] = computePlane(nearBottomRight, nearBottomLeft, farBottomLeft);
+
+			return frustum;
+		}
+
+		bool inside(const Frustum& frustum, const Transform& transform, float radius) {
+			Vec3 position{ transform.position() };
+
+			Vec3 scale{ transform.scale() };
+			float maxScale{ std::max(std::max(scale.x, scale.y), scale.z) };
+			float scaledRadius{ radius * maxScale };
+
+			for (const auto& plane : frustum.planes) {
+				float distance{ plane.normal.dot(position) + plane.distance };
+				if (distance < -scaledRadius) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+	};
 
 	class SkyboxPass : public RenderPass {
 	public:

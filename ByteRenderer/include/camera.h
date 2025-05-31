@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mat.h"
-#include "trigonometry.h"
 #include "vec.h"
 #include "transform.h"
 
