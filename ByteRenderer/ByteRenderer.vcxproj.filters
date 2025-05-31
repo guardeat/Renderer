@@ -18,10 +18,10 @@
     <ClCompile Include="src\external\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test\main.cpp">
+    <ClCompile Include="src\external\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\external\stb_image.cpp">
+    <ClCompile Include="src\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -77,9 +77,6 @@
     <ClInclude Include="include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -98,40 +95,27 @@
     <ClInclude Include="include\default_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\particle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resource\shader\default.vert" />
-    <None Include="resource\shader\deferred.frag" />
-    <None Include="resource\shader\depth.frag" />
-    <None Include="resource\shader\depth.vert" />
-    <None Include="resource\shader\forward.frag" />
-    <None Include="resource\shader\instanced.vert" />
-    <None Include="resource\shader\instanced_depth.vert" />
-    <None Include="resource\shader\lighting.frag" />
-    <None Include="resource\shader\point_light.frag" />
-    <None Include="resource\shader\point_light.vert" />
-    <None Include="resource\shader\procedural_skybox.frag" />
-    <None Include="resource\shader\procedural_skybox.vert" />
-    <None Include="resource\shader\quad.frag" />
-    <None Include="resource\shader\quad.vert" />
-    <None Include="resource\shader\quad_depth.frag" />
-    <None Include="resource\shader\bloom_downsample.frag" />
-    <None Include="resource\shader\bloom_upsample.frag" />
-    <None Include="test\shader\grass.vert" />
-    <None Include="resource\shader\ssao.frag" />
-    <None Include="resource\shader\blur.frag" />
-    <None Include="resource\shader\fxaa.frag" />
-    <None Include="test\shader\particle.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="test\texture\height_map.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="test\texture\grass.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <None Include="shader\bloom_downsample.frag" />
+    <None Include="shader\bloom_upsample.frag" />
+    <None Include="shader\blur.frag" />
+    <None Include="shader\default.vert" />
+    <None Include="shader\deferred.frag" />
+    <None Include="shader\depth.frag" />
+    <None Include="shader\depth.vert" />
+    <None Include="shader\forward.frag" />
+    <None Include="shader\fxaa.frag" />
+    <None Include="shader\instanced.vert" />
+    <None Include="shader\instanced_depth.vert" />
+    <None Include="shader\lighting.frag" />
+    <None Include="shader\point_light.frag" />
+    <None Include="shader\point_light.vert" />
+    <None Include="shader\procedural_skybox.frag" />
+    <None Include="shader\procedural_skybox.vert" />
+    <None Include="shader\quad.frag" />
+    <None Include="shader\quad.vert" />
+    <None Include="shader\quad_depth.frag" />
+    <None Include="shader\ssao.frag" />
   </ItemGroup>
 </Project>

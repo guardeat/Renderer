@@ -15,7 +15,7 @@ int main() {
 
 	Window window{ 1336,768,"Test" };
 
-	Renderer renderer{ RendererGenerator::deferred(window) };
+	Renderer renderer{ deferredRenderer(window) };
 
 	Scene scene{ buildCustomScene(renderer) };
 

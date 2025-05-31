@@ -18,63 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\external\glad.c" />
-    <ClCompile Include="src\external\stb_image.cpp" />
-    <ClCompile Include="src\render.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\context.h" />
-    <ClInclude Include="include\default_pass.h" />
-    <ClInclude Include="include\framebuffer.h" />
-    <ClInclude Include="include\instance_group.h" />
-    <ClInclude Include="include\light.h" />
-    <ClInclude Include="include\mat.h" />
-    <ClInclude Include="include\material.h" />
-    <ClInclude Include="include\mesh.h" />
-    <ClInclude Include="include\render_api.h" />
-    <ClInclude Include="include\quaternion.h" />
-    <ClInclude Include="include\render.h" />
-    <ClInclude Include="include\renderer.h" />
-    <ClInclude Include="include\render_array.h" />
-    <ClInclude Include="include\render_pass.h" />
-    <ClInclude Include="include\render_type.h" />
-    <ClInclude Include="include\shader.h" />
-    <ClInclude Include="include\stb_image.h" />
-    <ClInclude Include="include\texture.h" />
-    <ClInclude Include="include\transform.h" />
-    <ClInclude Include="include\trigonometry.h" />
-    <ClInclude Include="include\vec.h" />
-    <ClInclude Include="include\window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="shader\bloom_downsample.frag" />
-    <None Include="shader\bloom_upsample.frag" />
-    <None Include="shader\blur.frag" />
-    <None Include="shader\default.vert" />
-    <None Include="shader\deferred.frag" />
-    <None Include="shader\depth.frag" />
-    <None Include="shader\depth.vert" />
-    <None Include="shader\forward.frag" />
-    <None Include="shader\fxaa.frag" />
-    <None Include="shader\instanced.vert" />
-    <None Include="shader\instanced_depth.vert" />
-    <None Include="shader\lighting.frag" />
-    <None Include="shader\point_light.frag" />
-    <None Include="shader\point_light.vert" />
-    <None Include="shader\procedural_skybox.frag" />
-    <None Include="shader\procedural_skybox.vert" />
-    <None Include="shader\quad.frag" />
-    <None Include="shader\quad.vert" />
-    <None Include="shader\quad_depth.frag" />
-    <None Include="shader\ssao.frag" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{fb295f2f-f5e3-404d-b50a-98b401f0259f}</ProjectGuid>
-    <RootNamespace>ByteRenderer</RootNamespace>
+    <ProjectGuid>{985416aa-ba0a-4b9b-a63a-a0545ebfa2a2}</ProjectGuid>
+    <RootNamespace>Sandbox</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -92,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -128,7 +76,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)include\glfw;$(SolutionDir)include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>$(SolutionDir)\lib\glfw;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)lib\glfw;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -165,13 +112,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\ByteRenderer\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ByteRenderer\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3_debug.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ByteRenderer.lib;glfw3_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Debug;$(SolutionDir)lib\glfw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -182,17 +130,33 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\ByteRenderer\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)ByteRenderer\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ByteRenderer.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="test\shader\grass.vert" />
+    <None Include="test\shader\particle.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\texture\grass.png" />
+    <Image Include="test\texture\height_map.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="test\particle.h" />
+    <ClInclude Include="test\test.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
