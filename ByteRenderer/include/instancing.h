@@ -13,7 +13,7 @@ namespace Byte {
 
     class RenderInstance {
     private:
-        RenderMesh* _mesh{};
+        Mesh* _mesh{};
         Material* _material{};
 
         Buffer<float> _data{};
@@ -30,20 +30,20 @@ namespace Byte {
     public:
         RenderInstance() = default;
 
-        RenderInstance(RenderMesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
+        RenderInstance(Mesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
             : _mesh{ &mesh }, _material{ &material }, _layout{ std::forward<Buffer<uint8_t>>(layout) } {
             _stride = std::accumulate(_layout.begin(), _layout.end(), 0);
         }
 
-        RenderMesh& mesh() {
+        Mesh& mesh() {
             return *_mesh;
         }
 
-        const RenderMesh& mesh() const {
+        const Mesh& mesh() const {
             return *_mesh;
         }
 
-        void mesh(RenderMesh& newMesh) {
+        void mesh(Mesh& newMesh) {
             _mesh = &newMesh;
         }
 

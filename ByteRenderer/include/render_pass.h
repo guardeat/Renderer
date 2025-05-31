@@ -23,7 +23,7 @@ namespace Byte {
 		using ParameterMap = std::unordered_map<ParameterTag, Parameter>;
 		ParameterMap parameters;
 
-		using MeshMap = std::unordered_map<MeshTag, RenderMesh>;
+		using MeshMap = std::unordered_map<MeshTag, Mesh>;
 		MeshMap meshes;
 
 		template<typename Type>

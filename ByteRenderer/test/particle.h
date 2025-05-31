@@ -21,7 +21,7 @@ namespace Byte {
 	};
 
 	struct ParticleGroup {
-		RenderMesh mesh;
+		Mesh mesh;
 		Material material;
 		std::vector<Particle> particles;
 	};

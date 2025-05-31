@@ -10,15 +10,15 @@
 
 namespace Byte {
 
-	class RenderMesh {
+	class Mesh {
 	private:
         MeshData _data;
         RenderArray _renderArray;
 
 	public:
-		RenderMesh() = default;
+		Mesh() = default;
 
-		RenderMesh(MeshData&& data)
+		Mesh(MeshData&& data)
 			: _data{ std::move(data) }
 		{}
 
@@ -56,7 +56,7 @@ namespace Byte {
 	};
 
     struct MeshBuilder {
-        static RenderMesh sphere(float radius, size_t numSegments) {
+        static Mesh sphere(float radius, size_t numSegments) {
             size_t numVertices = (numSegments + 1) * (numSegments + 1);
             size_t numTriangles = numSegments * numSegments * 2;
 
@@ -105,10 +105,10 @@ namespace Byte {
             }
 
             MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC};
-            return RenderMesh{ std::move(data) };
+            return Mesh{ std::move(data) };
         }
 
-        static RenderMesh plane(float width, float height, size_t numSegments) {
+        static Mesh plane(float width, float height, size_t numSegments) {
             size_t numVertices = (numSegments + 1) * (numSegments + 1);
             size_t numTriangles = numSegments * numSegments * 2;
 
@@ -155,10 +155,10 @@ namespace Byte {
             }
 
             MeshData data{ std::move(vertexData), std::move(indices), MeshMode::STATIC };
-            return RenderMesh{ std::move(data) };
+            return Mesh{ std::move(data) };
         }
 
-        static RenderMesh quad() {
+        static Mesh quad() {
             const Buffer<float> vertexData{
                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -171,10 +171,10 @@ namespace Byte {
             };
 
             MeshData data{ vertexData, indices, MeshMode::STATIC, {3,2} };
-            return RenderMesh{ std::move(data) };
+            return Mesh{ std::move(data) };
         }
 
-        static RenderMesh cube() {
+        static Mesh cube() {
             std::vector<float> vertices{
                 -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
                  0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
@@ -228,7 +228,7 @@ namespace Byte {
             };
 
             MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC };
-            return RenderMesh{ std::move(data) };
+            return Mesh{ std::move(data) };
         }
     };
 

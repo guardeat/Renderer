@@ -127,7 +127,7 @@ namespace Byte {
 
 		void renderInstances(RenderContext& context) const {
 			for (auto& pair : context.instances()) {
-				RenderMesh& mesh{ pair.second.mesh() };
+				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
 				if (material.shadowMode() == ShadowMode::ENABLED) {
@@ -326,7 +326,7 @@ namespace Byte {
 			RenderContext& context, RenderData& data, const Mat4& proj, const Mat4& view) const {
 
 			for (auto& pair : context.instances()) {
-				RenderMesh& mesh{ pair.second.mesh() };
+				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
 				Shader* shader;
