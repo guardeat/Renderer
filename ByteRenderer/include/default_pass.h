@@ -25,14 +25,14 @@ namespace Byte {
 			Shader& skyboxShader{ data.shaders["procedural_skybox"] };
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			auto [camera, cTransform] = context.camera();
+			auto [camera, cTransform, cameraMode] = context.camera();
 
 			float oldFov{ camera->fov() };
 			camera->fov(45.0f);
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			camera->fov(oldFov);
 
-			auto [dl, dlTransform] = context.directionalLight();
+			auto [dl, dlTransform, dlMode] = context.directionalLight();
 			skyboxShader.bind();
 
 			RenderAPI::disableDepth();
@@ -109,9 +109,9 @@ namespace Byte {
 	private:
 		void renderEntities(RenderContext& context, const Shader& shader) const {
 			for (auto& pair : context.renderEntities()) {
-				auto [mesh, material, transform] = pair.second;
+				auto [mesh, material, transform, mode] = pair.second;
 
-				if (material->shadow() == ShadowMode::ENABLED) {
+				if (material->shadow() == ShadowMode::ENABLED || mode == RenderMode::ENABLED) {
 					mesh->renderArray().bind();
 
 					shader.uniform<Vec3>("uPosition", transform->position());
@@ -129,6 +129,10 @@ namespace Byte {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
+				
+				if (pair.second.renderMode() == RenderMode::DISABLED) {
+					continue;
+				}
 
 				if (material.shadow() == ShadowMode::ENABLED) {
 					mesh.renderArray().bind();
@@ -143,9 +147,9 @@ namespace Byte {
 		void updateLightMatrices(float aspectRatio, RenderData& data, RenderContext& context) {
 			size_t cascadeCount{ data.parameter<uint32_t>("cascade_count") };
 
-			auto [_, dlTransform] = context.directionalLight();
+			auto [dl, dlTransform, dlMode] = context.directionalLight();
 
-			auto [camera, cTransform] = context.camera();
+			auto [camera, cTransform, cameraMode] = context.camera();
 			Mat4 view{ cTransform->view() };
 
 			float far{ camera->farPlane() };
@@ -272,9 +276,9 @@ namespace Byte {
 			TransparencyMode mode) const {
 
 			for (auto& pair : context.renderEntities()) {
-				auto [mesh, material, transform] = pair.second;
+				auto [mesh, material, transform, renderMode] = pair.second;
 
-				if (material->transparency() != mode) {
+				if (material->transparency() != mode || renderMode == RenderMode::DISABLED) {
 					continue;
 				}
 
@@ -320,7 +324,7 @@ namespace Byte {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
-				if (material.transparency() != mode) {
+				if (material.transparency() != mode || pair.second.renderMode() == RenderMode::DISABLED) {
 					continue;
 				}
 
@@ -355,7 +359,7 @@ namespace Byte {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			auto [camera, cTransform] = context.camera();
+			auto [camera, cTransform, _] = context.camera();
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
@@ -434,8 +438,8 @@ namespace Byte {
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 			
-			auto [camera, cTransform] = context.camera();
-			auto [directionalLight, dlTransform] = context.directionalLight();
+			auto [camera, cTransform, cameraMode] = context.camera();
+			auto [directionalLight, dlTransform, dlMode] = context.directionalLight();
 
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
@@ -499,8 +503,8 @@ namespace Byte {
 
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 
-			auto [camera, cTransform] = context.camera();
-			auto [directionalLight, dlTransform] = context.directionalLight();
+			auto [camera, cTransform, cameraMode] = context.camera();
+			auto [directionalLight, dlTransform, dlMode] = context.directionalLight();
 
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
@@ -564,7 +568,12 @@ namespace Byte {
 				data.meshes.at("low_poly_sphere").renderArray().bind();
 
 				for (auto& pair : context.pointLights()) {
-					auto [pointLight, _transform] = pair.second;
+					auto [pointLight, _transform, mode] = pair.second;
+
+					if (mode == RenderMode::DISABLED) {
+						continue;
+					}
+
 					Transform transform{ *_transform };
 
 					float radius{ std::min(pointLight->radius(),halfFar) };
@@ -641,7 +650,7 @@ namespace Byte {
 	public:
 		void render(RenderContext& context, RenderData& data) override {
 			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			auto [camera, cTransform] = context.camera();
+			auto [camera, cTransform, _] = context.camera();
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 

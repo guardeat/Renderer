@@ -24,12 +24,14 @@ namespace Byte {
             Mesh* mesh;
             Material* material;
             Transform* transform;
+            RenderMode mode{ RenderMode::ENABLED };
         };
 
         template<typename Type>
         struct RenderItem {
             Type* item{};
             Transform* transform{};
+            RenderMode mode{ RenderMode::ENABLED };
         };
 
     private:

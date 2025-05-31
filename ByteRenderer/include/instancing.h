@@ -6,15 +6,15 @@
 #include "mesh.h"
 #include "material.h"
 #include "transform.h"
+#include "render_type.h"
 
 namespace Byte {
-
-    using InstanceTag = std::string;
 
     class RenderInstance {
     private:
         Mesh* _mesh{};
         Material* _material{};
+        RenderMode _mode{ RenderMode::ENABLED };
 
         Buffer<float> _data{};
         size_t _stride{};
@@ -57,6 +57,14 @@ namespace Byte {
 
         void material(Material& newMaterial) {
             _material = &newMaterial;
+        }
+
+        RenderMode renderMode() const {
+            return _mode;
+        }
+
+        void renderMode(RenderMode& mode) {
+            _mode = mode;
         }
 
         void add(const Transform& transform, RenderID id) {

@@ -38,6 +38,7 @@ namespace Byte {
 	using TextureTag = std::string;
 	using UniformTag = std::string;
 	using ParameterTag = std::string;
+	using InstanceTag = std::string;
 
 	using TextureID = uint32_t;
 	using FramebufferID = uint32_t;
@@ -181,7 +182,7 @@ namespace Byte {
 		size_t elementCount{ 0 };
 	};
 
-	enum class UniformType {
+	enum class UniformType: uint16_t {
 		BOOL,
 		INT,
 		UINT32_T,
@@ -242,6 +243,11 @@ namespace Byte {
 	enum class MeshMode : uint8_t {
 		STATIC,
 		DYNAMIC,
+	};
+
+	enum class RenderMode : uint8_t{
+		ENABLED,
+		DISABLED,
 	};
 
 	struct MeshData {
