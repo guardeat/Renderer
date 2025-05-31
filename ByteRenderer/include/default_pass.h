@@ -35,11 +35,9 @@ namespace Byte {
 
 				if (!inside(frustum, *transform, mesh->data().boundingRadius)) {
 					pair.second.mode = RenderMode::DISABLED;
-					std::cout << "disabled" << std::endl;
 				}
 				else {
 					pair.second.mode = RenderMode::ENABLED;
-					std::cout << "enabled" << std::endl;
 				}
 			}
 		}
@@ -216,7 +214,7 @@ namespace Byte {
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform, mode] = pair.second;
 
-				if (material->shadow() == ShadowMode::ENABLED || mode == RenderMode::ENABLED) {
+				if (material->shadow() == ShadowMode::ENABLED) {
 					mesh->renderArray().bind();
 
 					shader.uniform<Vec3>("uPosition", transform->position());
@@ -234,10 +232,6 @@ namespace Byte {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
-				
-				if (pair.second.renderMode() == RenderMode::DISABLED) {
-					continue;
-				}
 
 				if (material.shadow() == ShadowMode::ENABLED) {
 					mesh.renderArray().bind();

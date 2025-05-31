@@ -194,6 +194,21 @@ namespace Byte {
 				particle.transform.position(Vec3{ x,0.5f,z });
 				group.particles.push_back(particle);
 			}
+
+			Vec3 axis{ 1.0f, 1.0f, 1.0f };
+
+			Quaternion deltaRot{ Quaternion(axis, 45.0f * dt) };
+
+			for (auto& pair : entities) {
+				if (pair.first.find("cube_") == 0) {
+					Transform& transform{ pair.second.transform };
+					Quaternion currentRot{ transform.rotation() };
+
+					Quaternion newRot{ deltaRot * currentRot };
+
+					transform.rotation(newRot.normalized());
+				}
+			}
 		}
 	};
 
@@ -308,6 +323,24 @@ namespace Byte {
 		scene.particleSystem.groups().at("grass_particle").material.shaderMap().emplace("geometry", "particle");
 		scene.particleSystem.groups().at("grass_particle").material.shadow(ShadowMode::DISABLED);
 		scene.particleSystem.groups().at("grass_particle").material.transparency(TransparencyMode::UNSORTED);
+
+		for (size_t i{}; i < 100; ++i) {
+			Entity cube;
+			cube.mesh = MeshBuilder::cube();
+			cube.material.albedo(Vec3{
+				static_cast<float>(rand() % 1000) / 1000.0f,
+				static_cast<float>(rand() % 1000) / 1000.0f,
+				static_cast<float>(rand() % 1000) / 1000.0f
+				});
+
+			float x{ static_cast<float>(rand() % 20000) / 100.0f - 100.0f };
+			float y{ static_cast<float>(rand() % 1500) / 100.0f + 5.0f };
+			float z{ static_cast<float>(rand() % 20000) / 100.0f - 100.0f };
+
+			cube.transform.position(Vec3{ x, y, z });
+			scene.entities["cube_" + std::to_string(i)] = std::move(cube);
+		}
+
 		scene.setContext(renderer);
 
 		return scene;
