@@ -10,6 +10,7 @@
 #include "particle.h"
 
 namespace Byte {
+
 	class FPSCamera {
 	private:
 		float yaw{};
@@ -186,7 +187,7 @@ namespace Byte {
 			Particle particle;
 			particle.lifeTime = 5.0f;
 			particle.velocity = renderer.context().input<Vec3>("uWind") * 3 + Vec3{ 0.0f,1.0f,0.0f };
-			for (size_t i{}; i < 1000 * dt; i++) {
+			for (size_t i{}; i < 100 * dt; i++) {
 				float x{ static_cast<float>(std::rand()) / RAND_MAX * 200.0f - 100 };
 				float z{ static_cast<float>(std::rand()) / RAND_MAX * 200.0f - 100 };
 				particle.transform.position(Vec3{ x,0.5f,z });

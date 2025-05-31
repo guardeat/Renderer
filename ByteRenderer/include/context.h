@@ -71,6 +71,12 @@ namespace Byte {
             return id;
         }
 
+        RenderID submit(const InstanceTag& tag, Buffer<float>&& data) {
+            RenderID id{ RenderIDGenerator::generate() };
+            _instances.at(tag).add(std::forward<Buffer<float>>(data), id);
+            return id;
+        }
+
         RenderID submit(Camera& camera, Transform& cameraTransform) {
             RenderID id{ RenderIDGenerator::generate() };
             _cameraID = id;
