@@ -31,7 +31,6 @@ namespace Byte {
         struct RenderItem {
             Type* item{};
             Transform* transform{};
-            RenderMode mode{ RenderMode::ENABLED };
         };
 
     private:
