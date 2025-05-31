@@ -234,7 +234,9 @@ namespace Byte {
 
 	enum class TransparencyMode : uint8_t {
 		BINARY,
-		GRADUAL,
+		SORTED,
+		UNSORTED,
+		ORDER_INDEPENDENT,
 	};
 
 	enum class MeshMode : uint8_t {

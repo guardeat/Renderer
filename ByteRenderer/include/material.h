@@ -3,9 +3,9 @@
 #include <type_traits>
 #include <unordered_map>
 
-#include "shader.h"
 #include "vec.h"
 #include "texture.h"
+#include "render_type.h"
 
 namespace Byte {
 
@@ -145,19 +145,19 @@ namespace Byte {
 			return _data.materialTexture->id();
 		}
 
-		ShadowMode shadowMode() const {
+		ShadowMode shadow() const {
 			return _data.shadow;
 		}
 
-		void shadowMode(ShadowMode mode) {
+		void shadow(ShadowMode mode) {
 			_data.shadow = mode;
 		}
 
-		TransparencyMode transparencyMode() const {
+		TransparencyMode transparency() const {
 			return _data.transparency;
 		}
 
-		void transparencyMode(TransparencyMode mode) {
+		void transparency(TransparencyMode mode) {
 			_data.transparency = mode;
 		}
 

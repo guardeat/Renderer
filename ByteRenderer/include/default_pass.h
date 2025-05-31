@@ -111,7 +111,7 @@ namespace Byte {
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
 
-				if (material->shadowMode() == ShadowMode::ENABLED) {
+				if (material->shadow() == ShadowMode::ENABLED) {
 					mesh->renderArray().bind();
 
 					shader.uniform<Vec3>("uPosition", transform->position());
@@ -130,7 +130,7 @@ namespace Byte {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
 
-				if (material.shadowMode() == ShadowMode::ENABLED) {
+				if (material.shadow() == ShadowMode::ENABLED) {
 					mesh.renderArray().bind();
 
 					RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
@@ -221,30 +221,7 @@ namespace Byte {
 	};
 
 	class GeometryPass : public RenderPass {
-	public:
-		void render(RenderContext& context, RenderData& data) override {
-			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
-			auto [camera, cTransform] = context.camera();
-			Mat4 projection{ camera->perspective(aspectRatio) };
-			Mat4 view{ cTransform->view() };
-
-			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
-			gBuffer.bind();
-
-			if (data.parameter<bool>("clear_gbuffer")) {
-				gBuffer.clearContent();
-			}
-
-			renderEntities(context, data, projection, view);
-
-			renderInstances(context, data, projection, view);
-
-			gBuffer.unbind();
-
-			data.parameter<bool>("clear_gbuffer") = true;
-		}
-
-	private:
+	protected:
 		void bindMaterial(Shader& shader, const Material& material) const {
 
 			if (!material.albedoTextureID() && !material.materialTextureID()) {
@@ -287,10 +264,19 @@ namespace Byte {
 		}
 
 		void renderEntities(
-			RenderContext& context, RenderData& data, const Mat4& proj, const Mat4& view) const {
+			RenderContext& context,
+			RenderData& data,
+			const Mat4& projection,
+			const Mat4& view,
+			const ShaderTag& defaultTag,
+			TransparencyMode mode) const {
 
 			for (auto& pair : context.renderEntities()) {
 				auto [mesh, material, transform] = pair.second;
+
+				if (material->transparency() != mode) {
+					continue;
+				}
 
 				Shader* shader;
 
@@ -299,14 +285,14 @@ namespace Byte {
 					shader = &data.shaders.at(result->second);
 				}
 				else {
-					shader = &data.shaders.at("deferred");
+					shader = &data.shaders.at(defaultTag);
 				}
 
 				shader->bind();
 
 				shader->uniform(context.shaderInputMap());
 
-				shader->uniform<Mat4>("uProjection", proj);
+				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
 
 				mesh->renderArray().bind();
@@ -323,11 +309,20 @@ namespace Byte {
 		}
 
 		void renderInstances(
-			RenderContext& context, RenderData& data, const Mat4& proj, const Mat4& view) const {
+			RenderContext& context, 
+			RenderData& data, 
+			const Mat4& projection, 
+			const Mat4& view, 
+			const ShaderTag& defaultTag,
+			TransparencyMode mode) const {
 
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
+
+				if (material.transparency() != mode) {
+					continue;
+				}
 
 				Shader* shader;
 
@@ -336,13 +331,13 @@ namespace Byte {
 					shader = &data.shaders.at(result->second);
 				}
 				else {
-					shader = &data.shaders.at("instanced_deferred");
+					shader = &data.shaders.at(defaultTag);
 				}
 
 				shader->bind();
 				shader->uniform(context.shaderInputMap());
 
-				shader->uniform<Mat4>("uProjection", proj);
+				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
 
 				mesh.renderArray().bind();
@@ -354,6 +349,31 @@ namespace Byte {
 			}
 		}
 
+	};
+
+	class OpaquePass : public GeometryPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ cTransform->view() };
+
+			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+			gBuffer.bind();
+
+			if (data.parameter<bool>("clear_gbuffer")) {
+				gBuffer.clearContent();
+			}
+
+			renderEntities(context, data, projection, view, "deferred", TransparencyMode::BINARY);
+
+			renderInstances(context, data, projection, view, "instanced_deferred", TransparencyMode::BINARY);
+
+			gBuffer.unbind();
+
+			data.parameter<bool>("clear_gbuffer") = true;
+		}
 	};
 
 	class SSAOPass : public RenderPass {
@@ -525,7 +545,7 @@ namespace Byte {
 				plShader.bind();
 
 				RenderAPI::enableBlend();
-				RenderAPI::setBlend();
+				RenderAPI::setBlendAdditive();
 				RenderAPI::enableCulling();
 				RenderAPI::cullFront();
 				RenderAPI::disableDepth();
@@ -615,6 +635,38 @@ namespace Byte {
 			shader.uniform<Vec3>("uViewPos", viewPos);
 		}
 
+	};
+
+	class TransparentPass : public GeometryPass {
+	public:
+		void render(RenderContext& context, RenderData& data) override {
+			float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
+			auto [camera, cTransform] = context.camera();
+			Mat4 projection{ camera->perspective(aspectRatio) };
+			Mat4 view{ cTransform->view() };
+
+			Framebuffer& gBuffer{ data.frameBuffers.at("gBuffer") };
+			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
+
+			RenderAPI::Framebuffer::blitDepth(gBuffer.data(), colorBuffer.data());
+
+			colorBuffer.bind();
+
+			RenderAPI::disableDepthMask();
+			RenderAPI::enableBlend();
+			RenderAPI::setBlendTransparency();
+
+			renderEntities(context, data, projection, view, "transparency", TransparencyMode::UNSORTED);
+
+			renderInstances(context, data, projection, view, "instanced_transparency", TransparencyMode::UNSORTED);
+
+			RenderAPI::enableDepthMask();
+			RenderAPI::disableBlend();
+
+			colorBuffer.unbind();
+
+			data.parameter<bool>("clear_gbuffer") = true;
+		}
 	};
 
 	class BloomPass : public RenderPass {

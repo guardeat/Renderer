@@ -235,7 +235,7 @@ namespace Byte {
 		InstancedEntity grass;
 		grass.mesh = buildGrass();
 		grass.material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
-		grass.material.shadowMode(ShadowMode::DISABLED);
+		grass.material.shadow(ShadowMode::DISABLED);
 
 		size_t xCount{ 400 };
 		size_t yCount{ 400 };
@@ -295,7 +295,7 @@ namespace Byte {
 		scene.instancedEntities["grass"] = std::move(grass);
 
 		renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","resource/shader/deferred.frag" });
-		renderer.data().shaders.emplace("particle", Shader{ "test/shader/particle.vert","resource/shader/deferred.frag" });
+		renderer.data().shaders.emplace("particle", Shader{ "test/shader/particle.vert","resource/shader/forward.frag" });
 		renderer.data().shaders.at("grass").include(Uniform{ "uTime",UniformType::FLOAT });
 		renderer.context().input("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
 		renderer.data().shaders.at("grass").include(Uniform{ "uWind",UniformType::VEC3 });
@@ -303,9 +303,11 @@ namespace Byte {
 		renderer.compileShaders();
 		scene.instancedEntities.at("grass").material.shaderMap().emplace("geometry", "grass");
 		scene.particleSystem.groups().emplace("grass_particle", ParticleGroup{ MeshBuilder::plane(0.2f,0.2f,1), Material{} });
-		scene.particleSystem.groups().at("grass_particle").material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
+		scene.particleSystem.groups().at("grass_particle").material.albedo(Vec4{ 0.27f, 0.95f, 0.15f,0.1f });
 		scene.particleSystem.groups().at("grass_particle").material.ambientOcclusion(0.2f);
 		scene.particleSystem.groups().at("grass_particle").material.shaderMap().emplace("geometry", "particle");
+		scene.particleSystem.groups().at("grass_particle").material.shadow(ShadowMode::DISABLED);
+		scene.particleSystem.groups().at("grass_particle").material.transparency(TransparencyMode::UNSORTED);
 		scene.setContext(renderer);
 
 		return scene;

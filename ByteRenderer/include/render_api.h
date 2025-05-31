@@ -53,6 +53,14 @@ namespace Byte {
             glViewport(0, 0, width, height);
         }
 
+        static void enableDepthMask() {
+            glDepthMask(GL_TRUE);
+        }
+
+        static void disableDepthMask() {
+            glDepthMask(GL_FALSE);
+        }
+
         static void enableDepth() {
             glEnable(GL_DEPTH_TEST);
         }
@@ -82,9 +90,15 @@ namespace Byte {
             glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
         }
 
-        static void setBlend() {
+        static void setBlendAdditive() {
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
+        }
+
+        static void setBlendTransparency() {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glBlendEquation(GL_FUNC_ADD);
         }
 
@@ -191,6 +205,26 @@ namespace Byte {
             static void clearDepth(FramebufferID id) {
                 glBindFramebuffer(GL_FRAMEBUFFER, id);
                 glClear(GL_DEPTH_BUFFER_BIT);
+            }
+
+            static void blitDepth(FramebufferData& source, FramebufferData& destination) {
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, source.id);
+
+                glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destination.id);
+
+                GLint sourceWidth{ static_cast<GLint>(source.width) };
+                GLint sourceHeight{ static_cast<GLint>(source.height) };
+                GLint destinationWidth{ static_cast<GLint>(destination.width) };
+                GLint destinationHeight{ static_cast<GLint>(destination.height) };
+
+                glBlitFramebuffer(
+                    0, 0, sourceWidth, sourceHeight,  
+                    0, 0, destinationWidth, destinationHeight,
+                    GL_DEPTH_BUFFER_BIT,             
+                    GL_NEAREST
+                );
+
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
             }
 
             static void bind(FramebufferData& data) {

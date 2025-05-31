@@ -8,7 +8,16 @@ namespace Byte {
 
 	struct RendererGenerator {
 		static Renderer deferred(Window& window) {
-			Renderer renderer{ Renderer::build<SkyboxPass, ShadowPass, GeometryPass, SSAOPass, LightingPass, BloomPass, DrawPass>() };
+			Renderer renderer{ 
+				Renderer::build<
+				SkyboxPass, 
+				ShadowPass, 
+				OpaquePass, 
+				SSAOPass,
+				LightingPass, 
+				TransparentPass, 
+				BloomPass, 
+				DrawPass>() };
 			size_t width{ window.width() };
 			size_t height{ window.height() };
 
@@ -21,6 +30,8 @@ namespace Byte {
 			renderer.data().shaders["procedural_skybox"] = { "resource/shader/procedural_skybox.vert", "resource/shader/procedural_skybox.frag" };
 			renderer.data().shaders["deferred"] = { "resource/shader/default.vert", "resource/shader/deferred.frag" };
 			renderer.data().shaders["instanced_deferred"] = { "resource/shader/instanced.vert", "resource/shader/deferred.frag" };
+			renderer.data().shaders["transparency"] = { "resource/shader/default.vert", "resource/shader/forward.frag" };
+			renderer.data().shaders["instanced_transparency"] = { "resource/shader/instanced.vert", "resource/shader/forward.frag" };
 			renderer.data().shaders["bloom_upsample"] = { "resource/shader/quad.vert", "resource/shader/bloom_upsample.frag" };
 			renderer.data().shaders["bloom_downsample"] = { "resource/shader/quad.vert", "resource/shader/bloom_downsample.frag" };
 			renderer.data().shaders["ssao"] = { "resource/shader/quad.vert", "resource/shader/ssao.frag" };
