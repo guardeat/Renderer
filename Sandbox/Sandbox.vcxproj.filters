@@ -35,13 +35,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="test\particle.h">
+    <ClInclude Include="include\particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\test.h">
+    <ClInclude Include="include\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\stb_image.h">
+    <ClInclude Include="include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
