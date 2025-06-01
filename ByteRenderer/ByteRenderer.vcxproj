@@ -32,6 +32,7 @@
     <ClInclude Include="include\math\mat.h" />
     <ClInclude Include="include\core\material.h" />
     <ClInclude Include="include\core\mesh.h" />
+    <ClInclude Include="include\render\mesh_renderer.h" />
     <ClInclude Include="include\render\render_api.h" />
     <ClInclude Include="include\math\quaternion.h" />
     <ClInclude Include="include\render.h" />

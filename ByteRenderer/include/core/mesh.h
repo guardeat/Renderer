@@ -5,7 +5,7 @@
 #include <utility> 
 #include <memory>
 
-#include "render/render_array.h"
+#include "core/core_types.h"
 
 namespace Byte {
 
@@ -28,7 +28,6 @@ namespace Byte {
 	class Mesh {
 	private:
         MeshData _data;
-        RenderArray _renderArray;
 
 	public:
 		Mesh() = default;
@@ -49,21 +48,9 @@ namespace Byte {
 			return _data.mode;
 		}
 
-		const RenderArray& renderArray() const {
-			return _renderArray;
-		}
-
-		void renderArray(RenderArray&& renderArray) {
-			_renderArray = std::move(renderArray);
-		}
-
 		const MeshData& data() const {
 			return _data;
 		}
-
-        bool drawable() const {
-            return _renderArray.data().VAO != 0;
-        }
 
         bool empty() const {
             return _data.vertices.empty();

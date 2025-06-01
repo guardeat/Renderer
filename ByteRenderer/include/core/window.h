@@ -7,8 +7,6 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "render/render_api.h"
-
 namespace Byte {
 
 	struct Window {

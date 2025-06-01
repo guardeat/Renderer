@@ -92,6 +92,9 @@
     <ClInclude Include="include\core\core_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\render\mesh_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\bloom_downsample.frag" />

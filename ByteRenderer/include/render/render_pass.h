@@ -7,6 +7,7 @@
 #include "context.h"
 #include "render_api.h"
 #include "render_data.h"
+#include "texture.h"
 
 namespace Byte {
 	class RenderPass {
@@ -35,7 +36,7 @@ namespace Byte {
 			Frustum frustum{ createFrustum(*camera, *cameraTransform, aspectRatio) };
 
 			for (auto& pair : context.renderEntities()) {
-				auto [mesh, material, transform, mode] = pair.second;
+				auto [mesh, material, transform, mode, meshRenderer] = pair.second;
 
 				if (!inside(frustum, *transform, mesh->data().boundingRadius)) {
 					pair.second.mode = RenderMode::DISABLED;
@@ -149,11 +150,11 @@ namespace Byte {
 			skyboxShader.uniform<Vec3>("uDirectionalLight.color", dl->color);
 			skyboxShader.uniform<float>("uDirectionalLight.intensity", dl->intensity);
 
-			data.meshes.at("sphere").renderArray().bind();
+			data.meshes.at("sphere").renderer.bind();
 
-			RenderAPI::Draw::elements(data.meshes.at("sphere").indices().size());
+			RenderAPI::Draw::elements(data.meshes.at("sphere").mesh.indices().size());
 
-			data.meshes.at("sphere").renderArray().unbind();
+			data.meshes.at("sphere").renderer.unbind();
 			gBuffer.unbind();
 
 			RenderAPI::enableDepth();
@@ -215,10 +216,10 @@ namespace Byte {
 	private:
 		void renderEntities(RenderContext& context, const Shader& shader) const {
 			for (auto& pair : context.renderEntities()) {
-				auto [mesh, material, transform, mode] = pair.second;
+				auto [mesh, material, transform, meshRenderer, mode] = pair.second;
 
 				if (material->shadow() == ShadowMode::ENABLED) {
-					mesh->renderArray().bind();
+					meshRenderer->bind();
 
 					shader.uniform<Vec3>("uPosition", transform->position());
 					shader.uniform<Vec3>("uScale", transform->scale());
@@ -226,22 +227,23 @@ namespace Byte {
 
 					RenderAPI::Draw::elements(mesh->indices().size());
 
-					mesh->renderArray().unbind();
+					meshRenderer->unbind();
 				}
 			}
 		}
 
 		void renderInstances(RenderContext& context) const {
 			for (auto& pair : context.instances()) {
-				Mesh& mesh{ pair.second.mesh() };
+				Mesh mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
+				MeshRenderer& meshRenderer{ pair.second.meshRenderer() };
 
 				if (material.shadow() == ShadowMode::ENABLED) {
-					mesh.renderArray().bind();
+					meshRenderer.bind();
 
 					RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
-					mesh.renderArray().unbind();
+					meshRenderer.unbind();
 				}
 			}
 		}
@@ -330,7 +332,7 @@ namespace Byte {
 	protected:
 		void bindMaterial(Shader& shader, const Material& material) const {
 
-			if (!material.albedoTextureID() && !material.materialTextureID()) {
+			if (!material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
 				shader.uniform<int>("uDataMode", 0);
 				shader.uniform<float>("uMetallic", material.metallic());
 				shader.uniform<float>("uRoughness", material.roughness());
@@ -338,7 +340,7 @@ namespace Byte {
 				shader.uniform<float>("uEmission", material.emission());
 			}
 
-			else if (material.albedoTextureID() && !material.materialTextureID()) {
+			else if (material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
 				shader.uniform<int>("uDataMode", 1);
 				shader.uniform<int>("uAlbedoTexture", 0);
 
@@ -350,7 +352,7 @@ namespace Byte {
 			}
 
 
-			else if (!material.albedoTextureID() && material.materialTextureID()) {
+			else if (!material.hasAlbedoTexture() && material.hasMaterialTexture()) {
 				shader.uniform<int>("uDataMode", 2);
 				shader.uniform<int>("uMaterialTexture", 0);
 
@@ -378,7 +380,7 @@ namespace Byte {
 			TransparencyMode mode) const {
 
 			for (auto& pair : context.renderEntities()) {
-				auto [mesh, material, transform, renderMode] = pair.second;
+				auto [mesh, material, transform, meshRenderer, renderMode] = pair.second;
 
 				if (material->transparency() != mode || renderMode == RenderMode::DISABLED) {
 					continue;
@@ -401,7 +403,7 @@ namespace Byte {
 				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
 
-				mesh->renderArray().bind();
+				meshRenderer->bind();
 				bindMaterial(*shader, *material);
 
 				shader->uniform<Vec3>("uPosition", transform->position());
@@ -410,7 +412,7 @@ namespace Byte {
 
 				RenderAPI::Draw::elements(mesh->indices().size());
 
-				mesh->renderArray().unbind();
+				meshRenderer->unbind();
 			}
 		}
 
@@ -425,6 +427,7 @@ namespace Byte {
 			for (auto& pair : context.instances()) {
 				Mesh& mesh{ pair.second.mesh() };
 				Material& material{ pair.second.material() };
+				MeshRenderer& meshRenderer{ pair.second.meshRenderer() };
 
 				if (material.transparency() != mode || pair.second.renderMode() == RenderMode::DISABLED) {
 					continue;
@@ -446,12 +449,12 @@ namespace Byte {
 				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
 
-				mesh.renderArray().bind();
+				meshRenderer.bind();
 				bindMaterial(*shader, material);
 
 				RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 
-				mesh.renderArray().unbind();
+				meshRenderer.unbind();
 			}
 		}
 
@@ -564,11 +567,11 @@ namespace Byte {
 			ssaoShader.uniform("uNoise", 1);
 			ssaoShader.uniform("uDepth", 2);
 
-			data.meshes.at("quad").renderArray().bind();
+			data.meshes.at("quad").renderer.bind();
 
 			RenderAPI::Draw::quad();
 
-			data.meshes.at("quad").renderArray().unbind();
+			data.meshes.at("quad").renderer.unbind();
 
 			Framebuffer& blurBuffer{ data.frameBuffers.at("blurBuffer") };
 			blurBuffer.bind();
@@ -582,11 +585,11 @@ namespace Byte {
 			blurShader.uniform("uSrcTexture", 0);
 			blurShader.uniform("uDepth", 1);
 
-			data.meshes.at("quad").renderArray().bind();
+			data.meshes.at("quad").renderer.bind();
 
 			RenderAPI::Draw::quad();
 
-			data.meshes.at("quad").renderArray().unbind();
+			data.meshes.at("quad").renderer.unbind();
 		}
 	};
 
@@ -640,9 +643,9 @@ namespace Byte {
 
 			lightingShader.uniform<bool>("uUseSSAO", data.parameter<bool>("render_ssao"));
 
-			data.meshes.at("quad").renderArray().bind();
+			data.meshes.at("quad").renderer.bind();
 			RenderAPI::Draw::quad();
-			data.meshes.at("quad").renderArray().unbind();
+			data.meshes.at("quad").renderer.unbind();
 
 			lightingShader.unbind();
 
@@ -667,7 +670,7 @@ namespace Byte {
 
 				float halfFar{ camera->farPlane() / 2 };
 
-				data.meshes.at("low_poly_sphere").renderArray().bind();
+				data.meshes.at("low_poly_sphere").renderer.bind();
 
 				for (auto& pair : context.pointLights()) {
 					auto [pointLight, _transform] = pair.second;
@@ -687,10 +690,10 @@ namespace Byte {
 					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
 					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
-					RenderAPI::Draw::elements(data.meshes.at("low_poly_sphere").indices().size());
+					RenderAPI::Draw::elements(data.meshes.at("low_poly_sphere").mesh.indices().size());
 				}
 
-				data.meshes.at("low_poly_sphere").renderArray().unbind();
+				data.meshes.at("low_poly_sphere").renderer.unbind();
 				plShader.unbind();
 
 				RenderAPI::enableDepth();
@@ -806,11 +809,11 @@ namespace Byte {
 
 				downsampleShader.uniform<Vec2>("uSrcResolution", Vec2{ srcWidth,srcHeight });
 
-				data.meshes.at("quad").renderArray().bind();
+				data.meshes.at("quad").renderer.bind();
 
 				RenderAPI::Draw::quad();
 
-				data.meshes.at("quad").renderArray().unbind();
+				data.meshes.at("quad").renderer.unbind();
 
 				src = dest;
 
@@ -833,11 +836,11 @@ namespace Byte {
 
 				dest->bind();
 
-				data.meshes.at("quad").renderArray().bind();
+				data.meshes.at("quad").renderer.bind();
 
 				RenderAPI::Draw::quad();
 
-				data.meshes.at("quad").renderArray().unbind();
+				data.meshes.at("quad").renderer.unbind();
 
 				src = dest;
 			}
@@ -848,9 +851,9 @@ namespace Byte {
 
 			data.frameBuffers.at("colorBuffer").bind();
 
-			data.meshes.at("quad").renderArray().bind();
+			data.meshes.at("quad").renderer.bind();
 			RenderAPI::Draw::quad();
-			data.meshes.at("quad").renderArray().unbind();
+			data.meshes.at("quad").renderer.unbind();
 
 			RenderAPI::disableBlend();
 			RenderAPI::enableDepth();
@@ -882,11 +885,11 @@ namespace Byte {
 			shader->uniform("uAlbedo", 0);
 			RenderAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
 
-			data.meshes.at("quad").renderArray().bind();
+			data.meshes.at("quad").renderer.bind();
 
 			RenderAPI::Draw::quad();
 
-			data.meshes.at("quad").renderArray().unbind();
+			data.meshes.at("quad").renderer.unbind();
 		}
 
 	};

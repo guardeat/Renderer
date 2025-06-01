@@ -118,10 +118,10 @@ namespace Byte {
 		void setupMeshes(Renderer& renderer) {
 			auto& meshes{ renderer.data().meshes };
 
-			meshes.emplace("cube", MeshBuilder::cube());
-			meshes.emplace("quad", MeshBuilder::quad());
-			meshes.emplace("sphere", MeshBuilder::sphere(1, 10));
-			meshes.emplace("low_poly_sphere", MeshBuilder::sphere(1, 4));
+			meshes.emplace("cube", RenderData::RenderMesh{ MeshBuilder::cube(), MeshRenderer{} });
+			meshes.emplace("quad", RenderData::RenderMesh{ MeshBuilder::quad(), MeshRenderer{} });
+			meshes.emplace("sphere", RenderData::RenderMesh{ MeshBuilder::sphere(1, 10), MeshRenderer{} });
+			meshes.emplace("low_poly_sphere", RenderData::RenderMesh{ MeshBuilder::sphere(1, 4), MeshRenderer{} });
 		}
 
 		void setupFramebuffers(Renderer& renderer, size_t width, size_t height) {

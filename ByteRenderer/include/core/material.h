@@ -2,12 +2,28 @@
 
 #include <type_traits>
 #include <unordered_map>
+#include <string>
 
 #include "math/vec.h"
-#include "render/texture.h"
-#include "render/render_type.h"
+#include "core/core_types.h"
 
 namespace Byte {
+
+	enum class ShadowMode : uint8_t {
+		DISABLED,
+		ENABLED,
+	};
+
+	enum class TransparencyMode : uint8_t {
+		BINARY,
+		SORTED,
+		UNSORTED,
+		ORDER_INDEPENDENT,
+	};
+
+	class Texture;
+
+	using ShaderTag = std::string;
 
 	struct MaterialData {
 		using ShaderMap = std::unordered_map<std::string, ShaderTag>;
@@ -129,20 +145,6 @@ namespace Byte {
 
 		void materialTexture(Texture& texture) {
 			_data.materialTexture = &texture;
-		}
-
-		TextureID albedoTextureID() const {
-			if (!_data.albedoTexture) {
-				return 0;
-			}
-			return _data.albedoTexture->id();
-		}
-
-		TextureID materialTextureID() const {
-			if (!_data.materialTexture) {
-				return 0;
-			}
-			return _data.materialTexture->id();
 		}
 
 		ShadowMode shadow() const {

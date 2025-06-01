@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "instance_group.h"
 #include "shader.h"
+#include "mesh_renderer.h"
 
 namespace Byte {
 
@@ -24,6 +25,7 @@ namespace Byte {
             Mesh* mesh;
             Material* material;
             Transform* transform;
+            MeshRenderer* meshRenderer;
             RenderMode mode{ RenderMode::ENABLED };
         };
 
@@ -52,14 +54,19 @@ namespace Byte {
         ShaderInputMap _inputMap;
 
     public:
-        RenderID submit(Mesh& mesh, Material& material, Transform& transform) {
+        RenderID submit(Mesh& mesh, Material& material, Transform& transform, MeshRenderer& meshRenderer) {
             RenderID id{ RenderIDGenerator::generate() };
-            _renderEntities.emplace(id, RenderEntity{ &mesh, &material, &transform });
+            _renderEntities.emplace(id, RenderEntity{ &mesh, &material, &transform, &meshRenderer });
             return id;
         }
 
-        RenderID submit(const InstanceTag& tag, Mesh& mesh, Material& material, Transform& transform) {
-            _instances.emplace(tag, InstanceGroup{ mesh,material });
+        RenderID submit(
+            const InstanceTag& tag,
+            Mesh& mesh,
+            Material& material, 
+            Transform& transform, 
+            MeshRenderer& meshRenderer) {
+            _instances.emplace(tag, InstanceGroup{ mesh,material,meshRenderer });
             RenderID id{ RenderIDGenerator::generate() };
             _instances.at(tag).add(transform,id);
             return id;
@@ -136,8 +143,8 @@ namespace Byte {
             _pointLights.erase(id);
         }
 
-        void createInstance(const InstanceTag& tag, Mesh& mesh, Material& material) {
-            _instances.emplace(tag, InstanceGroup{ mesh,material });
+        void createInstance(const InstanceTag& tag, Mesh& mesh, Material& material, MeshRenderer& meshRenderer) {
+            _instances.emplace(tag, InstanceGroup{ mesh,material,meshRenderer });
         }
 
         RenderEntity& entity(RenderID id) {

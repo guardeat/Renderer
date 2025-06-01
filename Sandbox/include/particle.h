@@ -23,6 +23,7 @@ namespace Byte {
 	struct ParticleGroup {
 		Mesh mesh;
 		Material material;
+		MeshRenderer renderer;
 		std::vector<Particle> particles;
 	};
 
@@ -41,7 +42,7 @@ namespace Byte {
 				auto instance{ renderer.context().instances().find(tag)};
 
 				if (instance == renderer.context().instances().end()) {
-					renderer.context().createInstance(tag, group.mesh, group.material);
+					renderer.context().createInstance(tag, group.mesh, group.material,group.renderer);
 					instance = renderer.context().instances().find(tag);
 				}
 				instance->second.clearInstances();

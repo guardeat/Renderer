@@ -7,6 +7,7 @@
 #include "core/material.h"
 #include "core/transform.h"
 #include "render_type.h"
+#include "mesh_renderer.h"
 
 namespace Byte {
 
@@ -14,6 +15,7 @@ namespace Byte {
     private:
         Mesh* _mesh{};
         Material* _material{};
+        MeshRenderer* _meshRenderer{};
         RenderMode _mode{ RenderMode::ENABLED };
 
         Buffer<float> _data{};
@@ -30,8 +32,11 @@ namespace Byte {
     public:
         InstanceGroup() = default;
 
-        InstanceGroup(Mesh& mesh, Material& material, Buffer<uint8_t>&& layout = { 3,3,4 })
-            : _mesh{ &mesh }, _material{ &material }, _layout{ std::forward<Buffer<uint8_t>>(layout) } {
+        InstanceGroup(Mesh& mesh, Material& material, MeshRenderer& meshRenderer, Buffer<uint8_t>&& layout = { 3,3,4 })
+            : _mesh{ &mesh },
+            _material{ &material },
+            _meshRenderer{ &meshRenderer },
+            _layout{ std::forward<Buffer<uint8_t>>(layout) } {
             _stride = std::accumulate(_layout.begin(), _layout.end(), 0);
         }
 
@@ -57,6 +62,18 @@ namespace Byte {
 
         void material(Material& newMaterial) {
             _material = &newMaterial;
+        }
+
+        MeshRenderer& meshRenderer() {
+            return *_meshRenderer;
+        }
+
+        const MeshRenderer& meshRenderer() const {
+            return *_meshRenderer;
+        }
+
+        void meshRenderer(MeshRenderer& newMeshRenderer) {
+            _meshRenderer = &newMeshRenderer;
         }
 
         RenderMode renderMode() const {
@@ -147,7 +164,7 @@ namespace Byte {
         }
 
         void resetInstanceBuffer() {
-            RenderBufferID bufferID{ _mesh->renderArray().data().VBuffers[1].id };
+            RenderBufferID bufferID{ _meshRenderer->renderArray().data().VBuffers[1].id };
 
             if (_size > _bufferCapacity) {
                 _data.reserve(_size * _stride * 2);

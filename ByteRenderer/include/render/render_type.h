@@ -223,18 +223,6 @@ namespace Byte {
 		ShaderInput<Mat3>,
 		ShaderInput<Mat4>>>;
 
-	enum class ShadowMode : uint8_t {
-		DISABLED,
-		ENABLED,
-	};
-
-	enum class TransparencyMode : uint8_t {
-		BINARY,
-		SORTED,
-		UNSORTED,
-		ORDER_INDEPENDENT,
-	};
-
 	enum class RenderMode : uint8_t {
 		ENABLED,
 		DISABLED,

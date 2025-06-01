@@ -7,6 +7,7 @@
 #include "stb_image.h"
 
 #include "render.h"
+#include "render/mesh_renderer.h"
 #include "particle.h"
 
 namespace Byte {
@@ -124,12 +125,14 @@ namespace Byte {
 		Mesh mesh;
 		Material material;
 		Transform transform;
+		MeshRenderer renderer;
 	};
 
 	struct InstancedEntity {
 		Mesh mesh;
 		Material material;
 		std::vector<Transform> transforms;
+		MeshRenderer renderer;
 	};
 
 	struct Scene {
@@ -156,7 +159,7 @@ namespace Byte {
 			renderer.context().submit(directionalLight, directionalLightTransform);
 
 			for (auto& pair : entities) {
-				renderer.context().submit(pair.second.mesh, pair.second.material, pair.second.transform);
+				renderer.context().submit(pair.second.mesh, pair.second.material, pair.second.transform,pair.second.renderer);
 			}
 
 			for (size_t i{}; i < pointLights.size(); ++i) {
@@ -164,7 +167,7 @@ namespace Byte {
 			}
 
 			for (auto& pair : instancedEntities) {
-				renderer.context().createInstance(pair.first,pair.second.mesh,pair.second.material);
+				renderer.context().createInstance(pair.first,pair.second.mesh,pair.second.material, pair.second.renderer);
 
 				for (auto& transform : pair.second.transforms) {
 					renderer.context().submit(pair.first, transform);

@@ -4,8 +4,9 @@
 #include <memory>
 #include <unordered_map>
 
-#include "render_pass.h"
 #include "Core/window.h"
+#include "render_pass.h"
+#include "texture.h"
 
 namespace Byte {
 
@@ -37,8 +38,8 @@ namespace Byte {
 
 			compileShaders();
 
-			for (auto& pair : _data.meshes) {
-				fillVertexArray(pair.second);
+			for (auto& [tag,pair] : _data.meshes) {
+				pair.renderer.upload(pair.mesh);
 			}
 
 			load();
@@ -128,62 +129,42 @@ namespace Byte {
 		void prepareVertexArrays() {
 			for (auto& pair : _context.renderEntities()) {
 				Mesh& mesh{ *pair.second.mesh };
-				if (!mesh.drawable() && !mesh.empty()) {
-					fillVertexArray(mesh);
+				MeshRenderer& meshRenderer{ *pair.second.meshRenderer };
+				if (!meshRenderer.drawable() && !mesh.empty()) {
+					meshRenderer.upload(mesh);
 				}
 			}
 
-			for (auto& pair : _context.instances()) {
-				if (!pair.second.mesh().drawable() && !pair.second.mesh().empty()) {
-					fillInstancedVertexArray(pair.second);
-					pair.second.resetInstanceBuffer();
+			for (auto& [tag, instance] : _context.instances()) {
+				if (!instance.meshRenderer().drawable() && !instance.mesh().empty()) {
+					instance.meshRenderer().uploadInstanced(instance.mesh(),instance.layout());
+					instance.resetInstanceBuffer();
 				}
-				else if (pair.second.changed()) {
-					pair.second.resetInstanceBuffer();
+				else if (instance.changed()) {
+					instance.resetInstanceBuffer();
 				}
 			}
-		}
-
-		void fillVertexArray(Mesh& mesh) const {
-			bool isStatic{ mesh.mode() == MeshMode::STATIC };
-
-			auto atts{ RenderAPI::RenderArray::buildAttributes(mesh.data().vertexLayout) };
-			 
-			mesh.renderArray(RenderAPI::RenderArray::build(mesh.vertices(),mesh.indices(),atts,isStatic));
-		}
-
-		void fillInstancedVertexArray(InstanceGroup& instance) const {
-			bool isStatic{ instance.mesh().mode() == MeshMode::STATIC};
-
-			auto atts{ RenderAPI::RenderArray::buildAttributes(instance.mesh().data().vertexLayout)};
-
-			auto iAtts{ RenderAPI::RenderArray::buildAttributes(instance.layout(),3)};
-
-			auto& vertices{ instance.mesh().vertices() };
-			auto& indices{ instance.mesh().indices() };
-			auto rArrayData{ RenderAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic) };
-			instance.mesh().renderArray(std::move(rArrayData));
 		}
 
 		void prepareTextures() {
 			for (auto& pair : _context.renderEntities()) {
 				Material& material{ *pair.second.material };
-				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
+				if (material.hasAlbedoTexture() && !material.albedoTexture().id()) {
 					RenderAPI::Texture::build(material.albedoTexture().data());
 				}
 
-				if (material.hasMaterialTexture() && !material.materialTextureID()) {
+				if (material.hasMaterialTexture() && !material.materialTexture().id()) {
 					RenderAPI::Texture::build(material.materialTexture().data());
 				}
 			}
 
 			for (auto& pair : _context.instances()) {
 				Material& material{ pair.second.material() };
-				if (material.hasAlbedoTexture() && !material.albedoTextureID()) {
+				if (material.hasAlbedoTexture() && !material.albedoTexture().id()) {
 					RenderAPI::Texture::build(material.albedoTexture().data());
 				}
 
-				if (material.hasMaterialTexture() && !material.materialTextureID()) {
+				if (material.hasMaterialTexture() && !material.materialTexture().id()) {
 					RenderAPI::Texture::build(material.materialTexture().data());
 				}
 			}

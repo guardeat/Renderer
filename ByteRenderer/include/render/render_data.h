@@ -25,7 +25,12 @@ namespace Byte {
 		using ParameterMap = std::unordered_map<ParameterTag, Parameter>;
 		ParameterMap parameters;
 
-		using MeshMap = std::unordered_map<MeshTag, Mesh>;
+		struct RenderMesh {
+			Mesh mesh;
+			MeshRenderer renderer;
+		};
+
+		using MeshMap = std::unordered_map<MeshTag, RenderMesh>;
 		MeshMap meshes;
 
 		template<typename Type>
