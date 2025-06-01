@@ -7,10 +7,10 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
-#include "window.h"
-#include "mat.h"
-#include "vec.h"
-#include "quaternion.h"
+#include "core/window.h"
+#include "math/mat.h"
+#include "math/vec.h"
+#include "math/quaternion.h"
 #include "render_type.h"
 
 namespace Byte {

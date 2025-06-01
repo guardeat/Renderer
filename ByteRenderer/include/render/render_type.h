@@ -9,9 +9,10 @@
 #include <variant>
 #include <random>
 
-#include "vec.h"
-#include "mat.h"
-#include "quaternion.h"
+#include "core/core_types.h"
+#include "math/vec.h"
+#include "math/mat.h"
+#include "math/quaternion.h"
 
 namespace Byte {
 
@@ -27,14 +28,8 @@ namespace Byte {
 		}
 	};
 
-	using Path = std::filesystem::path;
-
-	template<typename T>
-	using Buffer = std::vector<T>;
-
 	using ShaderTag = std::string;
 	using FramebufferTag = std::string;
-	using MeshTag = std::string;
 	using TextureTag = std::string;
 	using UniformTag = std::string;
 	using ParameterTag = std::string;
@@ -243,22 +238,6 @@ namespace Byte {
 	enum class RenderMode : uint8_t {
 		ENABLED,
 		DISABLED,
-	};
-
-	enum class MeshMode : uint8_t {
-		STATIC,
-		DYNAMIC,
-	};
-
-	struct MeshData {
-		Buffer<float> vertices;
-		Buffer<uint32_t> indices;
-
-		MeshMode mode{ MeshMode::STATIC };
-
-		float boundingRadius{ 1.0f };
-
-		Buffer<uint8_t> vertexLayout{ 3,3,2 };
 	};
 
 }

@@ -5,10 +5,25 @@
 #include <utility> 
 #include <memory>
 
-#include "render_type.h"
-#include "render_array.h"
+#include "render/render_array.h"
 
 namespace Byte {
+
+    enum class MeshMode : uint8_t {
+        STATIC,
+        DYNAMIC,
+    };
+
+    struct MeshData {
+        Buffer<float> vertices;
+        Buffer<uint32_t> indices;
+
+        MeshMode mode{ MeshMode::STATIC };
+
+        float boundingRadius{ 1.0f };
+
+        Buffer<uint8_t> vertexLayout{ 3,3,2 };
+    };
 
 	class Mesh {
 	private:

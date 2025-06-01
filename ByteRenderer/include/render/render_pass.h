@@ -1,10 +1,10 @@
 #pragma once
 
+#include "math/quaternion.h"
+#include "math/vec.h"
+#include "math/trigonometry.h"
+#include "math/mat.h"
 #include "context.h"
-#include "quaternion.h"
-#include "vec.h"
-#include "trigonometry.h"
-#include "mat.h"
 #include "render_api.h"
 #include "render_data.h"
 

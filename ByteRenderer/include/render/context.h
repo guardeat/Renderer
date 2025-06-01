@@ -5,12 +5,12 @@
 #include <limits>
 #include <variant>
 
-#include "render_type.h"
-#include "mesh.h"
-#include "material.h"
-#include "transform.h"
-#include "mat.h"
+#include "core/mesh.h"
+#include "core/material.h"
+#include "core/transform.h"
+#include "math/mat.h"
 #include "framebuffer.h"
+#include "render_type.h"
 #include "light.h"
 #include "camera.h"
 #include "instance_group.h"

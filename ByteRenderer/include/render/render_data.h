@@ -4,9 +4,9 @@
 #include <variant>
 #include <cstdint>
 
+#include "core/mesh.h"
 #include "render_type.h"
 #include "shader.h"
-#include "mesh.h"
 #include "framebuffer.h"
 
 namespace Byte {

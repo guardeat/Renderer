@@ -3,9 +3,9 @@
 #include <string>
 #include <numeric>
 
-#include "mesh.h"
-#include "material.h"
-#include "transform.h"
+#include "core/mesh.h"
+#include "core/material.h"
+#include "core/transform.h"
 #include "render_type.h"
 
 namespace Byte {

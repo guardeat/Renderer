@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vec.h"
-#include "trigonometry.h"
-
 #include <cmath>
 #include <iostream>
+
+#include "vec.h"
+#include "trigonometry.h"
 
 namespace Byte {
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mat.h"
-#include "vec.h"
-#include "transform.h"
+#include "core/transform.h"
+#include "math/mat.h"
+#include "math/vec.h"
 
 namespace Byte {
 

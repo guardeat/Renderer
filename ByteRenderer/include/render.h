@@ -1,8 +1,8 @@
 #pragma once
 
-#include "renderer.h"
-#include "render_pass.h"
-#include "window.h"
+#include "Render/renderer.h"
+#include "Render/render_pass.h"
+#include "Core/window.h"
 
 namespace Byte {
 

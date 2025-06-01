@@ -23,28 +23,29 @@
     <ClCompile Include="src\render.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\context.h" />
-    <ClInclude Include="include\framebuffer.h" />
-    <ClInclude Include="include\instance_group.h" />
-    <ClInclude Include="include\light.h" />
-    <ClInclude Include="include\mat.h" />
-    <ClInclude Include="include\material.h" />
-    <ClInclude Include="include\mesh.h" />
-    <ClInclude Include="include\render_api.h" />
-    <ClInclude Include="include\quaternion.h" />
+    <ClInclude Include="include\core\core_types.h" />
+    <ClInclude Include="include\render\camera.h" />
+    <ClInclude Include="include\render\context.h" />
+    <ClInclude Include="include\render\framebuffer.h" />
+    <ClInclude Include="include\render\instance_group.h" />
+    <ClInclude Include="include\render\light.h" />
+    <ClInclude Include="include\math\mat.h" />
+    <ClInclude Include="include\core\material.h" />
+    <ClInclude Include="include\core\mesh.h" />
+    <ClInclude Include="include\render\render_api.h" />
+    <ClInclude Include="include\math\quaternion.h" />
     <ClInclude Include="include\render.h" />
-    <ClInclude Include="include\renderer.h" />
-    <ClInclude Include="include\render_array.h" />
-    <ClInclude Include="include\render_data.h" />
-    <ClInclude Include="include\render_pass.h" />
-    <ClInclude Include="include\render_type.h" />
-    <ClInclude Include="include\shader.h" />
-    <ClInclude Include="include\texture.h" />
-    <ClInclude Include="include\transform.h" />
-    <ClInclude Include="include\trigonometry.h" />
-    <ClInclude Include="include\vec.h" />
-    <ClInclude Include="include\window.h" />
+    <ClInclude Include="include\render\renderer.h" />
+    <ClInclude Include="include\render\render_array.h" />
+    <ClInclude Include="include\render\render_data.h" />
+    <ClInclude Include="include\render\render_pass.h" />
+    <ClInclude Include="include\render\render_type.h" />
+    <ClInclude Include="include\render\shader.h" />
+    <ClInclude Include="include\render\texture.h" />
+    <ClInclude Include="include\core\transform.h" />
+    <ClInclude Include="include\math\trigonometry.h" />
+    <ClInclude Include="include\math\vec.h" />
+    <ClInclude Include="include\core\window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\bloom_downsample.frag" />

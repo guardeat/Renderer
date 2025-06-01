@@ -23,70 +23,73 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\camera.h">
+    <ClInclude Include="include\render\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\context.h">
+    <ClInclude Include="include\render\context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\framebuffer.h">
+    <ClInclude Include="include\render\framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\instance_group.h">
+    <ClInclude Include="include\render\instance_group.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\light.h">
+    <ClInclude Include="include\render\light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\mat.h">
+    <ClInclude Include="include\math\mat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\material.h">
+    <ClInclude Include="include\core\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\mesh.h">
+    <ClInclude Include="include\core\mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\render_api.h">
+    <ClInclude Include="include\render\render_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\quaternion.h">
+    <ClInclude Include="include\math\quaternion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\render_array.h">
+    <ClInclude Include="include\render\render_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\render_pass.h">
+    <ClInclude Include="include\render\render_pass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\render_type.h">
+    <ClInclude Include="include\render\render_type.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\renderer.h">
+    <ClInclude Include="include\render\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\shader.h">
+    <ClInclude Include="include\render\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\texture.h">
+    <ClInclude Include="include\render\texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\transform.h">
+    <ClInclude Include="include\core\transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\trigonometry.h">
+    <ClInclude Include="include\math\trigonometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\vec.h">
+    <ClInclude Include="include\math\vec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\window.h">
+    <ClInclude Include="include\core\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\render_data.h">
+    <ClInclude Include="include\render\render_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\core\core_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

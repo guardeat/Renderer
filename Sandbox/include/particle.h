@@ -3,11 +3,11 @@
 #include <chrono>
 #include <vector>
 
-#include "mesh.h"
-#include "material.h"
-#include "transform.h"
-#include "vec.h"
-#include "renderer.h"
+#include "core/mesh.h"
+#include "core/material.h"
+#include "core/transform.h"
+#include "math/vec.h"
+#include "render/renderer.h"
 
 namespace Byte {
 

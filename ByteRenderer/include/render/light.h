@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "vec.h"
+#include "math/vec.h"
 
 namespace Byte {
 

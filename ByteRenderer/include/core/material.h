@@ -3,9 +3,9 @@
 #include <type_traits>
 #include <unordered_map>
 
-#include "vec.h"
-#include "texture.h"
-#include "render_type.h"
+#include "math/vec.h"
+#include "render/texture.h"
+#include "render/render_type.h"
 
 namespace Byte {
 
