@@ -47,7 +47,6 @@ namespace Byte {
 		}
 
 	private:
-	private:
 		Frustum createFrustum(const Camera& camera, const Transform& transform, float aspectRatio) {
 			Frustum frustum{};
 
