@@ -152,9 +152,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\main.cpp" />
+    <ClCompile Include="test\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test\particle.h" />
+    <ClInclude Include="test\stb_image.h" />
     <ClInclude Include="test\test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

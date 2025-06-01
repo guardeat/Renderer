@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\external\glad.c" />
-    <ClCompile Include="src\external\stb_image.cpp" />
     <ClCompile Include="src\render.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -41,7 +40,6 @@
     <ClInclude Include="include\render_pass.h" />
     <ClInclude Include="include\render_type.h" />
     <ClInclude Include="include\shader.h" />
-    <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\trigonometry.h" />

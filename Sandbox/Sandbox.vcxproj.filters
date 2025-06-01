@@ -30,12 +30,18 @@
     <ClCompile Include="test\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="test\particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test\test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
