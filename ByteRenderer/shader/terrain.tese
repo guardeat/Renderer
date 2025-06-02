@@ -37,7 +37,7 @@ vec3 applyTransform(vec3 aPos, vec3 position, vec3 scale, vec4 rotation) {
 }
 
 float getHeight(vec2 uv) {
-    return texture(uHeightMap, uv).y * 64.0 - 16.0;
+    return texture(uHeightMap, uv).r * 64.0 - 16.0;
 }
 
 vec3 interpolatePosition(vec4 p00, vec4 p01, vec4 p10, vec4 p11, float u, float v) {

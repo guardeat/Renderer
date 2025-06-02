@@ -18,6 +18,7 @@
     <None Include="test\shader\grass.vert" />
     <None Include="test\shader\particle.vert" />
     <None Include="test\texture\height_map_high.exr" />
+    <None Include="test\texture\height_map_high.hdr" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\main.cpp">
@@ -37,12 +38,21 @@
     <ClInclude Include="include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fps_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="test\texture\height_map.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="test\texture\height_map_diffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="test\texture\height_map_high.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

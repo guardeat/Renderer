@@ -9,85 +9,15 @@
 #include "render.h"
 #include "render/mesh_renderer.h"
 #include "particle.h"
+#include "terrain.h"
+#include "fps_camera.h"
 
 namespace Byte {
 
-	class FPSCamera {
-	private:
-		float yaw{};
-		float pitch{};
-		float oldX{};
-		float oldY{};
-
-		float speed{ 50.0f };
-		float sensitivity{ 0.1f };
-
-	public:
-		FPSCamera() = default;
-
-		FPSCamera(float speed, float sensitivity)
-			:speed{ speed }, sensitivity{ sensitivity } {
-		}
-
-		Quaternion calculateRotation(float newX, float newY) {
-			float offsetX{ newX - oldX };
-			float offsetY{ newY - oldY };
-			oldX = newX;
-			oldY = newY;
-
-			offsetX *= sensitivity;
-			offsetY *= sensitivity;
-
-			yaw -= offsetX;
-			pitch -= offsetY;
-
-			if (pitch > 89.0f)
-			{
-				pitch = 89.0f;
-			}
-			if (pitch < -89.0f)
-			{
-				pitch = -89.0f;
-			}
-
-			Quaternion pitchQuaternion(Vec3{ 1, 0, 0 }, pitch);
-			Quaternion yawQuaternion(Vec3{ 0, 1, 0 }, yaw);
-
-			return yawQuaternion * pitchQuaternion;
-		}
-
-		void update(Window& window, Transform& transform, float dt) {
-
-			double xpos, ypos;
-			glfwGetCursorPos(window.glfwWindow, &xpos, &ypos);
-
-			transform.rotation(calculateRotation(static_cast<float>(xpos), static_cast<float>(ypos)));
-
-			Vec3 offset{};
-			if (glfwGetKey(window.glfwWindow, GLFW_KEY_W) == GLFW_PRESS) {
-				offset += transform.front();
-			}
-			if (glfwGetKey(window.glfwWindow, GLFW_KEY_S) == GLFW_PRESS) {
-				offset -= transform.front();
-			}
-			if (glfwGetKey(window.glfwWindow, GLFW_KEY_A) == GLFW_PRESS) {
-				offset -= transform.right();
-			}
-			if (glfwGetKey(window.glfwWindow, GLFW_KEY_D) == GLFW_PRESS) {
-				offset += transform.right();
-			}
-
-			if (offset.length() > 0) {
-				transform.position(transform.position() + offset.normalized() * speed * dt);
-			}
-
-			glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		}
-	};
-
 	struct Loader {
-		static TextureData loadTexture(const Path& path, DataType type) {
+		static TextureData loadTexture(const Path& path, DataType type, size_t forceChannels = 0) {
 			stbi_set_flip_vertically_on_load(true);
+			int force{ static_cast<int>(forceChannels) };
 
 			TextureData texture;
 			texture.path = path;
@@ -96,16 +26,16 @@ namespace Byte {
 			int width, height, channels;
 			std::string pathString{ path.string() };
 
-			void* imgData = nullptr;
+			void* imgData{ nullptr };
 
 			if (type == DataType::SHORT || type == DataType::UNSIGNED_SHORT) {
-				imgData = stbi_load_16(pathString.c_str(), &width, &height, &channels, 0);
+				imgData = stbi_load_16(pathString.c_str(), &width, &height, &channels, force);
 			}
 			else if (type == DataType::FLOAT) {
-				imgData = stbi_loadf(pathString.c_str(), &width, &height, &channels, 0);
+				imgData = stbi_loadf(pathString.c_str(), &width, &height, &channels, force);
 			}
 			else {
-				imgData = stbi_load(pathString.c_str(), &width, &height, &channels, 0);
+				imgData = stbi_load(pathString.c_str(), &width, &height, &channels, force);
 			}
 
 			if (!imgData) {
@@ -115,16 +45,22 @@ namespace Byte {
 			texture.width = static_cast<size_t>(width);
 			texture.height = static_cast<size_t>(height);
 
-			if (channels == 3) {
-				texture.internalFormat = ColorFormat::RGB;
+			channels = (force != 0) ? force : channels;
+			
+			if (channels == 1) {
+				texture.internalFormat = ColorFormat::R32F;
+				texture.format = ColorFormat::RED;
+			}
+			else if (channels == 3) {
+				texture.internalFormat = ColorFormat::RGB32F;
 				texture.format = ColorFormat::RGB;
 			}
 			else {
-				texture.internalFormat = ColorFormat::RGBA;
+				texture.internalFormat = ColorFormat::RGBA32F;
 				texture.format = ColorFormat::RGBA;
 			}
 
-			size_t bytesPerChannel = 1;
+			size_t bytesPerChannel{ 1 };
 			if (type == DataType::SHORT || type == DataType::UNSIGNED_SHORT) {
 				bytesPerChannel = 2;
 			}
@@ -132,7 +68,7 @@ namespace Byte {
 				bytesPerChannel = 4;
 			}
 
-			size_t dataSize = static_cast<size_t>(width * height * channels) * bytesPerChannel;
+			size_t dataSize{ static_cast<size_t>(width * height * channels) * bytesPerChannel };
 
 			texture.data.resize(dataSize);
 			std::memcpy(texture.data.data(), imgData, dataSize);
@@ -141,6 +77,7 @@ namespace Byte {
 
 			return texture;
 		}
+
 	};
 
 	struct Entity {
@@ -257,43 +194,6 @@ namespace Byte {
 		return Mesh{ std::move(data) };
 	}
 
-	inline Mesh buildTerrain(size_t width, size_t height, size_t resolution) {
-		std::vector<float> vertices{};
-		std::vector<uint32_t> indices{};
-
-		for (size_t i = 0; i < resolution; ++i) {
-			for (size_t j = 0; j < resolution; ++j) {
-				float x0 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * i / static_cast<float>(resolution);
-				float x1 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * (i + 1) / static_cast<float>(resolution);
-
-				float z0 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * j / static_cast<float>(resolution);
-				float z1 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * (j + 1) / static_cast<float>(resolution);
-
-				float u0 = i / static_cast<float>(resolution);
-				float u1 = (i + 1) / static_cast<float>(resolution);
-				float v0 = j / static_cast<float>(resolution);
-				float v1 = (j + 1) / static_cast<float>(resolution);
-
-				std::vector<float> quadVertices{
-					x0, 0.0f, z0, u0, v0,
-					x1, 0.0f, z0, u1, v0,
-					x0, 0.0f, z1, u0, v1,
-					x1, 0.0f, z1, u1, v1
-				};
-				vertices.insert(vertices.end(), quadVertices.begin(), quadVertices.end());
-
-				uint32_t indexOffset = static_cast<uint32_t>((i * resolution + j) * 4);
-				std::vector<uint32_t> quadIndices{
-					indexOffset + 0, indexOffset + 1, indexOffset + 2, indexOffset + 3
-				};
-				indices.insert(indices.end(), quadIndices.begin(), quadIndices.end());
-			}
-		}
-
-		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC, 1000.0f, {3,2} };
-		return Mesh{ std::move(data) };
-	}
-
 	inline Scene buildCustomScene(Renderer& renderer) {
 		Scene scene;
 
@@ -404,11 +304,14 @@ namespace Byte {
 			scene.entities["cube_" + std::to_string(i)] = std::move(cube);
 		}
 
-		scene.textures["height_map"] = Loader::loadTexture("test/texture/height_map.png", DataType::FLOAT);
-		scene.textures["height_map_albedo"] = Loader::loadTexture("test/texture/height_map_diffuse.png", DataType::FLOAT);
+		scene.textures["height_map"] = Loader::loadTexture("test/texture/height_map_high.bmp", DataType::UNSIGNED_SHORT);
+		scene.textures["height_map_albedo"] = Loader::loadTexture("test/texture/height_map_diffuse.png", DataType::UNSIGNED_SHORT);
 
 		Entity terrain;
-		terrain.mesh = buildTerrain(100, 100, 20);
+		terrain.material.metallic(0.01f);
+		terrain.material.roughness(0.99f);
+		terrain.transform.scale(Vec3(1.0f, 1.0f, 1.0f));
+		terrain.mesh = buildTerrain(100, 100, 40);
 		terrain.material.shaderMap().emplace("geometry", "height_map");
 		terrain.material.texture("height_map", scene.textures.at("height_map"));
 		terrain.material.texture("albedo", scene.textures.at("height_map_albedo"));
