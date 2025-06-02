@@ -6,7 +6,6 @@ layout (location = 2) out vec4 oMaterial;
 
 in vec3 vNormal;
 in vec2 vTexCoord;
-in vec3 vFragPos;
 
 uniform vec4 uAlbedo;
 uniform float uMetallic;

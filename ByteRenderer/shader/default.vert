@@ -13,7 +13,6 @@ uniform mat4 uView;
 
 out vec3 vNormal;
 out vec2 vTexCoord;
-out vec3 vFragPos;
 
 vec3 rotateVertex( vec3 v, vec4 q ) {
     return v + 2.*cross( q.xyz, cross( q.xyz, v ) + q.w*v ); 
@@ -44,5 +43,4 @@ void main() {
 
     vNormal = normalize(rotateVertex(aNormal,uRotation));
     vTexCoord = aTexCoord;
-    vFragPos = translated;
 }

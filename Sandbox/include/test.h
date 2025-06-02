@@ -411,6 +411,7 @@ namespace Byte {
 		terrain.mesh = buildTerrain(100, 100, 20);
 		terrain.material.shaderMap().emplace("geometry", "height_map");
 		terrain.material.texture("height_map", scene.textures.at("height_map"));
+		terrain.material.texture("albedo", scene.textures.at("height_map_albedo"));
 		terrain.renderer.primitive(PrimitiveType::PATCHES);
 
 		scene.entities["height_map"] = std::move(terrain);

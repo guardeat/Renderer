@@ -115,8 +115,8 @@ namespace Byte {
                 static_cast<size_t>(material.hasTexture("material")) };
 
             for (auto& [tag, uniformTag] : _bindings) {
-                material.texture(tag).bind();
-                uniform<int>(uniformTag, static_cast<int>(static_cast<TextureUnit>(index)));
+                material.texture(tag).bind(static_cast<TextureUnit>(index));
+                uniform<int>(uniformTag, static_cast<int>(index));
                 ++index;
             }
         }
