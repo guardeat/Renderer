@@ -149,23 +149,20 @@ namespace Byte {
 		void prepareTextures() {
 			for (auto& pair : _context.renderEntities()) {
 				Material& material{ *pair.second.material };
-				if (material.hasAlbedoTexture() && !material.albedoTexture().id()) {
-					RenderAPI::Texture::build(material.albedoTexture().data());
-				}
 
-				if (material.hasMaterialTexture() && !material.materialTexture().id()) {
-					RenderAPI::Texture::build(material.materialTexture().data());
+				for (auto& [tag, texture]: material.textureMap()) {
+					if (!texture->id()) {
+						RenderAPI::Texture::build(texture->data());
+					}
 				}
 			}
 
 			for (auto& pair : _context.instances()) {
 				Material& material{ pair.second.material() };
-				if (material.hasAlbedoTexture() && !material.albedoTexture().id()) {
-					RenderAPI::Texture::build(material.albedoTexture().data());
-				}
-
-				if (material.hasMaterialTexture() && !material.materialTexture().id()) {
-					RenderAPI::Texture::build(material.materialTexture().data());
+				for (auto& [tag, texture] : material.textureMap()) {
+					if (!texture->id()) {
+						RenderAPI::Texture::build(texture->data());
+					}
 				}
 			}
 		}

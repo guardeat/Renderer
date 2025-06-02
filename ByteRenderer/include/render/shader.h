@@ -20,6 +20,15 @@ namespace Byte {
         using UniformVector = std::vector<Uniform>;
         UniformVector _uniforms;
 
+        struct Binding {
+            TextureTag tag;
+            UniformTag uniformTag;
+            TextureUnit unit;
+        };
+
+        using TextureBindingVector = std::vector<Binding>;
+        TextureBindingVector _bindings;
+
         friend struct ShaderCompiler;
 
     public:
@@ -65,7 +74,7 @@ namespace Byte {
         }
 
         void uniform(const Material& material) {
-            if (!material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
+            if (!material.hasTexture("albedo") && !material.hasTexture("material")) {
                 uniform<int>("uDataMode", 0);
                 uniform<float>("uMetallic", material.metallic());
                 uniform<float>("uRoughness", material.roughness());
@@ -73,22 +82,22 @@ namespace Byte {
                 uniform<float>("uEmission", material.emission());
             }
 
-            else if (material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
+            else if (material.hasTexture("albedo") && !material.hasTexture("material")) {
                 uniform<int>("uDataMode", 1);
                 uniform<int>("uAlbedoTexture", 0);
 
-                material.albedoTexture().bind();
+                material.texture("albedo").bind();
                 uniform<float>("uMetallic", material.metallic());
                 uniform<float>("uRoughness", material.roughness());
                 uniform<float>("uAO", material.ambientOcclusion());
                 uniform<float>("uEmission", material.emission());
             }
 
-            else if (!material.hasAlbedoTexture() && material.hasMaterialTexture()) {
+            else if (!material.hasTexture("albedo") && material.hasTexture("material")) {
                 uniform<int>("uDataMode", 2);
                 uniform<int>("uMaterialTexture", 0);
 
-                material.materialTexture().bind();
+                material.texture("material").bind();
             }
 
             else {
@@ -96,11 +105,16 @@ namespace Byte {
                 uniform<int>("uAlbedoTexture", 0);
                 uniform<int>("uMaterialTexture", 1);
 
-                material.albedoTexture().bind();
-                material.materialTexture().bind(TextureUnit::T1);
+                material.texture("albedo").bind();
+                material.texture("material").bind(TextureUnit::T1);
             }
 
             uniform<Vec4>("uAlbedo", material.albedo());
+
+            for (auto& [tag, uniformTag, unit] : _bindings) {
+                material.texture(tag).bind();
+                uniform<int>(uniformTag, static_cast<int>(unit));
+            }
         }
 
         uint32_t id() const {

@@ -24,6 +24,7 @@ namespace Byte {
 	class Texture;
 
 	using ShaderTag = std::string;
+	using TextureTag = std::string;
 
 	struct MaterialData {
 		using ShaderMap = std::unordered_map<std::string, ShaderTag>;
@@ -36,8 +37,8 @@ namespace Byte {
 		float ambientOcclusion{ 0.1f };
 		float emission{ 0.0f };
 
-		Texture* albedoTexture{ nullptr };
-		Texture* materialTexture{ nullptr };
+		using TextureMap = std::unordered_map<TextureTag, Texture*>;
+		TextureMap textureMap;
 
 		ShadowMode shadow{ ShadowMode::ENABLED };
 		TransparencyMode transparency{ TransparencyMode::BINARY };
@@ -115,36 +116,24 @@ namespace Byte {
 			_data = materialData;
 		}
 
-		const Texture& albedoTexture() const {
-			return *_data.albedoTexture;
+		const Texture& texture(const TextureTag& tag) const {
+			return *_data.textureMap.at(tag);
 		}
 
-		const Texture& materialTexture() const {
-			return *_data.materialTexture;
+		void texture(const TextureTag& tag, Texture& texture) {
+			_data.textureMap.emplace(tag, &texture);
 		}
 
-		Texture& albedoTexture() {
-			return *_data.albedoTexture;
+		const MaterialData::TextureMap& textureMap() const {
+			return _data.textureMap;
 		}
 
-		Texture& materialTexture() {
-			return *_data.materialTexture;
+		MaterialData::TextureMap& textureMap() {
+			return _data.textureMap;
 		}
 
-		bool hasAlbedoTexture() const {
-			return static_cast<bool>(_data.albedoTexture);
-		}
-
-		bool hasMaterialTexture() const {
-			return static_cast<bool>(_data.materialTexture);
-		}
-
-		void albedoTexture(Texture& texture) {
-			_data.albedoTexture = &texture;
-		}
-
-		void materialTexture(Texture& texture) {
-			_data.materialTexture = &texture;
+		bool hasTexture(const TextureTag& tag) const {
+			return _data.textureMap.find(tag) != _data.textureMap.end();
 		}
 
 		ShadowMode shadow() const {
