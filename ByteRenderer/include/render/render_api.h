@@ -254,6 +254,8 @@ namespace Byte {
                     if (pair.second.id) {
                         Texture::release(pair.second.id);
                         pair.second.id = 0;
+                        pair.second.width = 0;
+                        pair.second.height = 0;
                     }
                 }
             }
