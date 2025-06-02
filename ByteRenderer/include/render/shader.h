@@ -3,9 +3,11 @@
 #include <string>
 #include <type_traits>
 #include <variant>
+#include <cstdint>
 
 #include "render_type.h"
 #include "render_api.h"
+#include "texture.h"
 
 namespace Byte {
 
@@ -23,8 +25,13 @@ namespace Byte {
     public:
         Shader() = default;
 
-        Shader(const Path& vertex, const Path& fragment, const Path& geometry = "")
-            :_path{ vertex,fragment,geometry } {
+        Shader(
+            const Path& vertex, 
+            const Path& fragment, 
+            const Path& geometry = "",
+            const Path& tessC = "", 
+            const Path& tessE = "")
+            :_path{ vertex,fragment,geometry,tessC,tessE } {
         }
 
         ~Shader() = default;
@@ -57,6 +64,45 @@ namespace Byte {
             }
         }
 
+        void uniform(const Material& material) {
+            if (!material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
+                uniform<int>("uDataMode", 0);
+                uniform<float>("uMetallic", material.metallic());
+                uniform<float>("uRoughness", material.roughness());
+                uniform<float>("uAO", material.ambientOcclusion());
+                uniform<float>("uEmission", material.emission());
+            }
+
+            else if (material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
+                uniform<int>("uDataMode", 1);
+                uniform<int>("uAlbedoTexture", 0);
+
+                material.albedoTexture().bind();
+                uniform<float>("uMetallic", material.metallic());
+                uniform<float>("uRoughness", material.roughness());
+                uniform<float>("uAO", material.ambientOcclusion());
+                uniform<float>("uEmission", material.emission());
+            }
+
+            else if (!material.hasAlbedoTexture() && material.hasMaterialTexture()) {
+                uniform<int>("uDataMode", 2);
+                uniform<int>("uMaterialTexture", 0);
+
+                material.materialTexture().bind();
+            }
+
+            else {
+                uniform<int>("uDataMode", 3);
+                uniform<int>("uAlbedoTexture", 0);
+                uniform<int>("uMaterialTexture", 1);
+
+                material.albedoTexture().bind();
+                material.materialTexture().bind(TextureUnit::T1);
+            }
+
+            uniform<Vec4>("uAlbedo", material.albedo());
+        }
+
         uint32_t id() const {
             return _id;
         }
@@ -80,20 +126,38 @@ namespace Byte {
 
     struct ShaderCompiler {
         static void compile(Shader& shader) {
-            uint32_t vertexShader{ compile(shader._path.vertex, ShaderType::VERTEX ) };
-            uint32_t fragmentShader{ compile(shader._path.fragment, ShaderType::FRAGMENT ) };
+            uint32_t vertexShader{ compile(shader._path.vertex, ShaderType::VERTEX) };
+            uint32_t fragmentShader{ compile(shader._path.fragment, ShaderType::FRAGMENT) };
+
+            uint32_t geometryShader{ 0 };
+            uint32_t tessCShader{ 0 };
+            uint32_t tessEShader{ 0 };
 
             if (!shader._path.geometry.empty()) {
-                uint32_t geometryShader{ compile(shader._path.geometry, ShaderType::GEOMETRY) };
-                shader._id = createProgram(vertexShader, fragmentShader, geometryShader);
-                RenderAPI::Shader::release(geometryShader);
+                geometryShader = compile(shader._path.geometry, ShaderType::GEOMETRY);
             }
-            else {
-                shader._id = createProgram(vertexShader, fragmentShader);
+
+            if (!shader._path.tessellationControl.empty()) {
+                tessCShader = compile(shader._path.tessellationControl, ShaderType::TESSELLATION_CONTROL);
             }
+
+            if (!shader._path.tessellationEvaluation.empty()) {
+                tessEShader = compile(shader._path.tessellationEvaluation, ShaderType::TESSELLATION_EVALUATION);
+            }
+
+            shader._id = createProgram(vertexShader, fragmentShader, geometryShader, tessCShader, tessEShader);
 
             RenderAPI::Shader::release(vertexShader);
             RenderAPI::Shader::release(fragmentShader);
+            if (geometryShader) {
+                RenderAPI::Shader::release(geometryShader);
+            }
+            if (tessCShader) {
+                RenderAPI::Shader::release(tessCShader);
+            }
+            if (tessEShader) {
+                RenderAPI::Shader::release(tessEShader);
+            }
         }
 
         static uint32_t compile(const Path& shaderPath, ShaderType shaderType) {
@@ -103,8 +167,10 @@ namespace Byte {
         static uint32_t createProgram(
             uint32_t vertex, 
             uint32_t fragment, 
-            uint32_t geometry = 0) {
-            return RenderAPI::Program::build(vertex, fragment, geometry);
+            uint32_t geometry = 0,
+            uint32_t tessC = 0,
+            uint32_t tessE = 0) {
+            return RenderAPI::Program::build(vertex, fragment, geometry, tessC, tessE);
         }
     };
 

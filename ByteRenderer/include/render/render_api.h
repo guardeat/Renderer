@@ -40,6 +40,8 @@ namespace Byte {
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+                glPatchParameteri(GL_PATCH_VERTICES, 4);
+
                 initialized = true;
             }
         }
@@ -455,7 +457,12 @@ namespace Byte {
                 glDeleteProgram(id);
             }
 
-            static uint32_t build(uint32_t vertex, uint32_t fragment, uint32_t geometry = 0) {
+            static uint32_t build(
+                uint32_t vertex, 
+                uint32_t fragment, 
+                uint32_t geometry = 0, 
+                uint32_t tessC = 0, 
+                uint32_t tessE = 0) {
                 uint32_t id{ glCreateProgram() };
 
                 glAttachShader(id, vertex);
@@ -463,6 +470,12 @@ namespace Byte {
 
                 if (geometry) {
                     glAttachShader(id, geometry);
+                }
+                if (tessC) {
+                    glAttachShader(id, tessC);
+                }
+                if (tessE) {
+                    glAttachShader(id, tessE);
                 }
 
                 glLinkProgram(id);

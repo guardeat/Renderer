@@ -53,10 +53,12 @@ namespace Byte {
 		TEXTURE_ARRAY = 0x8C1A,
 	};
 
-	enum class ShaderType: uint32_t {
+	enum class ShaderType : uint32_t {
 		FRAGMENT = 0x8B30,
 		VERTEX = 0x8B31,
 		GEOMETRY = 0x8DD9,
+		TESSELLATION_CONTROL = 0x8E88,
+		TESSELLATION_EVALUATION = 0x8E87
 	};
 
 	enum class DataType : uint8_t {
@@ -207,6 +209,8 @@ namespace Byte {
 		Path vertex;
 		Path fragment;
 		Path geometry;
+		Path tessellationControl;
+		Path tessellationEvaluation;
 	};
 
 	using ShaderInputMap = std::unordered_map<UniformTag, std::variant<

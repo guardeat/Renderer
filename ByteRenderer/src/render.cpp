@@ -25,6 +25,13 @@ namespace Byte {
 				"../ByteRenderer/shader/instanced.vert",
 				"../ByteRenderer/shader/deferred.frag"
 			};
+			shaders["height_map"] = {
+				"../ByteRenderer/shader/default.vert",
+				"../ByteRenderer/shader/deferred.frag",
+				"",
+				"../ByteRenderer/shader/terrain.tesc",
+				"../ByteRenderer/shader/terrain.tese"
+			};
 
 			// Lighting shaders
 			shaders["lighting"] = {

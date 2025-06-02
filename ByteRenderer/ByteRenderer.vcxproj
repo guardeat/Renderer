@@ -69,6 +69,8 @@
     <None Include="shader\quad.vert" />
     <None Include="shader\quad_depth.frag" />
     <None Include="shader\ssao.frag" />
+    <None Include="shader\terrain.tesc" />
+    <None Include="shader\terrain.tese" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

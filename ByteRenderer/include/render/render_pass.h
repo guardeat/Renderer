@@ -330,47 +330,6 @@ namespace Byte {
 
 	class GeometryPass : public RenderPass {
 	protected:
-		void bindMaterial(Shader& shader, const Material& material) const {
-
-			if (!material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
-				shader.uniform<int>("uDataMode", 0);
-				shader.uniform<float>("uMetallic", material.metallic());
-				shader.uniform<float>("uRoughness", material.roughness());
-				shader.uniform<float>("uAO", material.ambientOcclusion());
-				shader.uniform<float>("uEmission", material.emission());
-			}
-
-			else if (material.hasAlbedoTexture() && !material.hasMaterialTexture()) {
-				shader.uniform<int>("uDataMode", 1);
-				shader.uniform<int>("uAlbedoTexture", 0);
-
-				material.albedoTexture().bind();
-				shader.uniform<float>("uMetallic", material.metallic());
-				shader.uniform<float>("uRoughness", material.roughness());
-				shader.uniform<float>("uAO", material.ambientOcclusion());
-				shader.uniform<float>("uEmission", material.emission());
-			}
-
-
-			else if (!material.hasAlbedoTexture() && material.hasMaterialTexture()) {
-				shader.uniform<int>("uDataMode", 2);
-				shader.uniform<int>("uMaterialTexture", 0);
-
-				material.materialTexture().bind();
-			}
-
-			else {
-				shader.uniform<int>("uDataMode", 3);
-				shader.uniform<int>("uAlbedoTexture", 0);
-				shader.uniform<int>("uMaterialTexture", 1);
-
-				material.albedoTexture().bind();
-				material.materialTexture().bind(TextureUnit::T1);
-			}
-
-			shader.uniform<Vec4>("uAlbedo", material.albedo());
-		}
-
 		void renderEntities(
 			RenderContext& context,
 			RenderData& data,
@@ -402,9 +361,9 @@ namespace Byte {
 
 				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
+				shader->uniform(*material);
 
 				meshRenderer->bind();
-				bindMaterial(*shader, *material);
 
 				shader->uniform<Vec3>("uPosition", transform->position());
 				shader->uniform<Vec3>("uScale", transform->scale());
@@ -448,9 +407,9 @@ namespace Byte {
 
 				shader->uniform<Mat4>("uProjection", projection);
 				shader->uniform<Mat4>("uView", view);
+				shader->uniform(material);
 
 				meshRenderer.bind();
-				bindMaterial(*shader, material);
 
 				RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
 

@@ -10,7 +10,7 @@ namespace Byte {
     private:
         float _fov{ 45.0f };
         float _nearPlane{ 0.5f };
-        float _farPlane{ 300.0f };
+        float _farPlane{ 600.0f };
 
     public:
         Camera() = default;
