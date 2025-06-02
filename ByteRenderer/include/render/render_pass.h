@@ -866,6 +866,8 @@ namespace Byte {
 			RenderAPI::viewPort(data.width, data.height);
 			RenderAPI::Framebuffer::clear(0);
 
+			auto [camera, cTransform] = context.camera();
+
 			Shader* shader;
 
 			if (data.parameter<bool>("render_fxaa")) {
@@ -880,10 +882,19 @@ namespace Byte {
 			}
 
 			Framebuffer& colorBuffer{ data.frameBuffers.at("colorBuffer") };
+			Framebuffer& gBuffer{ data.frameBuffers.at("gBuffer") };
 
 			shader->uniform("uGamma", data.parameter<float>("gamma"));
 			shader->uniform("uAlbedo", 0);
 			RenderAPI::Texture::bind(colorBuffer.textureID("color"), TextureUnit::T0);
+			shader->uniform("uDepth", 1);
+			RenderAPI::Texture::bind(gBuffer.textureID("depth"), TextureUnit::T1);
+
+			shader->uniform("uNear", camera->nearPlane());
+			shader->uniform("uFar", camera->farPlane());
+			shader->uniform("uFogNear", data.parameter<float>("fog_near"));
+			shader->uniform("uFogFar", data.parameter<float>("fog_far"));
+			shader->uniform("uFogColor", data.parameter<Vec3>("fog_color"));
 
 			data.meshes.at("quad").renderer.bind();
 

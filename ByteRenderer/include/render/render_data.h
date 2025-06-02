@@ -21,7 +21,7 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<ShaderTag, Shader>;
 		ShaderMap shaders;
 
-		using Parameter = std::variant<std::string, uint32_t, int32_t, bool, float, Mat4>;
+		using Parameter = std::variant<std::string, uint32_t, int32_t, bool, float, Mat4, Vec3>;
 		using ParameterMap = std::unordered_map<ParameterTag, Parameter>;
 		ParameterMap parameters;
 

@@ -5,8 +5,15 @@ out vec4 oFragColor;
 in vec2 vTexCoord;
 
 uniform sampler2D uAlbedo;
+uniform sampler2D uDepth;
 uniform vec2 uScreenSize;
 uniform float uGamma;
+
+uniform float uNear;
+uniform float uFar;
+uniform vec3 uFogColor;
+uniform float uFogNear;
+uniform float uFogFar;
 
 float luminance(vec3 color) {
     return dot(color, vec3(0.299, 0.587, 0.114));
@@ -18,6 +25,11 @@ vec3 tonemap(vec3 color) {
 
 vec3 gammaCorrect(vec3 color, float gamma) {
     return pow(color, vec3(1.0 / gamma));
+}
+
+float linearizeDepth(float depth, float near, float far) {
+    float z = depth * 2.0 - 1.0;
+    return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
 void main() {
@@ -39,30 +51,43 @@ void main() {
     float lumaMax = max(lumaM, max(max(lumaNW, lumaNE), max(lumaSW, lumaSE)));
     float range = lumaMax - lumaMin;
 
+    vec3 finalAAColor;
+
     if (range < 0.05) {
-        oFragColor = vec4(rgbM, 1.0);
+        finalAAColor = rgbM;
+    } else {
+        float dirX = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
+        float dirY =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+
+        vec2 dir = normalize(vec2(dirX, dirY));
+        dir = clamp(dir, -2.0, 2.0) * texel;
+
+        vec3 rgbA = 0.5 * (
+            gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * (1.0 / 3.0 - 0.5)).rgb), uGamma) +
+            gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * (2.0 / 3.0 - 0.5)).rgb), uGamma)
+        );
+
+        vec3 rgbB = 0.25 * (
+            gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * -0.5).rgb), uGamma) +
+            gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir *  0.5).rgb), uGamma)
+        ) + 0.5 * rgbA;
+
+        float lumaB = luminance(rgbB);
+        finalAAColor = (lumaB < lumaMin || lumaB > lumaMax) ? rgbA : rgbB;
+    }
+
+    float depthSample = texture(uDepth, vTexCoord).r;
+
+    if (depthSample == 1.0) {
+        oFragColor = vec4(finalAAColor, 1.0);
         return;
     }
 
-    float dirX = -((lumaNW + lumaNE) - (lumaSW + lumaSE));
-    float dirY =  ((lumaNW + lumaSW) - (lumaNE + lumaSE));
+    float depth = linearizeDepth(depthSample, uNear, uFar);
 
-    vec2 dir = normalize(vec2(dirX, dirY));
-    dir = clamp(dir, -2.0, 2.0) * texel;
+    float fogFactor = clamp((uFogFar - depth) / (uFogFar - uFogNear), 0.0, 1.0);
 
-    vec3 rgbA = 0.5 * (
-        gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * (1.0 / 3.0 - 0.5)).rgb), uGamma) +
-        gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * (2.0 / 3.0 - 0.5)).rgb), uGamma)
-    );
+    vec3 finalColor = mix(uFogColor, finalAAColor, fogFactor);
 
-    vec3 rgbB = 0.25 * (
-        gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir * -0.5).rgb), uGamma) +
-        gammaCorrect(tonemap(texture(uAlbedo, vTexCoord + dir *  0.5).rgb), uGamma)
-    ) + 0.5 * rgbA;
-
-    float lumaB = luminance(rgbB);
-    if (lumaB < lumaMin || lumaB > lumaMax)
-        oFragColor = vec4(rgbA, 1.0);
-    else
-        oFragColor = vec4(rgbB, 1.0);
+    oFragColor = vec4(finalColor, 1.0);
 }

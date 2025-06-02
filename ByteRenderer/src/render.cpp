@@ -113,6 +113,9 @@ namespace Byte {
 			params.emplace("bloom_strength", 0.3f);
 			params.emplace("render_ssao", true);
 			params.emplace("render_fxaa", true);
+			params.emplace("fog_color", Vec3(0.3f, 0.4f, 0.6f));
+			params.emplace("fog_near", 50.0f);
+			params.emplace("fog_far", 300.0f);
 		}
 
 		void setupMeshes(Renderer& renderer) {
