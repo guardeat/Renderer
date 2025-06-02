@@ -86,18 +86,30 @@ namespace Byte {
 	};
 
 	struct Loader {
-		static TextureData loadTexture(const Path& path) {
+		static TextureData loadTexture(const Path& path, DataType type) {
 			stbi_set_flip_vertically_on_load(true);
 
 			TextureData texture;
 			texture.path = path;
+			texture.dataType = type;
 
 			int width, height, channels;
 			std::string pathString{ path.string() };
-			uint8_t* imgData{ stbi_load(pathString.c_str(), &width, &height, &channels, 0) };
+
+			void* imgData = nullptr;
+
+			if (type == DataType::SHORT || type == DataType::UNSIGNED_SHORT) {
+				imgData = stbi_load_16(pathString.c_str(), &width, &height, &channels, 0);
+			}
+			else if (type == DataType::FLOAT) {
+				imgData = stbi_loadf(pathString.c_str(), &width, &height, &channels, 0);
+			}
+			else {
+				imgData = stbi_load(pathString.c_str(), &width, &height, &channels, 0);
+			}
 
 			if (!imgData) {
-				throw std::exception{ "Failed to load texture" };
+				throw std::runtime_error{ "Failed to load texture: " + pathString };
 			}
 
 			texture.width = static_cast<size_t>(width);
@@ -112,8 +124,18 @@ namespace Byte {
 				texture.format = ColorFormat::RGBA;
 			}
 
-			size_t dataSize{ static_cast<size_t>(width * height * channels) };
-			texture.data.assign(imgData, imgData + dataSize);
+			size_t bytesPerChannel = 1;
+			if (type == DataType::SHORT || type == DataType::UNSIGNED_SHORT) {
+				bytesPerChannel = 2;
+			}
+			else if (type == DataType::FLOAT) {
+				bytesPerChannel = 4;
+			}
+
+			size_t dataSize = static_cast<size_t>(width * height * channels) * bytesPerChannel;
+
+			texture.data.resize(dataSize);
+			std::memcpy(texture.data.data(), imgData, dataSize);
 
 			stbi_image_free(imgData);
 
@@ -148,6 +170,8 @@ namespace Byte {
 
 		std::vector<std::unique_ptr<PointLight>> pointLights;
 		std::vector<std::unique_ptr<Transform>> pointLightTransforms;
+
+		std::unordered_map<TextureTag, Texture> textures;
 
 		ParticleSystem particleSystem;
 		FPSCamera fpsCamera;
@@ -233,6 +257,43 @@ namespace Byte {
 		return Mesh{ std::move(data) };
 	}
 
+	inline Mesh buildTerrain(size_t width, size_t height, size_t resolution) {
+		std::vector<float> vertices{};
+		std::vector<uint32_t> indices{};
+
+		for (size_t i = 0; i < resolution; ++i) {
+			for (size_t j = 0; j < resolution; ++j) {
+				float x0 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * i / static_cast<float>(resolution);
+				float x1 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * (i + 1) / static_cast<float>(resolution);
+
+				float z0 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * j / static_cast<float>(resolution);
+				float z1 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * (j + 1) / static_cast<float>(resolution);
+
+				float u0 = i / static_cast<float>(resolution);
+				float u1 = (i + 1) / static_cast<float>(resolution);
+				float v0 = j / static_cast<float>(resolution);
+				float v1 = (j + 1) / static_cast<float>(resolution);
+
+				std::vector<float> quadVertices{
+					x0, 0.0f, z0, u0, v0,
+					x1, 0.0f, z0, u1, v0,
+					x0, 0.0f, z1, u0, v1,
+					x1, 0.0f, z1, u1, v1
+				};
+				vertices.insert(vertices.end(), quadVertices.begin(), quadVertices.end());
+
+				uint32_t indexOffset = static_cast<uint32_t>((i * resolution + j) * 4);
+				std::vector<uint32_t> quadIndices{
+					indexOffset + 0, indexOffset + 1, indexOffset + 2, indexOffset + 3
+				};
+				indices.insert(indices.end(), quadIndices.begin(), quadIndices.end());
+			}
+		}
+
+		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC, 1000.0f, {3,2} };
+		return Mesh{ std::move(data) };
+	}
+
 	inline Scene buildCustomScene(Renderer& renderer) {
 		Scene scene;
 
@@ -242,7 +303,7 @@ namespace Byte {
 		plane.mesh = MeshBuilder::plane(200, 200, 1);
 		plane.material.albedo(Vec3{ 0.47f, 0.85f, 0.15f });
 
-		scene.entities["plane"] = std::move(plane);
+		//scene.entities["plane"] = std::move(plane);
 
 		scene.pointLights.push_back(std::make_unique<PointLight>());
 		scene.pointLightTransforms.push_back(std::make_unique<Transform>());
@@ -254,8 +315,8 @@ namespace Byte {
 		grass.material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
 		grass.material.shadow(ShadowMode::DISABLED);
 
-		size_t xCount{ 400 };
-		size_t yCount{ 400 };
+		size_t xCount{ 0 };
+		size_t yCount{ 0 };
 
 		auto roadZ = [](float x) {
 			float a{ 0.001f };
@@ -326,7 +387,7 @@ namespace Byte {
 		scene.particleSystem.groups().at("grass_particle").material.shadow(ShadowMode::DISABLED);
 		scene.particleSystem.groups().at("grass_particle").material.transparency(TransparencyMode::UNSORTED);
 
-		for (size_t i{}; i < 100; ++i) {
+		for (size_t i{}; i < 0; ++i) {
 			Entity cube;
 			cube.mesh = MeshBuilder::cube();
 			cube.material.albedo(Vec3{
@@ -342,6 +403,18 @@ namespace Byte {
 			cube.transform.position(Vec3{ x, y, z });
 			scene.entities["cube_" + std::to_string(i)] = std::move(cube);
 		}
+
+		scene.textures["height_map"] = Loader::loadTexture("test/texture/height_map.png", DataType::FLOAT);
+		scene.textures["height_map_albedo"] = Loader::loadTexture("test/texture/height_map_diffuse.png", DataType::FLOAT);
+
+		Entity terrain;
+		terrain.mesh = buildTerrain(100, 100, 20);
+		terrain.material.shaderMap().emplace("geometry", "height_map");
+		terrain.material.texture("height_map", scene.textures.at("height_map"));
+		terrain.material.texture("albedo", scene.textures.at("height_map_albedo"));
+		terrain.renderer.primitive(PrimitiveType::PATCHES);
+
+		scene.entities["height_map"] = std::move(terrain);
 
 		scene.setContext(renderer);
 

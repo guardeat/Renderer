@@ -30,7 +30,7 @@ namespace Byte {
 		using ShaderMap = std::unordered_map<std::string, ShaderTag>;
 		ShaderMap shaderMap;
 
-		Vec4 albedo;
+		Vec4 albedo{ 1.0f,1.0f,1.0f,1.0f };
 
 		float metallic{ 0.5f };
 		float roughness{ 0.5f };

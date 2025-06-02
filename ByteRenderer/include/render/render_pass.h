@@ -152,7 +152,9 @@ namespace Byte {
 
 			data.meshes.at("sphere").renderer.bind();
 
-			RenderAPI::Draw::elements(data.meshes.at("sphere").mesh.indices().size());
+			RenderAPI::Draw::elements(
+				data.meshes.at("sphere").mesh.indices().size(),
+				data.meshes.at("sphere").renderer.primitive());
 
 			data.meshes.at("sphere").renderer.unbind();
 			gBuffer.unbind();
@@ -225,7 +227,7 @@ namespace Byte {
 					shader.uniform<Vec3>("uScale", transform->scale());
 					shader.uniform<Quaternion>("uRotation", transform->rotation());
 
-					RenderAPI::Draw::elements(mesh->indices().size());
+					RenderAPI::Draw::elements(mesh->indices().size(), meshRenderer->primitive());
 
 					meshRenderer->unbind();
 				}
@@ -241,7 +243,10 @@ namespace Byte {
 				if (material.shadow() == ShadowMode::ENABLED) {
 					meshRenderer.bind();
 
-					RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+					RenderAPI::Draw::instancedElements(
+						mesh.indices().size(), 
+						pair.second.size(),
+						meshRenderer.primitive());
 
 					meshRenderer.unbind();
 				}
@@ -369,7 +374,7 @@ namespace Byte {
 				shader->uniform<Vec3>("uScale", transform->scale());
 				shader->uniform<Quaternion>("uRotation", transform->rotation());
 
-				RenderAPI::Draw::elements(mesh->indices().size());
+				RenderAPI::Draw::elements(mesh->indices().size(), meshRenderer->primitive());
 
 				meshRenderer->unbind();
 			}
@@ -411,7 +416,10 @@ namespace Byte {
 
 				meshRenderer.bind();
 
-				RenderAPI::Draw::instancedElements(mesh.indices().size(), pair.second.size());
+				RenderAPI::Draw::instancedElements(
+					mesh.indices().size(), 
+					pair.second.size(), 
+					meshRenderer.primitive());
 
 				meshRenderer.unbind();
 			}
@@ -427,7 +435,7 @@ namespace Byte {
 			Mat4 projection{ camera->perspective(aspectRatio) };
 			Mat4 view{ cTransform->view() };
 
-			Framebuffer& gBuffer{ data.frameBuffers["gBuffer"] };
+			Framebuffer& gBuffer{ data.frameBuffers.at("gBuffer") };
 			gBuffer.bind();
 
 			if (data.parameter<bool>("clear_gbuffer")) {
@@ -649,7 +657,9 @@ namespace Byte {
 					plShader.uniform<float>("uPointLight.linear", pointLight->linear);
 					plShader.uniform<float>("uPointLight.quadratic", pointLight->quadratic);
 
-					RenderAPI::Draw::elements(data.meshes.at("low_poly_sphere").mesh.indices().size());
+					RenderAPI::Draw::elements(
+						data.meshes.at("low_poly_sphere").mesh.indices().size(),
+						data.meshes.at("low_poly_sphere").renderer.primitive());
 				}
 
 				data.meshes.at("low_poly_sphere").renderer.unbind();

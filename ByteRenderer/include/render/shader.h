@@ -23,7 +23,6 @@ namespace Byte {
         struct Binding {
             TextureTag tag;
             UniformTag uniformTag;
-            TextureUnit unit;
         };
 
         using TextureBindingVector = std::vector<Binding>;
@@ -111,10 +110,19 @@ namespace Byte {
 
             uniform<Vec4>("uAlbedo", material.albedo());
 
-            for (auto& [tag, uniformTag, unit] : _bindings) {
+            size_t index{
+                static_cast<size_t>(material.hasTexture("albedo")) + 
+                static_cast<size_t>(material.hasTexture("material")) };
+
+            for (auto& [tag, uniformTag] : _bindings) {
                 material.texture(tag).bind();
-                uniform<int>(uniformTag, static_cast<int>(unit));
+                uniform<int>(uniformTag, static_cast<int>(static_cast<TextureUnit>(index)));
+                ++index;
             }
+        }
+
+        void binding(TextureTag&& textureTag, UniformTag&& uniformTag) {
+            _bindings.emplace_back(std::forward<TextureTag>(textureTag), std::forward<TextureTag>(uniformTag));
         }
 
         uint32_t id() const {

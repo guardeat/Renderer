@@ -2,12 +2,14 @@
 
 #include "core/mesh.h"
 #include "render_array.h"
+#include "render_type.h"
 
 namespace Byte {
 
 	class MeshRenderer {
 	private:
         RenderArray _renderArray;
+        PrimitiveType _primitiveType{ PrimitiveType::TRIANGLES };
 
     public:
         MeshRenderer() = default;
@@ -40,6 +42,14 @@ namespace Byte {
             auto& vertices{ mesh.vertices() };
             auto& indices{ mesh.indices() };
             _renderArray = RenderAPI::RenderArray::build(vertices,indices,atts,iAtts,isStatic);
+        }
+
+        PrimitiveType primitive() const {
+            return _primitiveType;
+        }
+
+        void primitive(PrimitiveType newPrimitive) {
+            _primitiveType = newPrimitive;
         }
 
         void bind() const {

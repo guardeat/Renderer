@@ -26,12 +26,14 @@ namespace Byte {
 				"../ByteRenderer/shader/deferred.frag"
 			};
 			shaders["height_map"] = {
-				"../ByteRenderer/shader/default.vert",
+				"../ByteRenderer/shader/quad.vert",
 				"../ByteRenderer/shader/deferred.frag",
 				"",
 				"../ByteRenderer/shader/terrain.tesc",
 				"../ByteRenderer/shader/terrain.tese"
 			};
+
+			shaders.at("height_map").binding("height_map", "uHeightMap");
 
 			// Lighting shaders
 			shaders["lighting"] = {

@@ -41,6 +41,16 @@ namespace Byte {
 	using RenderArrayID = uint32_t;
 	using RenderBufferID = uint32_t;
 
+	enum class PrimitiveType : uint32_t {
+		POINTS = 0x0000,
+		LINES = 0x0001,
+		LINE_STRIP = 0x0003,
+		TRIANGLES = 0x0004, 
+		TRIANGLE_STRIP = 0x0005,
+		TRIANGLE_FAN = 0x0006,    
+		PATCHES = 0x000E             
+	};
+
 	enum class TextureUnit: uint8_t {
 		T0, T1, T2, T3,
 		T4, T5, T6, T7,

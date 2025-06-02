@@ -145,10 +145,7 @@
   <ItemGroup>
     <None Include="test\shader\grass.vert" />
     <None Include="test\shader\particle.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="test\texture\grass.png" />
-    <Image Include="test\texture\height_map.png" />
+    <None Include="test\texture\height_map_high.exr" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\main.cpp" />
@@ -158,6 +155,10 @@
     <ClInclude Include="include\particle.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\test.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test\texture\height_map.png" />
+    <Image Include="test\texture\height_map_diffuse.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

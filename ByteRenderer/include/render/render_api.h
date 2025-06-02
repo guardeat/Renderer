@@ -265,15 +265,18 @@ namespace Byte {
         };
 
         struct Draw {
-            static void elements(size_t size) {
-                glDrawElements(GL_TRIANGLES, static_cast<GLint>(size), GL_UNSIGNED_INT, 0);
+            static void elements(size_t size, PrimitiveType type = PrimitiveType::TRIANGLES) {
+                glDrawElements(TypeCast::convert(type), static_cast<GLint>(size), GL_UNSIGNED_INT, 0);
             }
 
-            static void instancedElements(size_t size, size_t instanceCount) {
+            static void instancedElements(
+                size_t size, 
+                size_t instanceCount, 
+                PrimitiveType type = PrimitiveType::TRIANGLES) {
                 if (instanceCount) {
                     GLint glSize{ static_cast<GLint>(size) };
                     GLsizei glCount{ static_cast<GLsizei>(instanceCount) };
-                    glDrawElementsInstanced(GL_TRIANGLES, glSize, GL_UNSIGNED_INT, 0, glCount);
+                    glDrawElementsInstanced(TypeCast::convert(type), glSize, GL_UNSIGNED_INT, 0, glCount);
                 }
             }
 
@@ -517,58 +520,68 @@ namespace Byte {
 
             template<>
             static void uniform<bool>(uint32_t id, const std::string& name, const bool& value) {
-                glUniform1i(glGetUniformLocation(id, name.c_str()), (int)value);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform1i(loc, (int)value);
             }
 
             template<>
             static void uniform<int>(uint32_t id, const std::string& name, const int& value) {
-                glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform1i(loc, value);
             }
 
             template<>
             static void uniform<size_t>(uint32_t id, const std::string& name, const size_t& value) {
-                glUniform1i(glGetUniformLocation(id, name.c_str()), static_cast<GLint>(value));
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform1i(loc, static_cast<GLint>(value));
             }
 
             template<>
             static void uniform<float>(uint32_t id, const std::string& name, const float& value) {
-                glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform1f(loc, value);
             }
 
             template<>
             static void uniform<Vec2>(uint32_t id, const std::string& name, const Vec2& value) {
-                glUniform2f(glGetUniformLocation(id, name.c_str()), value.x, value.y);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform2f(loc, value.x, value.y);
             }
 
             template<>
             static void uniform<Vec3>(uint32_t id, const std::string& name, const Vec3& value) {
                 auto loc{ glGetUniformLocation(id, name.c_str()) };
-                glUniform3f(glGetUniformLocation(id, name.c_str()), value.x, value.y, value.z);
+                glUniform3f(loc, value.x, value.y, value.z);
             }
 
             template<>
             static void uniform<Vec4>(uint32_t id, const std::string& name, const Vec4& value) {
-                glUniform4f(glGetUniformLocation(id, name.c_str()), value.x, value.y, value.z, value.w);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform4f(loc, value.x, value.y, value.z, value.w);
             }
 
             template<>
             static void uniform<Quaternion>(uint32_t id, const std::string& name, const Quaternion& value) {
-                glUniform4f(glGetUniformLocation(id, name.c_str()), value.x, value.y, value.z, value.w);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniform4f(loc, value.x, value.y, value.z, value.w);
             }
 
             template<>
             static void uniform<Mat2>(uint32_t id, const std::string& name, const Mat2& value) {
-                glUniformMatrix2fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value.data);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniformMatrix2fv(loc, 1, GL_FALSE, value.data);
             }
 
             template<>
             static void uniform<Mat3>(uint32_t id, const std::string& name, const Mat3& value) {
-                glUniformMatrix3fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value.data);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniformMatrix3fv(loc, 1, GL_FALSE, value.data);
             }
 
             template<>
             static void uniform<Mat4>(uint32_t id, const std::string& name, const Mat4& value) {
-                glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value.data);
+                auto loc{ glGetUniformLocation(id, name.c_str()) };
+                glUniformMatrix4fv(loc, 1, GL_FALSE, value.data);
             }
 
             static uint32_t compile(const Path& shaderPath, ShaderType shaderType) {
@@ -627,6 +640,7 @@ namespace Byte {
 
                 uint8_t* textureData{data.data.empty() ? nullptr : data.data.data()};
 
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
                 glTexImage2D(
                     GL_TEXTURE_2D, 0,
                     TypeCast::convert(data.internalFormat),
@@ -689,6 +703,10 @@ namespace Byte {
         };
 
         struct TypeCast {
+            static GLenum convert(PrimitiveType type) {
+                return static_cast<GLenum>(type);
+            }
+
             static GLenum convert(TextureUnit unit) {
                 return static_cast<GLenum>(unit) + GL_TEXTURE0;
             }
