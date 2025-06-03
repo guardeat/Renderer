@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\external\glad.c" />
     <ClCompile Include="src\render.cpp" />
+    <ClCompile Include="src\render_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\core\core_types.h" />
