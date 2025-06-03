@@ -44,6 +44,12 @@
     <ClInclude Include="include\fps_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="test\texture\height_map.png">
@@ -55,5 +61,8 @@
     <Image Include="test\texture\height_map_high.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test\texture\height_map.txt" />
   </ItemGroup>
 </Project>

@@ -45,4 +45,78 @@ namespace Byte {
 		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC, 1000.0f, {3,2} };
 		return Mesh{ std::move(data) };
 	}
+
+    TextureData readTerrain(const Path& path) {
+        TextureData out;
+
+        std::ifstream file(path.string(), std::ios::binary);
+        if (!file) {
+            std::cerr << "Cannot open file\n";
+            return out;
+        }
+
+        std::vector<uint8_t> rawData((std::istreambuf_iterator<char>(file)),
+            std::istreambuf_iterator<char>());
+
+        if (rawData.empty()) {
+            std::cerr << "File is empty or read failed\n";
+            return out;
+        }
+
+        if (rawData.size() % 2 != 0) {
+            std::cerr << "Invalid height map data size, must be multiple of 2\n";
+            return out;
+        }
+
+        size_t pixelCount = rawData.size() / 2;
+        size_t dimension = static_cast<size_t>(std::sqrt(pixelCount));
+        if (dimension * dimension != pixelCount) {
+            std::cerr << "Warning: Height map is not a perfect square\n";
+        }
+
+        out.width = dimension;
+        out.height = dimension;
+
+        out.attachment = AttachmentType::COLOR_0;
+        out.internalFormat = ColorFormat::R16;
+        out.format = ColorFormat::RED;
+        out.dataType = DataType::UNSIGNED_SHORT;
+
+        out.wrapS = TextureWrap::CLAMP_TO_EDGE;
+        out.wrapT = TextureWrap::CLAMP_TO_EDGE;
+        out.minFilter = TextureFilter::LINEAR;
+        out.magFilter = TextureFilter::LINEAR;
+
+        out.type = TextureType::TEXTURE_2D;
+
+        out.layerCount = 1;
+
+        out.data = Buffer<uint8_t>(rawData.begin(), rawData.end());
+
+        out.path = path;
+
+        return out;
+    }
+
+    inline float getHeight(const Texture& heightMap, float worldX, float worldZ, float scale = 5.0f,
+        float terrainMinX = -500.0f, float terrainMaxX = 500.0f,
+        float terrainMinZ = -500.0f, float terrainMaxZ = 500.0f) {
+
+        float u{ (worldX - terrainMinX) / (terrainMaxX - terrainMinX) };
+        float v{ (worldZ - terrainMinZ) / (terrainMaxZ - terrainMinZ) };
+
+        u = std::clamp(u, 0.0f, 1.0f);
+        v = std::clamp(v, 0.0f, 1.0f);
+
+        size_t texX{ static_cast<size_t>(u * (heightMap.width() - 1)) };
+        size_t texY{ static_cast<size_t>(v * (heightMap.height() - 1)) };
+        size_t pixelIndex{ texX + texY * heightMap.width() };
+
+        const uint16_t* heightPtr{ reinterpret_cast<const uint16_t*>(heightMap.data().data.data()) };
+        uint16_t heightValue{ heightPtr[pixelIndex] };
+        float normalizedHeight{ static_cast<float>(heightValue) / 65535.0f };
+
+        return (normalizedHeight * 64.0f - 16.0f) * 5.0f;
+    }
+
 }

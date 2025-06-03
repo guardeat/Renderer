@@ -97,6 +97,7 @@ namespace Byte {
 		R11F_G11F_B10F = 0x8C3A,
 		R16F = 0x822D,
 		R32F = 0x822E,
+		R16 = 0x822A,
 	};
 
 	enum class AttachmentType: uint8_t {

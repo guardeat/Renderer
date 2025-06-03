@@ -32,6 +32,13 @@ namespace Byte {
 				"../ByteRenderer/shader/terrain.tesc",
 				"../ByteRenderer/shader/terrain.tese"
 			};
+			shaders["height_map_depth"] = {
+				"../ByteRenderer/shader/quad.vert",
+				"../ByteRenderer/shader/depth.frag",
+				"",
+				"../ByteRenderer/shader/terrain.tesc",
+				"../ByteRenderer/shader/terrain.tese"
+			};
 
 			shaders.at("height_map").binding("height_map", "uHeightMap");
 
@@ -123,8 +130,8 @@ namespace Byte {
 			params.emplace("render_ssao", true);
 			params.emplace("render_fxaa", true);
 			params.emplace("fog_color", Vec3(0.3f, 0.4f, 0.6f));
-			params.emplace("fog_near", 250.0f);
-			params.emplace("fog_far", 400.0f);
+			params.emplace("fog_near", 450.0f);
+			params.emplace("fog_far", 550.0f);
 		}
 
 		void setupMeshes(Renderer& renderer) {

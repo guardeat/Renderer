@@ -154,7 +154,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\fps_camera.h" />
+    <ClInclude Include="include\loader.h" />
     <ClInclude Include="include\particle.h" />
+    <ClInclude Include="include\scene.h" />
     <ClInclude Include="include\stb_image.h" />
     <ClInclude Include="include\terrain.h" />
     <ClInclude Include="include\test.h" />
@@ -163,6 +165,9 @@
     <Image Include="test\texture\height_map.png" />
     <Image Include="test\texture\height_map_diffuse.png" />
     <Image Include="test\texture\height_map_high.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test\texture\height_map.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
