@@ -46,7 +46,7 @@ namespace Byte {
 		return Mesh{ std::move(data) };
 	}
 
-    TextureData readTerrain(const Path& path) {
+    TextureData readTerrain(const Path& path, int channels = 1) {
         TextureData out;
 
         std::ifstream file(path.string(), std::ios::binary);
@@ -63,37 +63,48 @@ namespace Byte {
             return out;
         }
 
-        if (rawData.size() % 2 != 0) {
-            std::cerr << "Invalid height map data size, must be multiple of 2\n";
+        if (rawData.size() % (2 * channels) != 0) {
+            std::cerr << "Invalid data size, must be multiple of 2 * channels\n";
             return out;
         }
 
-        size_t pixelCount = rawData.size() / 2;
+        size_t pixelCount = rawData.size() / (2 * channels);
         size_t dimension = static_cast<size_t>(std::sqrt(pixelCount));
         if (dimension * dimension != pixelCount) {
-            std::cerr << "Warning: Height map is not a perfect square\n";
+            std::cerr << "Warning: Texture is not a perfect square\n";
         }
 
         out.width = dimension;
         out.height = dimension;
 
         out.attachment = AttachmentType::COLOR_0;
-        out.internalFormat = ColorFormat::R16;
-        out.format = ColorFormat::RED;
-        out.dataType = DataType::UNSIGNED_SHORT;
-
+        out.layerCount = 1;
+        out.type = TextureType::TEXTURE_2D;
         out.wrapS = TextureWrap::CLAMP_TO_EDGE;
         out.wrapT = TextureWrap::CLAMP_TO_EDGE;
         out.minFilter = TextureFilter::LINEAR;
         out.magFilter = TextureFilter::LINEAR;
+        out.dataType = DataType::UNSIGNED_SHORT;
+        out.path = path;
 
-        out.type = TextureType::TEXTURE_2D;
-
-        out.layerCount = 1;
+        if (channels == 1) {
+            out.internalFormat = ColorFormat::R16;
+            out.format = ColorFormat::RED;
+        }
+        else if (channels == 3) {
+            out.internalFormat = ColorFormat::RGB16;
+            out.format = ColorFormat::RGB;
+        }
+        else if (channels == 4) {
+            out.internalFormat = ColorFormat::RGBA16;
+            out.format = ColorFormat::RGBA;
+        }
+        else {
+            std::cerr << "Unsupported channel count\n";
+            return out;
+        }
 
         out.data = Buffer<uint8_t>(rawData.begin(), rawData.end());
-
-        out.path = path;
 
         return out;
     }

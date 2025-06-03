@@ -46,11 +46,11 @@ namespace Byte {
 
 		InstancedEntity grass;
 		grass.mesh = buildGrass();
-		grass.material.albedo(Vec3{ 0.27f, 0.95f, 0.15f });
+		grass.material.albedo(Vec3{ 0.09f, 0.65f, 0.05f });
 		grass.material.shadow(ShadowMode::DISABLED);
 
 		scene.textures["height_map"] = readTerrain("test/texture/height_map.txt");
-		scene.textures["height_map_albedo"] = Loader::loadTexture("test/texture/height_map_diffuse.png", DataType::UNSIGNED_SHORT);
+		scene.textures["height_map_albedo"] = readTerrain("test/texture/height_map_diffuse.txt",3);
 
 		Texture& heightMap{ scene.textures.at("height_map") };
 
@@ -125,6 +125,7 @@ namespace Byte {
 		terrain.material.texture("height_map", scene.textures.at("height_map"));
 		terrain.material.texture("albedo", scene.textures.at("height_map_albedo"));
 		terrain.renderer.primitive(PrimitiveType::PATCHES);
+		terrain.material.ambientOcclusion(0.1f);
 
 		scene.entities["height_map"] = std::move(terrain);
 
