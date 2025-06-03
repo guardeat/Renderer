@@ -157,7 +157,7 @@ namespace Byte {
             }
         }
 
-        Vec3 getTerrainNormal(Texture& tex, float x, float z, float dx = 1.0f) {
+        static Vec3 getTerrainNormal(Texture& tex, float x, float z, float dx = 1.0f) {
             float hL = getHeight(tex, x - dx, z);    
             float hR = getHeight(tex, x + dx, z);  
             float hD = getHeight(tex, x, z - dx); 

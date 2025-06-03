@@ -69,7 +69,7 @@ float calculateShadow(vec3 fragWorldPos, vec3 normal)
         {
             vec2 offset = vec2(x, y) * texelSize;
             float closestDepth = texture(uDepthMaps[layer], projCoords.xy + offset).r;
-            float bias = max(0.005 * (1.0 - dot(normal, -uDirectionalLight.direction)), 0.0005);
+            float bias = 0.0002;
             shadowValue += currentDepth - bias > closestDepth ? 1.0 : 0.0;
         }
     }

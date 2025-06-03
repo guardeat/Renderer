@@ -127,7 +127,7 @@ namespace Byte {
         uint16_t heightValue{ heightPtr[pixelIndex] };
         float normalizedHeight{ static_cast<float>(heightValue) / 65535.0f };
 
-        return (normalizedHeight * 64.0f - 16.0f) * 5.0f;
+        return (normalizedHeight * 64.0f - 16.0f) * scale;
     }
 
 }

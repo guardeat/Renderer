@@ -39,11 +39,6 @@ namespace Byte {
 
 		scene.directionalLightTransform.rotation(Vec3{ -45.0f, 0.0f, 0.0f });
 
-		scene.pointLights.push_back(std::make_unique<PointLight>());
-		scene.pointLightTransforms.push_back(std::make_unique<Transform>());
-		scene.pointLights.back()->color = Vec3{ 10.0f, 10.f, 10.0f };
-		scene.pointLightTransforms.back()->position(Vec3{ 0.0f, 1.0f, 0.0f });
-
 		InstancedEntity grass;
 		grass.mesh = buildGrass();
 		grass.material.albedo(Vec3{ 0.09f, 0.65f, 0.05f });
@@ -131,6 +126,8 @@ namespace Byte {
 
 		scene.entities["height_map"] = std::move(terrain);
 		scene.entities["height_map"].collider->transform = &scene.entities["height_map"].transform;
+
+		scene.cameraTransform.position(Vec3(-50.0f, 70.0f, 100.0f));
 
 		scene.setContext(renderer);
 
