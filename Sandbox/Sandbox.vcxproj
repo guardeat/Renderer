@@ -143,12 +143,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="test\shader\grass.vert" />
-    <None Include="test\shader\particle.vert" />
+    <None Include="shader\grass.vert" />
+    <None Include="shader\particle.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test\main.cpp" />
-    <ClCompile Include="test\stb_image.cpp" />
+    <ClCompile Include="include\physics.h" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\fps_camera.h" />
@@ -160,8 +161,8 @@
     <ClInclude Include="include\test.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="test\texture\height_map.txt" />
-    <Text Include="test\texture\height_map_diffuse.txt" />
+    <Text Include="texture\height_map.txt" />
+    <Text Include="texture\height_map_diffuse.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

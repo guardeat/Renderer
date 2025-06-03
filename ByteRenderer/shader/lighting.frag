@@ -31,7 +31,7 @@ uniform bool uUseSSAO;
 
 const float PI = 3.14159265359;
 
-float calculateShadow(vec3 fragWorldPos)
+float calculateShadow(vec3 fragWorldPos, vec3 normal)
 {
     vec4 fragPosViewSpace = uView * vec4(fragWorldPos, 1.0);
     float depthValue = abs(fragPosViewSpace.z);
@@ -69,7 +69,8 @@ float calculateShadow(vec3 fragWorldPos)
         {
             vec2 offset = vec2(x, y) * texelSize;
             float closestDepth = texture(uDepthMaps[layer], projCoords.xy + offset).r;
-            shadowValue += currentDepth > closestDepth + 0.001 ? 1.0 : 0.0;
+            float bias = max(0.005 * (1.0 - dot(normal, -uDirectionalLight.direction)), 0.0005);
+            shadowValue += currentDepth - bias > closestDepth ? 1.0 : 0.0;
         }
     }
 
@@ -139,7 +140,7 @@ void main()
     else {
         vec3 fragPos = worldPosFromDepth(texture(uDepth, vTexCoord).r);
         vec3 normal = normalize(texture(uNormal, vTexCoord).rgb);
-        float shadow = calculateShadow(fragPos);
+        float shadow = calculateShadow(fragPos, normal);
 
         vec3 F0 = vec3(0.04);
         F0 = mix(F0, albedo, metallic);

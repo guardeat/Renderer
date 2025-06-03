@@ -10,6 +10,9 @@ extern "C" {
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
+//TODO: Lighting to transparent objects (with shadows).
+//TODO: OIT.
+
 int main() {
 	glfwInit();
 

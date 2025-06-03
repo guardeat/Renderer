@@ -46,7 +46,7 @@ namespace Byte {
 		return Mesh{ std::move(data) };
 	}
 
-    TextureData readTerrain(const Path& path, int channels = 1) {
+    inline TextureData readTerrain(const Path& path, int channels = 1) {
         TextureData out;
 
         std::ifstream file(path.string(), std::ios::binary);

@@ -49,8 +49,8 @@ namespace Byte {
 		grass.material.albedo(Vec3{ 0.09f, 0.65f, 0.05f });
 		grass.material.shadow(ShadowMode::DISABLED);
 
-		scene.textures["height_map"] = readTerrain("test/texture/height_map.txt");
-		scene.textures["height_map_albedo"] = readTerrain("test/texture/height_map_diffuse.txt",3);
+		scene.textures["height_map"] = readTerrain("texture/height_map.txt");
+		scene.textures["height_map_albedo"] = readTerrain("texture/height_map_diffuse.txt",3);
 
 		Texture& heightMap{ scene.textures.at("height_map") };
 
@@ -101,8 +101,8 @@ namespace Byte {
 
 		scene.instancedEntities["grass"] = std::move(grass);
 
-		renderer.data().shaders.emplace("grass", Shader{ "test/shader/grass.vert","../ByteRenderer/shader/deferred.frag" });
-		renderer.data().shaders.emplace("particle", Shader{ "test/shader/particle.vert","../ByteRenderer/shader/forward.frag" });
+		renderer.data().shaders.emplace("grass", Shader{ "shader/grass.vert","../ByteRenderer/shader/deferred.frag" });
+		renderer.data().shaders.emplace("particle", Shader{ "shader/particle.vert","../ByteRenderer/shader/forward.frag" });
 		renderer.data().shaders.at("grass").include(Uniform{ "uTime",UniformType::FLOAT });
 		renderer.context().input("uTime", ShaderInput<float>{0.0f, UniformType::FLOAT});
 		renderer.data().shaders.at("grass").include(Uniform{ "uWind",UniformType::VEC3 });
@@ -125,9 +125,12 @@ namespace Byte {
 		terrain.material.texture("height_map", scene.textures.at("height_map"));
 		terrain.material.texture("albedo", scene.textures.at("height_map_albedo"));
 		terrain.renderer.primitive(PrimitiveType::PATCHES);
-		terrain.material.ambientOcclusion(0.1f);
+		terrain.material.ambientOcclusion(0.2f);
+		terrain.collider = std::make_unique<TerrainCollider>(TerrainCollider{ &scene.textures.at("height_map") });
+		terrain.collider->type = ColliderType::TERRAIN;
 
 		scene.entities["height_map"] = std::move(terrain);
+		scene.entities["height_map"].collider->transform = &scene.entities["height_map"].transform;
 
 		scene.setContext(renderer);
 
