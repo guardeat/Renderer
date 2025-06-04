@@ -9,66 +9,83 @@
 
 namespace Byte {
 
-	inline Mesh buildTerrain(size_t width, size_t height, size_t resolution) {
-		std::vector<float> vertices{};
-		std::vector<uint32_t> indices{};
+    inline Mesh buildTerrain(size_t width, size_t height, size_t resolution) {
+        std::vector<float> vertices{};
+        std::vector<uint32_t> indices{};
 
-		for (size_t i = 0; i < resolution; ++i) {
-			for (size_t j = 0; j < resolution; ++j) {
-				float x0 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * i / static_cast<float>(resolution);
-				float x1 = -static_cast<float>(width) / 2.0f + static_cast<float>(width) * (i + 1) / static_cast<float>(resolution);
+        for (size_t i{ 0 }; i < resolution; ++i) {
+            for (size_t j{ 0 }; j < resolution; ++j) {
+                float x0{ -static_cast<float>(width) / 2.0f + static_cast<float>(width) * static_cast<float>(i) / 
+                    static_cast<float>(resolution) };
+                float x1{ -static_cast<float>(width) / 2.0f + static_cast<float>(width) * static_cast<float>(i + 1) / 
+                    static_cast<float>(resolution) };
 
-				float z0 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * j / static_cast<float>(resolution);
-				float z1 = -static_cast<float>(height) / 2.0f + static_cast<float>(height) * (j + 1) / static_cast<float>(resolution);
+                float z0{ -static_cast<float>(height) / 2.0f + static_cast<float>(height) * static_cast<float>(j) /
+                    static_cast<float>(resolution) };
+                float z1{ -static_cast<float>(height) / 2.0f + static_cast<float>(height) * static_cast<float>(j + 1) /
+                    static_cast<float>(resolution) };
 
-				float u0 = i / static_cast<float>(resolution);
-				float u1 = (i + 1) / static_cast<float>(resolution);
-				float v0 = j / static_cast<float>(resolution);
-				float v1 = (j + 1) / static_cast<float>(resolution);
+                float u0{ static_cast<float>(i) / static_cast<float>(resolution) };
+                float u1{ static_cast<float>(i + 1) / static_cast<float>(resolution) };
+                float v0{ static_cast<float>(j) / static_cast<float>(resolution) };
+                float v1{ static_cast<float>(j + 1) / static_cast<float>(resolution) };
 
-				std::vector<float> quadVertices{
-					x0, 0.0f, z0, u0, v0,
-					x1, 0.0f, z0, u1, v0,
-					x0, 0.0f, z1, u0, v1,
-					x1, 0.0f, z1, u1, v1
-				};
-				vertices.insert(vertices.end(), quadVertices.begin(), quadVertices.end());
+                vertices.insert(vertices.end(), {
+                    x0, 0.0f, z0, u0, v0,
+                    x1, 0.0f, z0, u1, v0,
+                    x0, 0.0f, z1, u0, v1,
+                    x1, 0.0f, z1, u1, v1
+                    });
 
-				uint32_t indexOffset = static_cast<uint32_t>((i * resolution + j) * 4);
-				std::vector<uint32_t> quadIndices{
-					indexOffset + 0, indexOffset + 1, indexOffset + 2, indexOffset + 3
-				};
-				indices.insert(indices.end(), quadIndices.begin(), quadIndices.end());
-			}
-		}
+                uint32_t indexOffset{ static_cast<uint32_t>((i * resolution + j) * 4) };
+                indices.insert(indices.end(), {
+                    indexOffset + 0, indexOffset + 1, indexOffset + 2,
+                    indexOffset + 3
+                    });
+            }
+        }
 
-		MeshData data{ std::move(vertices), std::move(indices), MeshMode::STATIC, 1000.0f, {3,2} };
-		return Mesh{ std::move(data) };
-	}
+        MeshData data{
+            std::move(vertices),
+            std::move(indices),
+            MeshMode::STATIC,
+            1000.0f,
+            {3, 2}
+        };
+
+        return Mesh{ std::move(data) };
+    }
 
     inline TextureData readTerrain(const Path& path, int channels = 1) {
         TextureData out;
 
-        std::ifstream file(path.string(), std::ios::binary);
+        std::ifstream file(path.string(), std::ios::binary | std::ios::ate);
         if (!file) {
             std::cerr << "Cannot open file\n";
             return out;
         }
 
-        std::vector<uint8_t> rawData((std::istreambuf_iterator<char>(file)),
-            std::istreambuf_iterator<char>());
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
 
-        if (rawData.empty()) {
+        if (size <= 0) {
             std::cerr << "File is empty or read failed\n";
             return out;
         }
 
-        if (rawData.size() % (2 * channels) != 0) {
+        std::vector<uint8_t> rawData(size);
+        if (!file.read(reinterpret_cast<char*>(rawData.data()), size)) {
+            std::cerr << "Failed to read file data\n";
+            return out;
+        }
+
+        size_t elementSize = 2 * channels;
+        if (rawData.size() % elementSize != 0) {
             std::cerr << "Invalid data size, must be multiple of 2 * channels\n";
             return out;
         }
 
-        size_t pixelCount = rawData.size() / (2 * channels);
+        size_t pixelCount = rawData.size() / elementSize;
         size_t dimension = static_cast<size_t>(std::sqrt(pixelCount));
         if (dimension * dimension != pixelCount) {
             std::cerr << "Warning: Texture is not a perfect square\n";
@@ -76,7 +93,6 @@ namespace Byte {
 
         out.width = dimension;
         out.height = dimension;
-
         out.attachment = AttachmentType::COLOR_0;
         out.layerCount = 1;
         out.type = TextureType::TEXTURE_2D;
@@ -104,8 +120,7 @@ namespace Byte {
             return out;
         }
 
-        out.data = Buffer<uint8_t>(rawData.begin(), rawData.end());
-
+        out.data = std::move(rawData);
         return out;
     }
 

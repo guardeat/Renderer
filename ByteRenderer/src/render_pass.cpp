@@ -105,29 +105,29 @@ namespace Byte {
 		float aspectRatio{ static_cast<float>(data.width) / static_cast<float>(data.height) };
 		auto [camera, cTransform] = context.camera();
 
-		float oldFov{ camera->fov() };
-		camera->fov(45.0f);
 		Mat4 projection{ camera->perspective(aspectRatio) };
-		camera->fov(oldFov);
+		Mat4 view{ cTransform->view() };
+
+		Mat4 inv{ (projection * view).inverse() };
 
 		auto [dl, dlTransform] = context.directionalLight();
 		skyboxShader.bind();
 
 		RenderAPI::disableDepth();
 
-		skyboxShader.uniform<Mat4>("uProjection", projection);
+		skyboxShader.uniform<Mat4>("uInverseProjection", inv);
 		skyboxShader.uniform<Quaternion>("uRotation", cTransform->rotation());
 		skyboxShader.uniform<Vec3>("uDirectionalLight.direction", dlTransform->front());
 		skyboxShader.uniform<Vec3>("uDirectionalLight.color", dl->color);
 		skyboxShader.uniform<float>("uDirectionalLight.intensity", dl->intensity);
 
-		data.meshes.at("sphere").renderer.bind();
+		data.meshes.at("quad").renderer.bind();
 
 		RenderAPI::Draw::elements(
-			data.meshes.at("sphere").mesh.indices().size(),
-			data.meshes.at("sphere").renderer.primitive());
+			data.meshes.at("quad").mesh.indices().size(),
+			data.meshes.at("quad").renderer.primitive());
 
-		data.meshes.at("sphere").renderer.unbind();
+		data.meshes.at("quad").renderer.unbind();
 		gBuffer.unbind();
 
 		RenderAPI::enableDepth();

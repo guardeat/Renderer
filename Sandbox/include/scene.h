@@ -158,30 +158,6 @@ namespace Byte {
 				renderer.context().submit(carried.mesh, carried.material, carried.transform, carried.renderer);
 			}
 
-			if (glfwGetKey(window.glfwWindow, GLFW_KEY_Q) == GLFW_PRESS) {
-				Entity sphere;
-				sphere.mesh = MeshBuilder::sphere(1, 10);
-				sphere.transform = Transform{ cameraTransform };
-				sphere.renderer = MeshRenderer{};
-
-				sphere.collider = std::make_unique<SphereCollider>(SphereCollider{ 1.0f });
-				sphere.collider->type = ColliderType::SPHERE;
-
-				std::string name = "sphere_" + std::to_string(entities.size());
-				entities[name] = std::move(sphere);
-
-				Entity& carried{ entities[name] };
-
-				float r{ static_cast<float>(rand()) / RAND_MAX };
-				float g{ static_cast<float>(rand()) / RAND_MAX };
-				float b{ static_cast<float>(rand()) / RAND_MAX };
-				carried.material.albedo(Vec3{ r, g, b });
-
-				carried.collider->transform = &carried.transform;
-
-				renderer.context().submit(carried.mesh, carried.material, carried.transform, carried.renderer);
-			}
-
 		}
 	};
 
